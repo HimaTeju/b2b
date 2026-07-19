@@ -234,6 +234,7 @@ function Browse() {
           <div className="browse__grid">
             {listings.map(listing => {
               const subCategoryBadge = getSubCategoryBadge(listing)
+
               return (
                 <article
                   key={listing.id}
@@ -242,31 +243,40 @@ function Browse() {
                 >
                   <div className="listing-card__image">
                     <div style={{
-                      backgroundColor: '#e2e8f0',
-                      height: '200px',
+                      width: '100%',
+                      height: '100%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '48px'
+                      fontSize: '56px'
                     }}>
                       📦
                     </div>
+
+                    {/* Category badge - top right */}
                     <span className="listing-card__badge">
                       {listing.listing_types?.name || 'Item'}
                     </span>
+
+                    {/* Mode badge */}
                     <span className={`listing-card__mode-badge listing-card__mode-badge--${listing.listing_mode}`}>
-                      {listing.listing_mode === 'sell' ? '💰 Selling' : '🔍 Buying'}
+                      {listing.listing_mode === 'sell' ? '✓ Available' : '🔍 Looking for'}
                     </span>
+
+                    {/* Sub-category badge */}
                     {subCategoryBadge && (
                       <span className={`listing-card__sub-badge listing-card__sub-badge--${subCategoryBadge.type}`}>
                         {subCategoryBadge.text}
                       </span>
                     )}
                   </div>
+
                   <div className="listing-card__content">
                     <h3 className="listing-card__title">{listing.title}</h3>
                     <p className="listing-card__location">{listing.location || 'Location not specified'}</p>
-                    <p className="listing-card__price">{formatPrice(listing.price)}</p>
+                    <div className="listing-card__price">
+                      {formatPrice(listing.price)}
+                    </div>
                   </div>
                 </article>
               )
