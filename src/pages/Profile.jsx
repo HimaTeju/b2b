@@ -220,6 +220,12 @@ function Profile() {
           <div className="profile__section">
             <h2 className="profile__section-title">Account</h2>
             <div className="profile__menu">
+              <button className="profile__menu-item" onClick={() => navigate('/dashboard')}>
+                <span>Dashboard</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
               <button className="profile__menu-item" onClick={() => setEditing(true)}>
                 <span>Edit Profile</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

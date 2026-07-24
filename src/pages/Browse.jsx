@@ -20,6 +20,25 @@ function Browse() {
     loadListingTypes()
   }, [])
 
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    if (listingTypes.length === 0) return
+
+    const typeParam = searchParams.get('type')
+    const modeParam = searchParams.get('mode')
+    const subcategoryParam = searchParams.get('subcategory')
+
+    if (typeParam) {
+      setActiveTypeId(parseInt(typeParam))
+    }
+    if (modeParam) {
+      setActiveMode(modeParam)
+    }
+    if (subcategoryParam) {
+      setActiveSubCategory(subcategoryParam)
+    }
+  }, [searchParams, listingTypes])
+
   useEffect(() => {
     loadListings()
   }, [activeTypeId, activeMode, activeSubCategory])

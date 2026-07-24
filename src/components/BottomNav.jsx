@@ -25,13 +25,13 @@ function BottomNav() {
         <span className="bottomnav__label">Post</span>
       </NavLink>
 
-      <NavLink to="/dashboard" className="bottomnav__item">
-        <svg className="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <line x1="3" y1="9" x2="21" y2="9" />
-          <line x1="9" y1="21" x2="9" y2="9" />
-        </svg>
-        <span className="bottomnav__label">Dashboard</span>
+      <NavLink to="/" className="bottomnav__home">
+        <div className="bottomnav__home-button">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
       </NavLink>
 
       <NavLink to="/enquiries" className="bottomnav__item">

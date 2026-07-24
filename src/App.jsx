@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Home from './pages/Home'
 import Browse from './pages/Browse'
 import Post from './pages/Post'
 import EditListing from './pages/EditListing'
@@ -34,7 +35,7 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
-            <Route path="/" element={<Navigate to="/browse" />} />
+            <Route path="/" element={<Home />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/listing/:id" element={<ListingDetail />} />
             <Route path="/post" element={<Post />} />
