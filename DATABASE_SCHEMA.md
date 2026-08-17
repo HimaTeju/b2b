@@ -1,348 +1,294 @@
-# Database Schema Design
+# Database Schema
 
-## Overview
-This is a B2B marketplace platform for listing and enquiry. Users can post various types of listings (machinery, accessories, tools, rentals, jobs, repair services) and enquire about others' listings. There's no buyer/seller distinction - any user can post and enquire.
+This document reflects the schema defined by the migrations in [`supabase/migrations/`](supabase/migrations/). It is the source of truth for the database — if the UI or any other documentation disagrees with this file, the migrations win and the UI should be updated to match.
+
+Migrations, in apply order:
+
+| # | File | Purpose |
+|---|------|---------|
+| 001 | `001_extensions.sql` | Extensions + shared trigger function |
+| 002 | `002_enums.sql` | Enum types |
+| 003 | `003_profiles.sql` | `profiles` |
+| 004 | `004_machine_categories.sql` | `machine_categories` |
+| 005 | `005_capabilities.sql` | Capability/profile-role tables + category mappings |
+| 006 | `006_marketplace.sql` | `marketplace_listings`, `listing_images` |
+| 007 | `007_service_jobwork_jobs.sql` | `service_requirements`, `jobwork_requirements`, `job_posts` |
+| 008 | `008_enquiries.sql` | `enquiries` |
+| 009 | `009_seed_machine_categories.sql` | Seed data for `machine_categories` |
+| 010 | `010_auth_triggers.sql` | Auto-create a profile on signup |
+| 011 | `011_capability_category_write_rls.sql` | Owner-write RLS on the 3 capability-category join tables |
+| 012 | `012_enquiries_capability_references.sql` | Direct-contact enquiry references to service/jobwork capability profiles |
+
+---
+
+## Conceptual model
+
+There is **one account type**: an authenticated user has exactly one `profiles` row. A profile can optionally hold any combination of role-specific capability rows (`service_capabilities`, `jobwork_capabilities`, `job_seeker_profiles`) and can create listings/requirements/posts across any marketplace module. There are no separate buyer/seller/service-provider account types — role is expressed through which rows exist for a profile, not through account type.
+
+```
+auth.users (Supabase Auth)
+      │ 1:1 (id, trigger-created)
+      ▼
+   profiles ──────────────────────────────────────────────────────────────┐
+      │ 1:N                                                                │
+      ├── marketplace_listings ──1:N── listing_images                     │
+      │        │ N:1                                                      │
+      │        └── machine_categories (self-referencing tree)             │
+      │                                                                    │
+      ├── service_capabilities (1:1, profile_id is PK) ──N:M── machine_categories
+      │        (via service_capability_categories)                        │
+      ├── jobwork_capabilities (1:1, profile_id is PK) ──N:M── machine_categories
+      │        (via jobwork_capability_categories)                        │
+      ├── job_seeker_profiles (1:1, profile_id is PK) ──N:M── machine_categories
+      │        (via job_seeker_categories)                                │
+      │                                                                    │
+      ├── service_requirements ──N:1── machine_categories                 │
+      ├── jobwork_requirements ──N:1── machine_categories                 │
+      ├── job_posts ──N:1(nullable)── machine_categories                  │
+      │                                                                    │
+      └── enquiries (from_profile_id / to_profile_id) ────────────────────┘
+               └── references exactly ONE of:
+                   marketplace_listing_id | service_requirement_id |
+                   jobwork_requirement_id | job_post_id
+```
+
+---
+
+## Extensions & shared infrastructure (`001_extensions.sql`)
+
+- **`pgcrypto`** — provides `gen_random_uuid()` used for all primary keys.
+- **`public.update_updated_at_column()`** — trigger function that sets `updated_at = NOW()` on `UPDATE`. Attached via a `BEFORE UPDATE` trigger to every table that has an `updated_at` column.
+
+## Enum types (`002_enums.sql`)
+
+| Type | Values | Used by |
+|------|--------|---------|
+| `listing_intent` | `BUY`, `SELL`, `REQUIREMENT` | `marketplace_listings.intent` |
+| `listing_status` | `ACTIVE`, `INACTIVE` | `marketplace_listings`, `service_requirements`, `jobwork_requirements`, `job_posts` |
+| `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
+| `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
 
 ---
 
 ## Tables
 
-### 1. users
-Stores user account information and profiles.
+### `profiles`
 
-```sql
-CREATE TABLE users (
-  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email               VARCHAR(255) UNIQUE NOT NULL,
-  password_hash       VARCHAR(255) NOT NULL,
-  full_name           VARCHAR(255) NOT NULL,
-  phone               VARCHAR(50),
-  company_name        VARCHAR(255),
-  location            TEXT,
-  bio                 TEXT,
-  is_admin            BOOLEAN DEFAULT FALSE,
-  is_active           BOOLEAN DEFAULT TRUE,
-  email_verified      BOOLEAN DEFAULT FALSE,
-  created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login_at       TIMESTAMP
-);
+One row per authenticated user (`id` = `auth.users.id`, `ON DELETE CASCADE`). Auto-created by the `on_auth_user_created` trigger (see [Triggers & functions](#triggers--functions)) — the app should never need to manually insert a profile.
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_is_active ON users(is_active);
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | FK → `auth.users(id)` |
+| `company_name` | `TEXT` | nullable; if present, must be non-blank |
+| `city` | `TEXT` | nullable, indexed |
+| `state` | `TEXT` | nullable, indexed |
+| `about` | `TEXT` | nullable |
+| `website` | `TEXT` | nullable; if present, must be non-blank |
+| `status` | `profile_status` | default `ACTIVE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | `updated_at` auto-maintained |
 
-**Fields:**
-- `id`: Unique identifier
-- `email`: Login credential (unique)
-- `password_hash`: Hashed password
-- `full_name`: User's full name
-- `phone`: Contact number (optional)
-- `company_name`: Business name (optional)
-- `location`: Free-text location
-- `bio`: User profile description
-- `is_admin`: Admin flag for superuser access
-- `is_active`: Account status (for blocking users)
-- `email_verified`: Email verification status
-- `created_at`: Registration timestamp
-- `updated_at`: Last profile update
-- `last_login_at`: Last login timestamp
+**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row.
 
----
+### `machine_categories`
 
-### 2. listing_types
-Lookup table for listing categories.
+Self-referencing hierarchical category tree (top-level categories have `parent_id IS NULL`). Shared across marketplace listings, service/job-work capabilities & requirements, job seeker skills, and job posts.
 
-```sql
-CREATE TABLE listing_types (
-  id          SERIAL PRIMARY KEY,
-  code        VARCHAR(50) UNIQUE NOT NULL,
-  name        VARCHAR(100) NOT NULL,
-  description TEXT,
-  is_active   BOOLEAN DEFAULT TRUE
-);
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `parent_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT`, nullable |
+| `name` | `TEXT` | required |
+| `display_order` | `INTEGER` | default `0`, indexed |
+| `is_active` | `BOOLEAN` | default `TRUE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
--- Seed data
-INSERT INTO listing_types (code, name, description) VALUES
-  ('machinery', 'Machinery', 'Industrial machinery and equipment for sale'),
-  ('accessories', 'Accessories', 'Machine parts and accessories'),
-  ('tools', 'Tools', 'Hand tools and power tools'),
-  ('rental', 'Rental', 'Equipment and machinery available for rent'),
-  ('job', 'Job Posting', 'Job opportunities and recruitment'),
-  ('repair', 'Repair Service', 'Service repair requests and offerings');
-```
+Unique constraint: `(parent_id, name)` — sibling categories must have distinct names.
 
-**Fields:**
-- `id`: Primary key
-- `code`: Machine-readable identifier
-- `name`: Display name
-- `description`: Category description
-- `is_active`: Enable/disable category
+**RLS:** anyone can `SELECT` where `is_active = TRUE`. No public insert/update/delete policy (management is expected to happen outside the app / via migrations or an admin path).
 
----
+Seeded with a two-level taxonomy in `009_seed_machine_categories.sql` (24 top-level categories, ~140 subcategories — e.g. Metal Working Machines → Lathe, CNC Milling, etc.).
 
-### 3. listings
-Main table for all marketplace listings.
+### `marketplace_listings`
 
-```sql
-CREATE TABLE listings (
-  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  listing_type_id INT NOT NULL REFERENCES listing_types(id),
-  title           VARCHAR(255) NOT NULL,
-  description     TEXT NOT NULL,
-  price           DECIMAL(12, 2),
-  currency        VARCHAR(10) DEFAULT 'USD',
-  location        TEXT,
-  condition       VARCHAR(50), -- e.g., 'new', 'used', 'refurbished'
-  status          VARCHAR(50) DEFAULT 'active', -- 'active', 'sold', 'expired', 'draft'
-  views_count     INT DEFAULT 0,
-  enquiries_count INT DEFAULT 0,
-  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  expires_at      TIMESTAMP,
-  listing_mode    text NOT NULL, -- condition 'sell' or 'buy' only
-  
-  -- Job-specific fields
-  job_type        VARCHAR(50), -- e.g., 'full-time', 'contract', 'freelance'
-  
-  -- Rental-specific fields
-  rental_period   VARCHAR(50), -- e.g., 'daily', 'weekly', 'monthly'
-  
-  -- Repair-specific fields
-  urgency         VARCHAR(50) -- e.g., 'low', 'medium', 'high', 'urgent'
-);
+Buy / Sell / Requirement listings for machinery, tools & accessories.
 
-CREATE INDEX idx_listings_user_id ON listings(user_id);
-CREATE INDEX idx_listings_type_id ON listings(listing_type_id);
-CREATE INDEX idx_listings_status ON listings(status);
-CREATE INDEX idx_listings_created_at ON listings(created_at DESC);
-CREATE INDEX idx_listings_location ON listings(location);
-CREATE INDEX idx_listings_price ON listings(price);
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT` |
+| `intent` | `listing_intent` | `BUY` / `SELL` / `REQUIREMENT` |
+| `title` | `TEXT` | required |
+| `description` | `TEXT` | nullable |
+| `condition` | `condition_type` | nullable (`NEW` / `USED`) |
+| `price` | `NUMERIC(12,2)` | nullable, must be `>= 0` |
+| `quantity` | `INTEGER` | default `1`, must be `> 0` |
+| `city` / `state` | `TEXT` | nullable, indexed |
+| `status` | `listing_status` | default `ACTIVE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-**Fields:**
-- `id`: Unique identifier
-- `user_id`: Listing owner reference
-- `listing_type_id`: Category reference
-- `title`: Listing headline (max 255 chars)
-- `description`: Full listing details
-- `price`: Price amount (nullable for jobs/repairs)
-- `currency`: Price currency code
-- `location`: Free-text location
-- `condition`: Item condition (for machinery/tools)
-- `status`: Listing state (active/sold/expired/draft)
-- `views_count`: Number of times viewed
-- `enquiries_count`: Number of enquiries received
-- `created_at`: Creation timestamp
-- `updated_at`: Last modification timestamp
-- `expires_at`: Optional expiry date
-- `job_type`: Job category (only for job listings)
-- `rental_period`: Rental billing cycle (only for rentals)
-- `urgency`: Priority level (only for repair requests)
+Indexed on `profile_id`, `machine_category_id`, `intent`, `status`, `city`, `state`.
 
----
+**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
 
-### 4. enquiries
-Stores enquiries from users about listings.
+### `listing_images`
 
-```sql
-CREATE TABLE enquiries (
-  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  listing_id      UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
-  enquirer_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  message         TEXT NOT NULL,
-  enquirer_phone  VARCHAR(50),
-  enquirer_email  VARCHAR(255),
-  status          VARCHAR(50) DEFAULT 'new', -- 'new', 'read', 'replied', 'closed'
-  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+Images for a `marketplace_listings` row, stored in Supabase Storage (this table holds only the storage path, not binary data).
 
-CREATE INDEX idx_enquiries_listing_id ON enquiries(listing_id);
-CREATE INDEX idx_enquiries_enquirer_id ON enquiries(enquirer_id);
-CREATE INDEX idx_enquiries_status ON enquiries(status);
-CREATE INDEX idx_enquiries_created_at ON enquiries(created_at DESC);
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `listing_id` | `UUID` | FK → `marketplace_listings(id)`, `ON DELETE CASCADE` |
+| `storage_path` | `TEXT` | required |
+| `display_order` | `INTEGER` | default `0`, must be `>= 0` |
+| `is_primary` | `BOOLEAN` | default `FALSE`, indexed |
+| `created_at` | `TIMESTAMPTZ` | |
 
--- Composite index for dashboard queries (user's received enquiries)
-CREATE INDEX idx_enquiries_listing_user ON enquiries(listing_id, created_at DESC);
-```
+**RLS:** anyone can `SELECT`. Insert/delete only permitted when the caller owns the parent listing (checked via `EXISTS` against `marketplace_listings`). No update policy — images are added/removed, not edited.
 
-**Fields:**
-- `id`: Unique identifier
-- `listing_id`: Reference to listing being enquired about
-- `enquirer_id`: User making the enquiry
-- `message`: Enquiry text
-- `enquirer_phone`: Optional contact phone (can override profile phone)
-- `enquirer_email`: Optional contact email (can override profile email)
-- `status`: Enquiry state (new/read/replied/closed)
-- `created_at`: Enquiry timestamp
-- `updated_at`: Last status update
+### `service_capabilities`
 
----
+One-to-one "I offer repair/service" business profile. `profile_id` is the primary key (not a surrogate `id`), enforcing at most one capability row per profile.
 
-### 5. listing_tags (Optional)
-For flexible categorization and search filtering.
+| Column | Type | Notes |
+|---|---|---|
+| `profile_id` | `UUID` PK | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `title` | `TEXT` | required |
+| `description` | `TEXT` | nullable |
+| `city` / `state` | `TEXT` | nullable, indexed |
+| `is_active` | `BOOLEAN` | default `TRUE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-```sql
-CREATE TABLE listing_tags (
-  id          SERIAL PRIMARY KEY,
-  listing_id  UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
-  tag         VARCHAR(100) NOT NULL,
-  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+**RLS:** anyone can `SELECT` where `is_active = TRUE`. Owner has full (`FOR ALL`) access via `profile_id = auth.uid()`.
 
-CREATE INDEX idx_listing_tags_listing_id ON listing_tags(listing_id);
-CREATE INDEX idx_listing_tags_tag ON listing_tags(tag);
-CREATE UNIQUE INDEX idx_listing_tags_unique ON listing_tags(listing_id, tag);
-```
+### `jobwork_capabilities`
 
-**Use case:** Add tags like "hydraulic", "CNC", "urgent", "remote", etc. for better search and filtering.
+Same shape and policies as `service_capabilities`, for "I offer manufacturing/job work" profiles.
+
+### `job_seeker_profiles`
+
+One-to-one professional profile for users seeking employment.
+
+| Column | Type | Notes |
+|---|---|---|
+| `profile_id` | `UUID` PK | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `headline` | `TEXT` | nullable |
+| `about` | `TEXT` | nullable |
+| `experience_years` | `INTEGER` | default `0`, must be `>= 0` |
+| `resume_url` | `TEXT` | nullable |
+| `city` / `state` | `TEXT` | nullable, indexed |
+| `is_active` | `BOOLEAN` | default `TRUE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
+
+**RLS:** same pattern — public read when active, owner has full access.
+
+### Capability ↔ category mapping tables
+
+Three parallel many-to-many join tables link a capability profile to the `machine_categories` it covers (a service/job-work provider or job seeker can list multiple categories of expertise):
+
+- **`service_capability_categories`** — `(profile_id, machine_category_id)` PK. `profile_id` FK → `service_capabilities(profile_id)`, `ON DELETE CASCADE`.
+- **`jobwork_capability_categories`** — same shape, FK → `jobwork_capabilities(profile_id)`.
+- **`job_seeker_categories`** — same shape, FK → `job_seeker_profiles(profile_id)`.
+
+All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RESTRICT`. **RLS:** public read (`USING (TRUE)`) plus an owner-scoped `FOR ALL` policy (`profile_id = auth.uid()`, added in `011_capability_category_write_rls.sql`) — users can tag/untag categories on their own capability profile.
+
+### `service_requirements`
+
+"I need a repair/service" requirement posts (the demand side of the services module).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT` |
+| `title` | `TEXT` | required |
+| `description` | `TEXT` | nullable |
+| `city` / `state` | `TEXT` | nullable, indexed |
+| `status` | `listing_status` | default `ACTIVE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
+
+**RLS:** public read when `ACTIVE`; owner has full access.
+
+### `jobwork_requirements`
+
+Same shape and policies as `service_requirements`, for "I need a job-work vendor" posts.
+
+### `job_posts`
+
+Job vacancies posted by employers.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, **`ON DELETE SET NULL`**, nullable (a job post doesn't strictly need a category) |
+| `title` | `TEXT` | required |
+| `description` | `TEXT` | nullable |
+| `city` / `state` | `TEXT` | nullable, indexed |
+| `status` | `listing_status` | default `ACTIVE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
+
+**RLS:** public read when `ACTIVE`; owner has full access.
+
+### `enquiries`
+
+Cross-module enquiry/contact messages. A single table backs enquiries for all marketplace-like modules **and** direct contact with a service/job-work provider profile; exactly one of six reference columns must be set.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `from_profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `to_profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `marketplace_listing_id` | `UUID` | FK → `marketplace_listings(id)`, `ON DELETE CASCADE`, nullable |
+| `service_requirement_id` | `UUID` | FK → `service_requirements(id)`, `ON DELETE CASCADE`, nullable |
+| `jobwork_requirement_id` | `UUID` | FK → `jobwork_requirements(id)`, `ON DELETE CASCADE`, nullable |
+| `job_post_id` | `UUID` | FK → `job_posts(id)`, `ON DELETE CASCADE`, nullable |
+| `service_capability_profile_id` | `UUID` | FK → `service_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a service provider's profile, added in `012_enquiries_capability_references.sql` |
+| `jobwork_capability_profile_id` | `UUID` | FK → `jobwork_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a job-work vendor's profile, added in `012_enquiries_capability_references.sql` |
+| `message` | `TEXT` | required |
+| `is_read` | `BOOLEAN` | default `FALSE` |
+| `created_at` | `TIMESTAMPTZ` | indexed `DESC` |
+
+`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the six reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile, never zero or multiple. Note there is deliberately no `job_seeker_profile_id` column yet — direct contact with a job-seeker profile is a known gap, deferred to the Jobs domain build.
+
+**RLS:** participants only. `SELECT` where the caller is sender or recipient. `INSERT` only as sender (`from_profile_id = auth.uid()`). `UPDATE` only by the recipient (`to_profile_id = auth.uid()`) — e.g. for marking `is_read`. No delete policy.
+
+Note: there is no dedicated messages/conversation-thread table — `enquiries` is the only messaging primitive currently in the schema (single message + read flag, not a thread).
 
 ---
 
-### 6. admin_logs (Optional)
-Track admin actions for audit trail.
+## Triggers & functions
 
-```sql
-CREATE TABLE admin_logs (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  admin_id    UUID NOT NULL REFERENCES users(id),
-  action      VARCHAR(100) NOT NULL, -- e.g., 'block_user', 'delete_listing'
-  target_type VARCHAR(50), -- e.g., 'user', 'listing', 'enquiry'
-  target_id   UUID,
-  details     JSONB,
-  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Trigger | Table | Fires | Function |
+|---|---|---|---|
+| `trg_profiles_updated_at` | `profiles` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_machine_categories_updated_at` | `machine_categories` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_service_capabilities_updated_at` | `service_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_jobwork_capabilities_updated_at` | `jobwork_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_job_seeker_profiles_updated_at` | `job_seeker_profiles` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_marketplace_updated_at` | `marketplace_listings` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_service_requirements_updated_at` | `service_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_jobwork_requirements_updated_at` | `jobwork_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_job_posts_updated_at` | `job_posts` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `on_auth_user_created` | `auth.users` | `AFTER INSERT` | `public.handle_new_user()` — inserts a matching `profiles` row (`SECURITY DEFINER`) |
 
-CREATE INDEX idx_admin_logs_admin_id ON admin_logs(admin_id);
-CREATE INDEX idx_admin_logs_created_at ON admin_logs(created_at DESC);
-```
-
----
-
-## Relationships
-
-```
-users (1) ──── (many) listings
-users (1) ──── (many) enquiries (as enquirer)
-listings (1) ──── (many) enquiries
-listing_types (1) ──── (many) listings
-listings (1) ──── (many) listing_tags
-users (1) ──── (many) admin_logs (as admin)
-```
+`listing_images` and `enquiries` have no `updated_at` column and no update trigger (rows are effectively append-only / delete-only).
 
 ---
 
-## Key Queries
+## Row Level Security summary
 
-### 1. Browse Listings (with filters)
-```sql
-SELECT l.*, u.full_name, u.company_name, lt.name as listing_type_name
-FROM listings l
-JOIN users u ON l.user_id = u.id
-JOIN listing_types lt ON l.listing_type_id = lt.id
-WHERE l.status = 'active'
-  AND (l.listing_type_id = ? OR ? IS NULL)  -- optional type filter
-  AND (l.location ILIKE ? OR ? IS NULL)     -- optional location filter
-  AND (l.price BETWEEN ? AND ? OR ? IS NULL) -- optional price range
-ORDER BY l.created_at DESC
-LIMIT 20 OFFSET ?;
-```
+RLS is enabled on every table. General pattern:
 
-### 2. User Dashboard - My Listings
-```sql
-SELECT l.*, lt.name as listing_type_name,
-       COUNT(e.id) as total_enquiries
-FROM listings l
-JOIN listing_types lt ON l.listing_type_id = lt.id
-LEFT JOIN enquiries e ON l.id = e.listing_id
-WHERE l.user_id = ?
-GROUP BY l.id, lt.name
-ORDER BY l.created_at DESC;
-```
-
-### 3. User Dashboard - My Enquiries
-```sql
-SELECT e.*, l.title, l.price, l.location, u.full_name as listing_owner
-FROM enquiries e
-JOIN listings l ON e.listing_id = l.id
-JOIN users u ON l.user_id = u.id
-WHERE e.enquirer_id = ?
-ORDER BY e.created_at DESC;
-```
-
-### 4. Listing Details with Enquiries
-```sql
--- Get listing
-SELECT l.*, u.full_name, u.phone, u.email, u.company_name, lt.name as listing_type_name
-FROM listings l
-JOIN users u ON l.user_id = u.id
-JOIN listing_types lt ON l.listing_type_id = lt.id
-WHERE l.id = ?;
-
--- Get enquiries (only visible to listing owner)
-SELECT e.*, u.full_name, u.phone, u.email
-FROM enquiries e
-JOIN users u ON e.enquirer_id = u.id
-WHERE e.listing_id = ?
-ORDER BY e.created_at DESC;
-```
-
-### 5. Search Listings
-```sql
-SELECT l.*, u.full_name, lt.name as listing_type_name,
-       ts_rank(to_tsvector('english', l.title || ' ' || l.description), query) as rank
-FROM listings l
-JOIN users u ON l.user_id = u.id
-JOIN listing_types lt ON l.listing_type_id = lt.id,
-     plainto_tsquery('english', ?) as query
-WHERE l.status = 'active'
-  AND to_tsvector('english', l.title || ' ' || l.description) @@ query
-ORDER BY rank DESC, l.created_at DESC
-LIMIT 20;
-```
-
-### 6. Admin - All Users
-```sql
-SELECT id, email, full_name, company_name, location, is_active, 
-       created_at, last_login_at,
-       (SELECT COUNT(*) FROM listings WHERE user_id = users.id) as total_listings,
-       (SELECT COUNT(*) FROM enquiries WHERE enquirer_id = users.id) as total_enquiries
-FROM users
-ORDER BY created_at DESC;
-```
+- **Public read** is scoped to "active" rows only (`status = 'ACTIVE'` or `is_active = TRUE`), never to all rows — inactive/suspended data is invisible to other users.
+- **Writes are owner-scoped** via `profile_id = auth.uid()` (or `id = auth.uid()` for `profiles` itself). There are no admin/service-role bypass policies defined in these migrations.
+- **`enquiries`** is the exception to "owner-scoped": visibility and mutation are scoped to *participant* (`from_profile_id` or `to_profile_id`), not a single owner.
+- **Category tables** (`machine_categories` and all three capability-category join tables) are public-read-only with no self-service write policy — inserts/updates currently require elevated privileges (service role) rather than a logged-in user's own RLS grant.
 
 ---
 
-## Notes
+## Notes for UI implementation
 
-1. **No Messaging System**: Enquiries are one-way. Users receive enquiries with contact details and can respond outside the platform (email/phone).
-
-2. **No Image Storage**: Images are parked for now. When needed, add a `listing_images` table with foreign key to listings.
-
-3. **Flexible Listing Types**: The schema supports all listing types (machinery, rentals, jobs, repairs) in one table with type-specific optional fields.
-
-4. **Search**: Uses PostgreSQL full-text search. For production, consider Elasticsearch or Algolia for better performance.
-
-5. **Status Management**: 
-   - Listings: active, sold, expired, draft
-   - Enquiries: new, read, replied, closed
-   - Users: is_active flag for blocking
-
-6. **Counters**: `views_count` and `enquiries_count` are denormalized for performance. Update via triggers or application logic.
-
-7. **UUIDs vs INTs**: Using UUIDs for main entities (users, listings, enquiries) for security and distributed systems. Using INTs for lookup tables.
-
-8. **Indexes**: Added indexes on frequently queried fields (foreign keys, status, dates, location, price).
-
----
-
-## Future Enhancements
-
-- **listing_images**: When image upload is ready
-- **saved_listings**: Bookmark/favorite functionality
-- **notifications**: User notification preferences and delivery log
-- **reviews_ratings**: User and listing reviews
-- **reports**: User-reported content for moderation
-- **listing_views**: Track who viewed what (analytics)
+- Do not surface raw identifiers/enum values (`listing_intent`, `profile_id`, `machine_category_id`, etc.) in user-facing copy — see `CLAUDE.md` UX guidelines. Map them to plain-language labels (e.g. `intent = 'SELL'` → "For Sale").
+- A single `profiles` row can simultaneously have `marketplace_listings`, a `service_capabilities` row, a `jobwork_capabilities` row, and a `job_seeker_profiles` row — the UI should present these as activities/roles a user has enabled, not as separate account types.
+- The "Messages" UI concept (conversation list, threads) does not have a matching table today — the schema only has flat `enquiries` rows (one message + `is_read`, tied to exactly one listing/requirement/post). Any conversation-thread UI needs to be derived by grouping `enquiries` by `(from_profile_id, to_profile_id)` and/or the referenced item, or the schema needs a new migration to support real threads — confirm which before building it.

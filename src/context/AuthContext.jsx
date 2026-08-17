@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { getProfile, updateProfile as updateProfileRequest } from '../lib/api/profiles'
 
 const AuthContext = createContext(null)
 
@@ -42,13 +43,7 @@ export function AuthProvider({ children }) {
 
   const loadProfile = async (userId) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (error) throw error
+      const data = await getProfile(userId)
       setProfile(data)
     } catch (error) {
       console.error('Error loading profile:', error)
@@ -111,15 +106,7 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (updates) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await updateProfileRequest(user.id, updates)
       setProfile(data)
       return data
     } catch (error) {
@@ -135,8 +122,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateProfile,
-    loading,
-    isAdmin: profile?.is_admin || false
+    loading
   }
 
   return (

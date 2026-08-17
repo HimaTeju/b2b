@@ -1,33 +1,34 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import SearchOverlay from './SearchOverlay'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import './TopBar.css'
 
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 function TopBar() {
-  const [searchOpen, setSearchOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user, profile } = useAuth()
+  const isHome = location.pathname === '/'
+  const displayName = profile?.company_name || user?.user_metadata?.full_name
 
   return (
-    <>
-      <header className="topbar">
-        <button className="topbar__logo" onClick={() => navigate('/browse')}>
-          <span className="topbar__logo-text">B2B Market</span>
+    <header className="topbar">
+      {isHome ? (
+        <p className="topbar__greeting">
+          {getGreeting()}{displayName ? `, ${displayName}` : ''}
+        </p>
+      ) : (
+        <button className="topbar__mark" onClick={() => navigate('/')}>
+          <span className="topbar__mark-main">B2B WORKS</span>
+          <span className="topbar__mark-sub eyebrow">Industrial Exchange</span>
         </button>
-
-        <button
-          className="topbar__search-btn"
-          onClick={() => setSearchOpen(true)}
-          aria-label="Open search"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-        </button>
-      </header>
-
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-    </>
+      )}
+    </header>
   )
 }
 

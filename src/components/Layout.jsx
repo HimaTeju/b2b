@@ -6,11 +6,13 @@ import './Layout.css'
 function Layout() {
   return (
     <div className="layout">
-      <TopBar />
-      <main className="layout__content">
-        <Outlet />
-      </main>
       <BottomNav />
+      <div className="layout__main">
+        <TopBar />
+        <main className="layout__content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

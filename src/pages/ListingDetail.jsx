@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getListing, createEnquiry } from '../lib/api'
+import { getListing, deleteListing } from '../lib/api/listings'
+import { createEnquiry } from '../lib/api/enquiries'
+import { formatPrice, formatLocation } from '../lib/format'
+import { INTENT_LABELS, CONDITION_LABELS } from '../lib/constants'
+import EnquiryComposer from '../components/EnquiryComposer'
 import './ListingDetail.css'
 
 function ListingDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  console.log(user)
   const [listing, setListing] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showEnquiryForm, setShowEnquiryForm] = useState(false)
-  const [enquiryMessage, setEnquiryMessage] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
+  const [enquirySent, setEnquirySent] = useState(false)
 
   useEffect(() => {
     loadListing()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const loadListing = async () => {
@@ -34,24 +37,17 @@ function ListingDetail() {
     }
   }
 
-  const handleSendEnquiry = async (e) => {
-    e.preventDefault()
+  const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
 
     try {
-      console.log("Current user:", user);
-      console.log("Listing ID:", id);
-      console.log("Enquirer ID:", user.id);
       await createEnquiry({
-        listing_id: id,
-        enquirer_id: user.id,
-        message: enquiryMessage,
-        enquirer_phone: user.phone || '',
-        enquirer_email: user.email
+        fromProfileId: user.id,
+        toProfileId: listing.profile_id,
+        marketplaceListingId: id,
+        message
       })
-      alert('Enquiry sent successfully! The listing owner will contact you.')
-      setShowEnquiryForm(false)
-      setEnquiryMessage('')
+      setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
       alert('Failed to send enquiry. Please try again.')
@@ -60,38 +56,42 @@ function ListingDetail() {
     }
   }
 
-  const formatPrice = (price) => {
-    if (!price) return 'Contact for price'
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price)
+  const handleDelete = async () => {
+    const confirmed = window.confirm(`Delete "${listing.title}"? This cannot be undone.`)
+    if (!confirmed) return
+
+    try {
+      await deleteListing(id)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error('Error deleting listing:', err)
+      alert('Failed to delete listing. Please try again.')
+    }
   }
 
   if (loading) {
-    return (
-      <div className="listing-detail" style={{ padding: '40px', textAlign: 'center' }}>
-        Loading...
-      </div>
-    )
+    return <div className="listing-detail__state">Loading…</div>
   }
 
   if (error || !listing) {
     return (
-      <div className="listing-detail" style={{ padding: '40px', textAlign: 'center' }}>
-        <p style={{ color: '#c00', marginBottom: '16px' }}>{error || 'Listing not found'}</p>
-        <button onClick={() => navigate('/browse')}>Back to Browse</button>
+      <div className="listing-detail__state">
+        <p className="banner">{error || 'Listing not found'}</p>
+        <button className="btn btn--primary" onClick={() => navigate('/marketplace')}>Back to Marketplace</button>
       </div>
     )
   }
 
-  const isOwner = user?.id === listing.user_id
+  const isOwner = user?.id === listing.profile_id
+  const isRequirement = listing.intent === 'REQUIREMENT'
+  const primaryImage = listing.listing_images
+    ?.slice()
+    .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.display_order - b.display_order)[0]
 
   return (
     <div className="listing-detail">
       <button className="listing-detail__back" onClick={() => navigate(-1)}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
@@ -99,161 +99,80 @@ function ListingDetail() {
       </button>
 
       <div className="listing-detail__image">
-        <div style={{
-          backgroundColor: '#e2e8f0',
-          height: '400px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '120px'
-        }}>
-          📦
-        </div>
+        {primaryImage ? (
+          <img src={primaryImage.storage_path} alt={listing.title} />
+        ) : (
+          <span className="listing-detail__placeholder">⚙</span>
+        )}
       </div>
 
       <div className="listing-detail__content">
         <div className="listing-detail__header">
-          <div>
-            <span className="listing-detail__badge">{listing.listing_types?.name || 'Item'}</span>
-            <span className={`listing-detail__mode-badge listing-detail__mode-badge--${listing.listing_mode}`}>
-              {listing.listing_mode === 'sell' ? '💰 For Sale' : '🔍 Wanted'}
-            </span>
-            <h1 className="listing-detail__title">{listing.title}</h1>
-            <p className="listing-detail__location">{listing.location || 'Location not specified'}</p>
-          </div>
-          <p className="listing-detail__price">{formatPrice(listing.price)}</p>
+          <span className="stamp stamp--solid stamp--ink">{INTENT_LABELS[listing.intent]}</span>
+          {listing.condition && <span className="stamp stamp--muted">{CONDITION_LABELS[listing.condition]}</span>}
+
+          <span className="listing-detail__category mono">{listing.machine_categories?.name}</span>
+          <h1 className="listing-detail__title">{listing.title}</h1>
+          <p className="listing-detail__location">{formatLocation(listing)}</p>
+          <p className="listing-detail__price mono">
+            {isRequirement && <span className="listing-detail__price-label">Budget </span>}
+            {listing.price ? formatPrice(listing.price) : (isRequirement ? 'Open to offers' : formatPrice(listing.price))}
+          </p>
         </div>
 
-        <div className="listing-detail__section">
-          <h2 className="listing-detail__section-title">Description</h2>
-          <p className="listing-detail__description">{listing.description}</p>
-        </div>
-
-        {(listing.condition || listing.job_type || listing.rental_period || listing.urgency) && (
+        {listing.description && (
           <div className="listing-detail__section">
-            <h2 className="listing-detail__section-title">Details</h2>
-            <dl className="listing-detail__specs">
-              {listing.condition && (
-                <div className="listing-detail__spec">
-                  <dt className="listing-detail__spec-label">Condition</dt>
-                  <dd className="listing-detail__spec-value">{listing.condition}</dd>
-                </div>
-              )}
-              {listing.job_type && (
-                <div className="listing-detail__spec">
-                  <dt className="listing-detail__spec-label">Job Type</dt>
-                  <dd className="listing-detail__spec-value">{listing.job_type}</dd>
-                </div>
-              )}
-              {listing.rental_period && (
-                <div className="listing-detail__spec">
-                  <dt className="listing-detail__spec-label">Rental Period</dt>
-                  <dd className="listing-detail__spec-value">{listing.rental_period}</dd>
-                </div>
-              )}
-              {listing.urgency && (
-                <div className="listing-detail__spec">
-                  <dt className="listing-detail__spec-label">Urgency</dt>
-                  <dd className="listing-detail__spec-value">{listing.urgency}</dd>
-                </div>
-              )}
-            </dl>
+            <h2 className="listing-detail__section-title">Description</h2>
+            <p className="listing-detail__description">{listing.description}</p>
           </div>
         )}
 
         <div className="listing-detail__section">
-          <h2 className="listing-detail__section-title">Contact Information</h2>
+          <h2 className="listing-detail__section-title">Details</h2>
+          <dl className="listing-detail__specs">
+            <div className="listing-detail__spec">
+              <dt>{isRequirement ? 'Quantity needed' : 'Quantity'}</dt>
+              <dd className="mono">{listing.quantity}</dd>
+            </div>
+            <div className="listing-detail__spec">
+              <dt>Posted</dt>
+              <dd className="mono">{new Date(listing.created_at).toLocaleDateString()}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="listing-detail__section">
+          <h2 className="listing-detail__section-title">{isRequirement ? 'Posted by' : 'Sold by'}</h2>
           <div className="listing-detail__seller">
-            <p className="listing-detail__seller-name">{listing.profiles?.full_name || 'Anonymous'}</p>
-            {listing.profiles?.company_name && (
-              <p className="listing-detail__seller-contact">{listing.profiles.company_name}</p>
-            )}
-            {listing.profiles?.location && (
-              <p className="listing-detail__seller-contact">{listing.profiles.location}</p>
+            <p className="listing-detail__seller-name">{listing.profiles?.company_name || 'Business account'}</p>
+            <p className="listing-detail__seller-meta">{formatLocation(listing.profiles || {})}</p>
+            {listing.profiles?.website && (
+              <a href={listing.profiles.website} target="_blank" rel="noreferrer">{listing.profiles.website}</a>
             )}
           </div>
         </div>
 
         {!isOwner && (
-          <>
-            {!showEnquiryForm ? (
-              <button
-                className="listing-detail__cta"
-                onClick={() => setShowEnquiryForm(true)}
-              >
-                Send Enquiry
-              </button>
-            ) : (
-              <form onSubmit={handleSendEnquiry} className="listing-detail__enquiry-form">
-                <h3>Send Enquiry</h3>
-                <textarea
-                  value={enquiryMessage}
-                  onChange={(e) => setEnquiryMessage(e.target.value)}
-                  placeholder="Hi, I'm interested in this listing. Please provide more details..."
-                  rows="5"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    marginBottom: '12px',
-                    fontFamily: 'inherit',
-                    fontSize: '14px'
-                  }}
-                />
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEnquiryForm(false)
-                      setEnquiryMessage('')
-                    }}
-                    disabled={sendingEnquiry}
-                    style={{
-                      padding: '12px 24px',
-                      border: '1px solid #e2e8f0',
-                      backgroundColor: 'white',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={sendingEnquiry}
-                    className="listing-detail__cta"
-                    style={{ margin: 0 }}
-                  >
-                    {sendingEnquiry ? 'Sending...' : 'Send Enquiry'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </>
+          <EnquiryComposer
+            placeholder={isRequirement
+              ? 'Hi, I have this available. Here\'s what I can offer…'
+              : 'Hi, I\'m interested in this listing. Please share more details…'}
+            ctaLabel={isRequirement ? 'I can help' : 'Send enquiry'}
+            sendLabel={isRequirement ? 'Send offer' : 'Send enquiry'}
+            onSubmit={handleSendEnquiry}
+            sending={sendingEnquiry}
+            sent={enquirySent}
+            sentMessage={isRequirement ? 'Response sent — the buyer will get in touch.' : 'Enquiry sent — the seller will get in touch.'}
+          />
         )}
 
         {isOwner && (
-          <div style={{
-            padding: '16px',
-            backgroundColor: '#f7fafc',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            <p style={{ marginBottom: '12px' }}>This is your listing</p>
-            <button
-              onClick={() => navigate('/dashboard')}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#2c7a7b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              View in Dashboard
+          <div className="listing-detail__owner-actions">
+            <button className="btn btn--ghost btn--block" onClick={() => navigate(`/marketplace/post/edit/${id}`)}>
+              {isRequirement ? 'Edit requirement' : 'Edit listing'}
+            </button>
+            <button className="btn btn--danger btn--block" onClick={handleDelete}>
+              Delete
             </button>
           </div>
         )}

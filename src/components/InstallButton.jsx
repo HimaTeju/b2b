@@ -77,11 +77,11 @@ export default function InstallButton() {
           animation: pwa-slide-out 0.2s ease-in forwards;
         }
         .pwa-install-btn:hover {
-          background: #24605f !important;
+          background: var(--color-marketplace-ink, #7a5316) !important;
         }
         .pwa-dismiss-btn:hover {
-          background: var(--color-border, #e2e8f0) !important;
-          color: var(--color-text, #1a202c) !important;
+          background: var(--color-steel-line, #cbccc3) !important;
+          color: var(--color-ink, #1c1c1a) !important;
         }
         @media (max-width: 480px) {
           .pwa-install-card {
@@ -103,12 +103,12 @@ export default function InstallButton() {
           zIndex: 9999,
           width: '340px',
           maxWidth: 'calc(100vw - 24px)',
-          background: 'var(--color-bg, #ffffff)',
-          border: '1px solid var(--color-border, #e2e8f0)',
-          borderRadius: '14px',
-          boxShadow: '0 10px 30px rgba(26, 32, 44, 0.14), 0 2px 8px rgba(26, 32, 44, 0.06)',
+          background: 'var(--color-paper, #f0f0eb)',
+          border: '1.5px solid var(--color-ink, #1c1c1a)',
+          borderRadius: '4px',
+          boxShadow: '3px 3px 0 rgba(28, 28, 26, 0.9)',
           padding: '18px',
-          fontFamily: 'var(--font-system, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)',
+          fontFamily: 'var(--font-body, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -118,8 +118,8 @@ export default function InstallButton() {
               flexShrink: 0,
               width: '40px',
               height: '40px',
-              borderRadius: '10px',
-              background: 'var(--color-accent, #2c7a7b)',
+              borderRadius: '4px',
+              background: 'var(--color-marketplace, #c9861f)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -142,7 +142,7 @@ export default function InstallButton() {
                 margin: 0,
                 fontSize: '14.5px',
                 fontWeight: 600,
-                color: 'var(--color-primary, #2d3748)',
+                color: 'var(--color-ink, #1c1c1a)',
                 lineHeight: 1.35,
               }}
             >

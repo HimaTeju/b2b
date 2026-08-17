@@ -1,0 +1,14 @@
+.enquiry-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.enquiry-composer__actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.enquiry-composer__actions .btn {
+  flex: 1;
+}

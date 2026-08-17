@@ -11,6 +11,7 @@ function Register() {
     confirmPassword: ''
   })
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { register } = useAuth()
   const navigate = useNavigate()
 
@@ -28,98 +29,89 @@ function Register() {
       return
     }
 
+    setLoading(true)
     try {
       await register(formData.email, formData.password, formData.name)
-      navigate('/browse')
+      navigate('/')
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   return (
     <div className="auth-page">
       <div className="auth-page__container">
         <div className="auth-page__header">
-          <h1 className="auth-page__title">B2B Market</h1>
+          <span className="eyebrow">Industrial Exchange</span>
+          <h1 className="auth-page__title">B2B WORKS</h1>
           <p className="auth-page__subtitle">Create your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-page__form">
-          {error && (
-            <div className="auth-page__error">{error}</div>
-          )}
+          {error && <div className="banner">{error}</div>}
 
-          <div className="auth-page__field">
-            <label htmlFor="name" className="auth-page__label">Full Name</label>
+          <div className="field">
+            <label htmlFor="name" className="field__label">Full name</label>
             <input
               id="name"
               name="name"
               type="text"
               value={formData.name}
               onChange={handleChange}
-              className="auth-page__input"
-              placeholder="John Doe"
+              placeholder="Jane Doe"
             />
           </div>
 
-          <div className="auth-page__field">
-            <label htmlFor="email" className="auth-page__label">Email</label>
+          <div className="field">
+            <label htmlFor="email" className="field__label">Email</label>
             <input
               id="email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
-              className="auth-page__input"
               placeholder="you@company.com"
             />
           </div>
 
-          <div className="auth-page__field">
-            <label htmlFor="password" className="auth-page__label">Password</label>
+          <div className="field">
+            <label htmlFor="password" className="field__label">Password</label>
             <input
               id="password"
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
-              className="auth-page__input"
               placeholder="••••••••"
             />
           </div>
 
-          <div className="auth-page__field">
-            <label htmlFor="confirmPassword" className="auth-page__label">Confirm Password</label>
+          <div className="field">
+            <label htmlFor="confirmPassword" className="field__label">Confirm password</label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="auth-page__input"
               placeholder="••••••••"
             />
           </div>
 
-          <button type="submit" className="auth-page__submit">
-            Create Account
+          <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
+            {loading ? 'Creating account…' : 'Create account'}
           </button>
 
           <div className="auth-page__footer">
             <p className="auth-page__footer-text">
               Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/login')}
-                className="auth-page__link"
-              >
+              <button type="button" onClick={() => navigate('/login')} className="auth-page__link">
                 Sign in
               </button>
             </p>

@@ -7,211 +7,114 @@ function Profile() {
   const { user, profile, updateProfile, logout } = useAuth()
   const navigate = useNavigate()
   const [editing, setEditing] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [formData, setFormData] = useState({
-    full_name: profile?.full_name || '',
-    phone: profile?.phone || '',
+  const [form, setForm] = useState({
     company_name: profile?.company_name || '',
-    location: profile?.location || '',
-    bio: profile?.bio || ''
+    city: profile?.city || '',
+    state: profile?.state || '',
+    website: profile?.website || '',
+    about: profile?.about || ''
   })
+
+  const displayName = profile?.company_name || user?.user_metadata?.full_name || 'Your business'
 
   const handleLogout = async () => {
     await logout()
     navigate('/login')
   }
 
+  const resetForm = () => {
+    setForm({
+      company_name: profile?.company_name || '',
+      city: profile?.city || '',
+      state: profile?.state || '',
+      website: profile?.website || '',
+      about: profile?.about || ''
+    })
+  }
+
+  const handleChange = (field) => (e) => {
+    setForm(prev => ({ ...prev, [field]: e.target.value }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
+    setSaving(true)
     setError('')
 
     try {
-      await updateProfile(formData)
+      await updateProfile({
+        company_name: form.company_name.trim() || null,
+        city: form.city.trim() || null,
+        state: form.state.trim() || null,
+        website: form.website.trim() || null,
+        about: form.about.trim() || null
+      })
       setEditing(false)
-      alert('Profile updated successfully!')
     } catch (err) {
       console.error('Error updating profile:', err)
       setError(err.message || 'Failed to update profile')
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
-  }
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
   }
 
   return (
     <div className="profile">
       <div className="profile__container">
         <div className="profile__header">
-          <div className="profile__avatar">
-            {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
-          </div>
+          <div className="profile__avatar">{displayName.charAt(0).toUpperCase()}</div>
           <div>
-            <h1 className="profile__name">{profile?.full_name || 'User'}</h1>
+            <h1 className="profile__name">{displayName}</h1>
             <p className="profile__email">{user?.email}</p>
           </div>
         </div>
 
-        {error && (
-          <div style={{
-            backgroundColor: '#fee',
-            color: '#c00',
-            padding: '12px',
-            borderRadius: '4px',
-            marginBottom: '16px'
-          }}>
-            {error}
-          </div>
-        )}
+        {error && <div className="banner">{error}</div>}
 
         {editing ? (
           <form onSubmit={handleSubmit} className="profile__section">
-            <h2 className="profile__section-title">Edit Profile</h2>
+            <h2 className="profile__section-title">Edit profile</h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-                  Full Name *
-                </label>
-                <input
-                  name="full_name"
-                  type="text"
-                  value={formData.full_name}
-                  onChange={handleChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
+            <div className="profile__form">
+              <div className="field">
+                <label className="field__label" htmlFor="company_name">Company name</label>
+                <input id="company_name" type="text" value={form.company_name} onChange={handleChange('company_name')} />
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-                  Phone
-                </label>
-                <input
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
+              <div className="field__row">
+                <div className="field">
+                  <label className="field__label" htmlFor="city">City</label>
+                  <input id="city" type="text" value={form.city} onChange={handleChange('city')} />
+                </div>
+                <div className="field">
+                  <label className="field__label" htmlFor="state">State</label>
+                  <input id="state" type="text" value={form.state} onChange={handleChange('state')} />
+                </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-                  Company Name
-                </label>
-                <input
-                  name="company_name"
-                  type="text"
-                  value={formData.company_name}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
+              <div className="field">
+                <label className="field__label" htmlFor="website">Website</label>
+                <input id="website" type="url" value={form.website} onChange={handleChange('website')} placeholder="https://" />
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-                  Location
-                </label>
-                <input
-                  name="location"
-                  type="text"
-                  value={formData.location}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
+              <div className="field">
+                <label className="field__label" htmlFor="about">About</label>
+                <textarea id="about" value={form.about} onChange={handleChange('about')} rows={4} />
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-                  Bio
-                </label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleChange}
-                  rows="4"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    fontFamily: 'inherit'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div className="profile__form-actions">
                 <button
                   type="button"
-                  onClick={() => {
-                    setEditing(false)
-                    setFormData({
-                      full_name: profile?.full_name || '',
-                      phone: profile?.phone || '',
-                      company_name: profile?.company_name || '',
-                      location: profile?.location || '',
-                      bio: profile?.bio || ''
-                    })
-                  }}
-                  disabled={loading}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: 'white',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
+                  className="btn btn--ghost btn--block"
+                  onClick={() => { setEditing(false); resetForm() }}
+                  disabled={saving}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: 'none',
-                    backgroundColor: '#2c7a7b',
-                    color: 'white',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                <button type="submit" className="btn btn--primary btn--block" disabled={saving}>
+                  {saving ? 'Saving…' : 'Save changes'}
                 </button>
               </div>
             </div>
@@ -222,57 +125,36 @@ function Profile() {
             <div className="profile__menu">
               <button className="profile__menu-item" onClick={() => navigate('/dashboard')}>
                 <span>Dashboard</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
               <button className="profile__menu-item" onClick={() => setEditing(true)}>
-                <span>Edit Profile</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <span>Edit profile</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             </div>
 
-            {profile?.company_name && (
-              <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                <p style={{ fontSize: '14px', color: '#4a5568' }}>
-                  <strong>Company:</strong> {profile.company_name}
-                </p>
-                {profile.location && (
-                  <p style={{ fontSize: '14px', color: '#4a5568', marginTop: '8px' }}>
-                    <strong>Location:</strong> {profile.location}
-                  </p>
+            {(profile?.city || profile?.about || profile?.website) && (
+              <div className="profile__summary">
+                {(profile?.city || profile?.state) && (
+                  <p className="profile__summary-line"><strong>Location:</strong> {[profile.city, profile.state].filter(Boolean).join(', ')}</p>
                 )}
-                {profile.phone && (
-                  <p style={{ fontSize: '14px', color: '#4a5568', marginTop: '8px' }}>
-                    <strong>Phone:</strong> {profile.phone}
-                  </p>
+                {profile?.website && (
+                  <p className="profile__summary-line"><strong>Website:</strong> <a href={profile.website} target="_blank" rel="noreferrer">{profile.website}</a></p>
+                )}
+                {profile?.about && (
+                  <p className="profile__summary-line">{profile.about}</p>
                 )}
               </div>
             )}
           </div>
         )}
 
-        {profile?.is_admin && (
-          <div className="profile__section">
-            <h2 className="profile__section-title">Admin</h2>
-            <div className="profile__menu">
-              <button
-                className="profile__menu-item"
-                onClick={() => navigate('/admin')}
-              >
-                <span>Admin Panel</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
-
-        <button className="profile__logout" onClick={handleLogout}>
-          Sign Out
+        <button className="btn btn--danger btn--block profile__logout" onClick={handleLogout}>
+          Sign out
         </button>
       </div>
     </div>

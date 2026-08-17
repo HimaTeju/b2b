@@ -5,21 +5,32 @@
   width: 100%;
 }
 
-.layout__content {
-  flex: 1;
-  padding-bottom: 72px; /* Space for bottom nav */
-  overflow-y: auto;
+.layout .bottomnav {
+  order: 2;
 }
 
-/* Desktop: Transform to sidebar layout */
+.layout__main {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.layout__content {
+  flex: 1;
+}
+
 @media (min-width: 768px) {
   .layout {
     flex-direction: row;
   }
 
-  .layout__content {
-    flex: 1;
-    padding-bottom: 0;
-    margin-left: 240px; /* Space for sidebar */
+  .layout .bottomnav {
+    order: 0;
+  }
+
+  .layout__main {
+    order: 1;
   }
 }

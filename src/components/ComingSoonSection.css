@@ -1,0 +1,65 @@
+.coming-soon {
+  --accent: var(--color-ink);
+  min-height: 100%;
+  padding: var(--spacing-md);
+  background: var(--color-paper);
+  border-top: 4px solid var(--accent);
+}
+
+.coming-soon--services { --accent: var(--color-services); }
+.coming-soon--jobs { --accent: var(--color-jobs); }
+.coming-soon--jobwork { --accent: var(--color-jobwork); }
+
+.coming-soon__back {
+  margin-bottom: var(--spacing-lg);
+}
+
+.coming-soon__code {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.coming-soon__stamp {
+  margin-top: var(--spacing-sm);
+}
+
+.coming-soon__title {
+  font-size: 32px;
+  margin-top: var(--spacing-md);
+}
+
+.coming-soon__desc {
+  max-width: 480px;
+  margin-top: var(--spacing-md);
+  color: var(--color-ink-soft);
+  line-height: 1.6;
+}
+
+.coming-soon__list {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 480px;
+}
+
+.coming-soon__list-item {
+  padding: 10px 14px;
+  background: var(--color-paper-raised);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.coming-soon > .btn {
+  margin-top: var(--spacing-xl);
+}
+
+@media (min-width: 768px) {
+  .coming-soon {
+    padding: var(--spacing-xl);
+  }
+}

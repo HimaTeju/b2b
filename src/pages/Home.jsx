@@ -1,147 +1,70 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getListingTypes } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
+import { getMyListings } from '../lib/api/listings'
+import { getEnquiryCounts } from '../lib/api/enquiries'
+import { DOMAIN_LIST } from '../lib/domains'
 import './Home.css'
 
 function Home() {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const [listingTypes, setListingTypes] = useState([])
+  const [activity, setActivity] = useState(null)
 
   useEffect(() => {
-    loadListingTypes()
-  }, [])
+    if (!user) return
 
-  const loadListingTypes = async () => {
-    try {
-      const types = await getListingTypes()
-      setListingTypes(types)
-    } catch (err) {
-      console.error('Error loading listing types:', err)
-    }
-  }
+    let cancelled = false
 
-  const categoryTiles = [
-    {
-      id: 'machinery-used',
-      icon: '🏗️',
-      title: 'Used Machines',
-      subtitle: 'Buy & sell',
-      color: 'var(--tile-orange)',
-      filter: { typeCode: 'machinery', mode: 'sell', subcategory: 'used' }
-    },
-    {
-      id: 'accessories',
-      icon: '🔧',
-      title: 'Accessories & Tools',
-      subtitle: 'Essential parts',
-      color: 'var(--tile-blue)',
-      filter: { typeCode: 'accessories', mode: null, subcategory: null }
-    },
-    {
-      id: 'repair',
-      icon: '⚙️',
-      title: 'Service & Repair',
-      subtitle: 'Professional help',
-      color: 'var(--tile-green)',
-      filter: { typeCode: 'repair', mode: null, subcategory: null }
-    },
-    {
-      id: 'job',
-      icon: '👥',
-      title: 'Hire Technicians',
-      subtitle: 'Find skilled labor',
-      color: 'var(--tile-yellow)',
-      filter: { typeCode: 'job', mode: 'sell', subcategory: 'contract' }
-    },
-    {
-      id: 'rental',
-      icon: '📦',
-      title: 'Machine Rentals',
-      subtitle: 'Rent equipment',
-      color: 'var(--tile-teal)',
-      filter: { typeCode: 'rental', mode: 'sell', subcategory: null }
-    },
-    {
-      id: 'machinery-new',
-      icon: '✨',
-      title: 'New Machines',
-      subtitle: 'Latest models',
-      color: 'var(--tile-purple)',
-      filter: { typeCode: 'machinery', mode: 'sell', subcategory: 'new' }
-    }
-  ]
+    Promise.all([getMyListings(user.id), getEnquiryCounts(user.id)])
+      .then(([listings, counts]) => {
+        if (cancelled) return
+        setActivity({
+          activeListings: listings.filter(l => l.status === 'ACTIVE').length,
+          unreadEnquiries: counts.unread
+        })
+      })
+      .catch(err => console.error('Error loading home activity:', err))
 
-  const handleTileClick = (tile) => {
-    const type = listingTypes.find(t => t.code.toLowerCase() === tile.filter.typeCode)
-
-    const params = new URLSearchParams()
-    if (type) params.append('type', type.id)
-    if (tile.filter.mode) params.append('mode', tile.filter.mode)
-    if (tile.filter.subcategory) params.append('subcategory', tile.filter.subcategory)
-
-    navigate(`/browse?${params.toString()}`)
-  }
-
-  const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 17) return 'Good afternoon'
-    return 'Good evening'
-  }
+    return () => { cancelled = true }
+  }, [user])
 
   return (
     <div className="home">
-      <header className="home__hero">
-        <p className="home__eyebrow">ALL SERVICES</p>
-        <h1 className="home__title">What do you need today?</h1>
-        <p className="home__subtitle">
-          Every industrial need covered — buy, sell, hire, rent, repair, or advertise.
-        </p>
-      </header>
+      {activity && (activity.activeListings > 0 || activity.unreadEnquiries > 0) && (
+        <div className="home__activity">
+          {activity.activeListings > 0 && (
+            <span className="stamp stamp--ink">{activity.activeListings} active listing{activity.activeListings === 1 ? '' : 's'}</span>
+          )}
+          {activity.unreadEnquiries > 0 && (
+            <button className="stamp stamp--solid stamp--marketplace" onClick={() => navigate('/enquiries')}>
+              {activity.unreadEnquiries} unread enquir{activity.unreadEnquiries === 1 ? 'y' : 'ies'}
+            </button>
+          )}
+        </div>
+      )}
 
-      <div className="home__grid">
-        {categoryTiles.map(tile => (
+      <div className="home__quicklinks">
+        {DOMAIN_LIST.map(domain => (
           <button
-            key={tile.id}
-            className="category-tile"
-            onClick={() => handleTileClick(tile)}
-            style={{ '--tile-color': tile.color }}
+            key={domain.code}
+            className={`quicklink quicklink--${domain.accent}`}
+            onClick={() => navigate(domain.to)}
           >
-            <div className="category-tile__icon">{tile.icon}</div>
-            <h3 className="category-tile__title">{tile.title}</h3>
-            <p className="category-tile__subtitle">{tile.subtitle}</p>
+            <span className="quicklink__icon">{domain.icon}</span>
+            <span className="quicklink__label">{domain.label}</span>
+            {!domain.ready && <span className="quicklink__soon">Soon</span>}
           </button>
         ))}
       </div>
 
-      <section className="home__quick-actions">
-        <h2 className="home__section-title">Quick actions</h2>
-        <div className="home__actions">
-          <button
-            className="action-card"
-            onClick={() => navigate('/browse')}
-          >
-            <span className="action-card__icon">🔍</span>
-            <span className="action-card__label">Browse all</span>
-          </button>
-          <button
-            className="action-card"
-            onClick={() => navigate('/post')}
-          >
-            <span className="action-card__icon">➕</span>
-            <span className="action-card__label">Post listing</span>
-          </button>
-          <button
-            className="action-card"
-            onClick={() => navigate('/dashboard')}
-          >
-            <span className="action-card__icon">📊</span>
-            <span className="action-card__label">My dashboard</span>
-          </button>
-        </div>
-      </section>
+      <label className="home__search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input type="search" placeholder="Search machinery, tools, services..." />
+      </label>
     </div>
   )
 }
