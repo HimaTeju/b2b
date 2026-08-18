@@ -5,6 +5,7 @@ import { getMyListings } from '../lib/api/listings'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAIN_LIST, rankDomains } from '../lib/domains'
+import SearchOverlay from '../components/SearchOverlay'
 import './Home.css'
 
 function Home() {
@@ -12,6 +13,7 @@ function Home() {
   const navigate = useNavigate()
   const [activity, setActivity] = useState(null)
   const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -75,13 +77,15 @@ function Home() {
         ))}
       </div>
 
-      <label className="home__search">
+      <button type="button" className="home__search" onClick={() => setSearchOpen(true)}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <input type="search" placeholder="Search machinery, tools, services..." />
-      </label>
+        <span className="home__search-placeholder">Search machinery, services, jobs…</span>
+      </button>
+
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getJobPosts } from '../lib/api/jobPosts'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function Jobs() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -31,6 +32,7 @@ function Jobs() {
         emptyMessage="No job posts match these filters."
         onItemClick={jobPost => navigate(`/jobs/${jobPost.id}`)}
         renderItem={jobPost => <RequirementCard item={jobPost} />}
+        initialSearch={searchParams.get('search') || ''}
       />
 
       <div className="browse__cta">

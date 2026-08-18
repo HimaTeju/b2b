@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getJobWorkVendors } from '../lib/api/jobworkCapabilities'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function JobWorkVendors() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -32,6 +33,7 @@ function JobWorkVendors() {
         getItemKey={vendor => vendor.profile_id}
         onItemClick={vendor => navigate(`/job-work/vendors/${vendor.profile_id}`)}
         renderItem={vendor => <ProviderCard provider={vendor} />}
+        initialSearch={searchParams.get('search') || ''}
       />
 
       <div className="browse__cta">

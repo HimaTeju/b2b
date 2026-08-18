@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getJobSeekers } from '../lib/api/jobSeekerProfiles'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function JobSeekers() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -32,6 +33,7 @@ function JobSeekers() {
         getItemKey={seeker => seeker.profile_id}
         onItemClick={seeker => navigate(`/jobs/seekers/${seeker.profile_id}`)}
         renderItem={seeker => <SeekerCard seeker={seeker} />}
+        initialSearch={searchParams.get('search') || ''}
       />
 
       <div className="browse__cta">

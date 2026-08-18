@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getJobWorkRequirements } from '../lib/api/jobworkRequirements'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function JobWorkRequirements() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -31,6 +32,7 @@ function JobWorkRequirements() {
         emptyMessage="No requirements match these filters."
         onItemClick={requirement => navigate(`/job-work/requirements/${requirement.id}`)}
         renderItem={requirement => <RequirementCard item={requirement} />}
+        initialSearch={searchParams.get('search') || ''}
       />
     </div>
   )

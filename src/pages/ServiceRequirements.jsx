@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getServiceRequirements } from '../lib/api/serviceRequirements'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function ServiceRequirements() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -31,6 +32,7 @@ function ServiceRequirements() {
         emptyMessage="No requirements match these filters."
         onItemClick={requirement => navigate(`/services/requirements/${requirement.id}`)}
         renderItem={requirement => <RequirementCard item={requirement} />}
+        initialSearch={searchParams.get('search') || ''}
       />
     </div>
   )
