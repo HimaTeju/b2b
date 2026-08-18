@@ -61,7 +61,7 @@ export async function getJobSeeker(profileId) {
     .select(`
       ${SEEKER_FIELDS},
       job_seeker_categories ( machine_category_id, machine_categories ( id, name ) ),
-      profiles:profile_id ( id, company_name, city, state, about, website )
+      profiles:profiles!job_seeker_profiles_profile_id_fkey ( id, company_name, city, state, about, website )
     `)
     .eq('profile_id', profileId)
     .single()

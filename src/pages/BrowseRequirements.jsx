@@ -22,6 +22,14 @@ function BrowseRequirements() {
       </div>
 
       <MarketplaceGrid intent="REQUIREMENT" initialSearch={searchParams.get('search') || ''} />
+
+      <div className="browse__cta">
+        <p className="browse__cta-title">Didn't find a matching buyer?</p>
+        <p className="browse__cta-desc">List your machine — buyers will see it directly.</p>
+        <button className="btn btn--primary" onClick={() => navigate('/marketplace/sell/new')}>
+          List your machine
+        </button>
+      </div>
     </div>
   )
 }

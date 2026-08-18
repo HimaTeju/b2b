@@ -19,10 +19,6 @@ function Jobs() {
             <h1 className="browse__title">Browse job posts</h1>
           </div>
         </div>
-
-        <button className="browse__requirements-link" onClick={() => navigate('/jobs/seekers')}>
-          Hiring? Browse job seekers &rsaquo;
-        </button>
       </div>
 
       <BrowseGrid

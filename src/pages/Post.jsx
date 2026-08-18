@@ -32,6 +32,10 @@ function Post() {
         <span className="eyebrow">MP · Marketplace</span>
         <h1 className="post__title">List something for sale</h1>
 
+        <button className="post__market-link" onClick={() => navigate('/marketplace/requirements')}>
+          Check market demand — see buyer requirements &rsaquo;
+        </button>
+
         <ListingForm
           intent="SELL"
           copy={SELL_COPY}

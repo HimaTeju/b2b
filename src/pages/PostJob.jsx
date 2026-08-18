@@ -41,6 +41,10 @@ function PostJob() {
         <span className="eyebrow">JC · Jobs &amp; Careers</span>
         <h1 className="post__title">Post a job</h1>
 
+        <button className="post__market-link" onClick={() => navigate('/jobs/seekers')}>
+          Check if a candidate is already listed — browse job seekers &rsaquo;
+        </button>
+
         <EntityRequirementForm
           categoryRequired={false}
           copy={COPY}

@@ -34,6 +34,14 @@ function JobWorkRequirements() {
         renderItem={requirement => <RequirementCard item={requirement} />}
         initialSearch={searchParams.get('search') || ''}
       />
+
+      <div className="browse__cta">
+        <p className="browse__cta-title">Didn't find a lead?</p>
+        <p className="browse__cta-desc">Set up your vendor profile — customers will find you directly.</p>
+        <button className="btn btn--primary" onClick={() => navigate('/job-work/vendor/setup')}>
+          Set up vendor profile
+        </button>
+      </div>
     </div>
   )
 }

@@ -19,10 +19,6 @@ function JobWorkVendors() {
             <h1 className="browse__title">Find a vendor</h1>
           </div>
         </div>
-
-        <button className="browse__requirements-link" onClick={() => navigate('/job-work/requirements')}>
-          Looking for leads? See requirements &rsaquo;
-        </button>
       </div>
 
       <BrowseGrid

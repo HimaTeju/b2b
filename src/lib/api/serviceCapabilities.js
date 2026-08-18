@@ -60,7 +60,7 @@ export async function getServiceProvider(profileId) {
     .select(`
       ${CAPABILITY_FIELDS},
       service_capability_categories ( machine_category_id, machine_categories ( id, name ) ),
-      profiles:profile_id ( id, company_name, city, state, about, website )
+      profiles:profiles!service_capabilities_profile_id_fkey ( id, company_name, city, state, about, website )
     `)
     .eq('profile_id', profileId)
     .single()

@@ -19,10 +19,6 @@ function ServiceProviders() {
             <h1 className="browse__title">Find a provider</h1>
           </div>
         </div>
-
-        <button className="browse__requirements-link" onClick={() => navigate('/services/requirements')}>
-          Looking for leads? See requirements &rsaquo;
-        </button>
       </div>
 
       <BrowseGrid

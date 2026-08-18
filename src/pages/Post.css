@@ -19,6 +19,18 @@
   margin-top: var(--spacing-md);
 }
 
+.post__market-link {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-services);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-top: -8px;
+  margin-bottom: var(--spacing-lg);
+}
+
 @media (min-width: 768px) {
   .post {
     padding: var(--spacing-xl);

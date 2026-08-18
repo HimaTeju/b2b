@@ -79,6 +79,10 @@ function JobWorkVendorSetup() {
         <span className="eyebrow">JW · Job Work</span>
         <h1 className="post__title">{existing ? 'Edit your vendor profile' : 'Become a job-work vendor'}</h1>
 
+        <button className="post__market-link" onClick={() => navigate('/job-work/requirements')}>
+          See what's in demand — check requirements &rsaquo;
+        </button>
+
         <CapabilityProfileForm
           copy={COPY}
           initialValues={initialValues}

@@ -59,7 +59,7 @@ export async function getJobWorkVendor(profileId) {
     .select(`
       ${CAPABILITY_FIELDS},
       jobwork_capability_categories ( machine_category_id, machine_categories ( id, name ) ),
-      profiles:profile_id ( id, company_name, city, state, about, website )
+      profiles:profiles!jobwork_capabilities_profile_id_fkey ( id, company_name, city, state, about, website )
     `)
     .eq('profile_id', profileId)
     .single()

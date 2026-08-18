@@ -79,6 +79,10 @@ function ServiceProviderSetup() {
         <span className="eyebrow">SV · Services</span>
         <h1 className="post__title">{existing ? 'Edit your provider profile' : 'Become a service provider'}</h1>
 
+        <button className="post__market-link" onClick={() => navigate('/services/requirements')}>
+          See what customers need — check requirements &rsaquo;
+        </button>
+
         <CapabilityProfileForm
           copy={COPY}
           initialValues={initialValues}

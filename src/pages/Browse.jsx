@@ -23,10 +23,6 @@ function Browse() {
             +
           </button>
         </div>
-
-        <button className="browse__requirements-link" onClick={() => navigate('/marketplace/requirements')}>
-          Looking for a buyer? See requirements &rsaquo;
-        </button>
       </div>
 
       <MarketplaceGrid intent="SELL" initialSearch={searchParams.get('search') || ''} />
