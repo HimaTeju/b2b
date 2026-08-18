@@ -99,11 +99,21 @@ function RAIL(logout, navigate) {
       label: DOMAINS.marketplace.label,
       accent: DOMAINS.marketplace.accent,
       icon: DOMAINS.marketplace.icon,
-      tiles: [
-        { label: 'Browse Listings', icon: ICONS.browse, to: '/marketplace' },
-        { label: 'Browse Requirements', icon: ICONS.browse, to: '/marketplace/requirements' },
-        { label: 'Sell Something', icon: ICONS.post, to: '/marketplace/sell/new' },
-        { label: 'Post a Requirement', icon: ICONS.post, to: '/marketplace/requirements/new' }
+      groups: [
+        {
+          question: 'Looking to buy?',
+          tiles: [
+            { label: 'Browse Listings', icon: ICONS.browse, to: '/marketplace' },
+            { label: 'Post a Requirement', icon: ICONS.post, to: '/marketplace/requirements/new' }
+          ]
+        },
+        {
+          question: 'Looking to sell?',
+          tiles: [
+            { label: 'Sell Something', icon: ICONS.post, to: '/marketplace/sell/new' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/marketplace/requirements' }
+          ]
+        }
       ]
     },
     {
@@ -112,11 +122,21 @@ function RAIL(logout, navigate) {
       label: DOMAINS.services.label,
       accent: DOMAINS.services.accent,
       icon: DOMAINS.services.icon,
-      tiles: [
-        { label: 'Find a Provider', icon: ICONS.browse, to: '/services' },
-        { label: 'Browse Requirements', icon: ICONS.browse, to: '/services/requirements' },
-        { label: 'Post a Repair Requirement', icon: ICONS.post, to: '/services/requirements/new' },
-        { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' }
+      groups: [
+        {
+          question: 'Need a service?',
+          tiles: [
+            { label: 'Find a Provider', icon: ICONS.browse, to: '/services' },
+            { label: 'Post a Repair Requirement', icon: ICONS.post, to: '/services/requirements/new' }
+          ]
+        },
+        {
+          question: 'Offer a service?',
+          tiles: [
+            { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/services/requirements' }
+          ]
+        }
       ]
     },
     {
@@ -125,10 +145,21 @@ function RAIL(logout, navigate) {
       label: DOMAINS.jobs.label,
       accent: DOMAINS.jobs.accent,
       icon: DOMAINS.jobs.icon,
-      tiles: [
-        { label: 'Browse Job Posts', icon: ICONS.browse, to: '/jobs' },
-        { label: 'Post a Job', icon: ICONS.post, to: '/jobs' },
-        { label: 'Find Work', icon: ICONS.badge, to: '/jobs' }
+      groups: [
+        {
+          question: 'Looking for work?',
+          tiles: [
+            { label: 'Browse Job Posts', icon: ICONS.browse, to: '/jobs' },
+            { label: 'Build a Job Seeker Profile', icon: ICONS.badge, to: '/jobs/seeker/setup' }
+          ]
+        },
+        {
+          question: 'Hiring?',
+          tiles: [
+            { label: 'Post a Job', icon: ICONS.post, to: '/jobs/new' },
+            { label: 'Browse Job Seekers', icon: ICONS.browse, to: '/jobs/seekers' }
+          ]
+        }
       ]
     },
     {
@@ -137,11 +168,21 @@ function RAIL(logout, navigate) {
       label: DOMAINS.jobwork.label,
       accent: DOMAINS.jobwork.accent,
       icon: DOMAINS.jobwork.icon,
-      tiles: [
-        { label: 'Find a Vendor', icon: ICONS.browse, to: '/job-work' },
-        { label: 'Browse Requirements', icon: ICONS.browse, to: '/job-work/requirements' },
-        { label: 'Post Job Work', icon: ICONS.post, to: '/job-work/requirements/new' },
-        { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' }
+      groups: [
+        {
+          question: 'Need work done?',
+          tiles: [
+            { label: 'Find a Vendor', icon: ICONS.browse, to: '/job-work' },
+            { label: 'Post Job Work', icon: ICONS.post, to: '/job-work/requirements/new' }
+          ]
+        },
+        {
+          question: 'Can you take on work?',
+          tiles: [
+            { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/job-work/requirements' }
+          ]
+        }
       ]
     },
     {
@@ -164,7 +205,7 @@ function RAIL(logout, navigate) {
       tiles: [
         { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' },
         { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
-        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs' }
+        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' }
       ]
     },
     {
@@ -215,18 +256,39 @@ function BrowseHub() {
 
       <div className="browse-hub__panel">
         <h2 className="browse-hub__panel-title">{activeSection.label}</h2>
-        <div className="browse-hub__tiles">
-          {activeSection.tiles.map(tile => (
-            <button
-              key={tile.label}
-              className={`browse-hub__tile${tile.placeholder ? ' browse-hub__tile--placeholder' : ''}`}
-              onClick={() => handleTile(tile)}
-            >
-              <span className={`browse-hub__tile-icon browse-hub__tile-icon--${activeSection.accent}`}>{tile.icon}</span>
-              <span className="browse-hub__tile-label">{tile.label}</span>
-            </button>
-          ))}
-        </div>
+
+        {activeSection.groups ? (
+          activeSection.groups.map(group => (
+            <div key={group.question} className="browse-hub__group">
+              <p className="browse-hub__question">{group.question}</p>
+              <div className="browse-hub__tiles">
+                {group.tiles.map(tile => (
+                  <button
+                    key={tile.label}
+                    className="browse-hub__tile"
+                    onClick={() => handleTile(tile)}
+                  >
+                    <span className={`browse-hub__tile-icon browse-hub__tile-icon--${activeSection.accent}`}>{tile.icon}</span>
+                    <span className="browse-hub__tile-label">{tile.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="browse-hub__tiles">
+            {activeSection.tiles.map(tile => (
+              <button
+                key={tile.label}
+                className={`browse-hub__tile${tile.placeholder ? ' browse-hub__tile--placeholder' : ''}`}
+                onClick={() => handleTile(tile)}
+              >
+                <span className={`browse-hub__tile-icon browse-hub__tile-icon--${activeSection.accent}`}>{tile.icon}</span>
+                <span className="browse-hub__tile-label">{tile.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -9,14 +9,14 @@ import './BrowseGrid.css'
  * (`renderItem`) — this component owns category drill-down, debounced
  * search, and loading/error/empty states only.
  */
-function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem }) {
+function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '' }) {
   const [categories, setCategories] = useState([])
   const [categoryTree, setCategoryTree] = useState([])
   const [activeTopId, setActiveTopId] = useState(null)
   const [activeSubId, setActiveSubId] = useState(null)
 
-  const [searchInput, setSearchInput] = useState('')
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState(initialSearch)
+  const [search, setSearch] = useState(initialSearch)
 
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)

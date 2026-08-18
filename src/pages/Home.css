@@ -80,6 +80,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   margin-top: 14px;
   padding: 0 14px;
   min-height: var(--tap-target);
@@ -87,17 +88,12 @@
   border: 1.5px solid var(--color-steel-line);
   border-radius: 24px;
   color: var(--color-ink-soft);
+  text-align: left;
 }
 
-.home__search input {
-  border: none;
-  padding: 0;
-  min-height: auto;
-  background: transparent;
-}
-
-.home__search input:focus {
-  border: none;
+.home__search-placeholder {
+  font-size: 16px;
+  color: var(--color-ink-faint);
 }
 
 @media (min-width: 640px) {

@@ -1,9 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import MarketplaceGrid from '../components/MarketplaceGrid'
 import './Browse.css'
 
 function BrowseRequirements() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -20,7 +21,7 @@ function BrowseRequirements() {
         </button>
       </div>
 
-      <MarketplaceGrid intent="REQUIREMENT" />
+      <MarketplaceGrid intent="REQUIREMENT" initialSearch={searchParams.get('search') || ''} />
     </div>
   )
 }

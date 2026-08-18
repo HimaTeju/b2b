@@ -12,16 +12,6 @@
   gap: var(--spacing-md);
 }
 
-.entity-detail__back {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  color: var(--color-ink);
-  font-size: 14px;
-  font-weight: 600;
-}
-
 .entity-detail__content {
   padding: var(--spacing-lg) var(--spacing-md);
 }

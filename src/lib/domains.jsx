@@ -4,6 +4,7 @@
 
 export const DOMAINS = {
   marketplace: {
+    key: 'marketplace',
     code: 'MP',
     label: 'Marketplace',
     to: '/marketplace',
@@ -17,6 +18,7 @@ export const DOMAINS = {
     )
   },
   services: {
+    key: 'services',
     code: 'SV',
     label: 'Services',
     to: '/services',
@@ -30,11 +32,12 @@ export const DOMAINS = {
     )
   },
   jobs: {
+    key: 'jobs',
     code: 'JC',
     label: 'Jobs & Careers',
     to: '/jobs',
     accent: 'jobs',
-    ready: false,
+    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -44,6 +47,7 @@ export const DOMAINS = {
     )
   },
   jobwork: {
+    key: 'jobwork',
     code: 'JW',
     label: 'Job Work',
     to: '/job-work',
@@ -59,3 +63,29 @@ export const DOMAINS = {
 }
 
 export const DOMAIN_LIST = Object.values(DOMAINS)
+
+/**
+ * Reorders DOMAIN_LIST for a given user — never removes a domain, only
+ * changes prominence. Priority: domains with real recent activity (posted/
+ * set up something there) rank by recency first, since actually doing
+ * something is the strongest signal; domains only declared during
+ * onboarding (no activity yet) come next in their default order; anything
+ * neither declared nor used keeps the default order at the end.
+ */
+export function rankDomains(interests = [], activity = {}) {
+  const interestSet = new Set(interests)
+
+  return [...DOMAIN_LIST].sort((a, b) => {
+    const aActivity = activity[a.key]
+    const bActivity = activity[b.key]
+
+    if (aActivity && bActivity) return aActivity < bActivity ? 1 : -1
+    if (aActivity || bActivity) return aActivity ? -1 : 1
+
+    const aInterested = interestSet.has(a.key)
+    const bInterested = interestSet.has(b.key)
+    if (aInterested !== bInterested) return aInterested ? -1 : 1
+
+    return 0
+  })
+}

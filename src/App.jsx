@@ -23,6 +23,12 @@ import ServiceRequirementDetail from './pages/ServiceRequirementDetail'
 import PostServiceRequirement from './pages/PostServiceRequirement'
 import EditServiceRequirement from './pages/EditServiceRequirement'
 import Jobs from './pages/Jobs'
+import JobPostDetail from './pages/JobPostDetail'
+import PostJob from './pages/PostJob'
+import EditJobPost from './pages/EditJobPost'
+import JobSeekers from './pages/JobSeekers'
+import JobSeekerDetail from './pages/JobSeekerDetail'
+import JobSeekerProfileSetup from './pages/JobSeekerProfileSetup'
 import JobWorkVendors from './pages/JobWorkVendors'
 import JobWorkVendorDetail from './pages/JobWorkVendorDetail'
 import JobWorkVendorSetup from './pages/JobWorkVendorSetup'
@@ -72,6 +78,12 @@ function App() {
             <Route path="/services/requirements/:id" element={<ServiceRequirementDetail />} />
 
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/jobs/new" element={<PostJob />} />
+            <Route path="/jobs/edit/:id" element={<EditJobPost />} />
+            <Route path="/jobs/seekers" element={<JobSeekers />} />
+            <Route path="/jobs/seeker/setup" element={<JobSeekerProfileSetup />} />
+            <Route path="/jobs/seekers/:profileId" element={<JobSeekerDetail />} />
+            <Route path="/jobs/:id" element={<JobPostDetail />} />
 
             <Route path="/job-work" element={<JobWorkVendors />} />
             <Route path="/job-work/vendors/:profileId" element={<JobWorkVendorDetail />} />

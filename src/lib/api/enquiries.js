@@ -10,6 +10,7 @@ const ENQUIRY_SELECT = `
   job_post_id,
   service_capability_profile_id,
   jobwork_capability_profile_id,
+  job_seeker_profile_id,
   message,
   is_read,
   created_at,
@@ -20,10 +21,11 @@ const ENQUIRY_SELECT = `
   jobwork_requirement:jobwork_requirement_id ( id, title, city, state ),
   job_post:job_post_id ( id, title, city, state ),
   service_capability:service_capability_profile_id ( profile_id, title, city, state ),
-  jobwork_capability:jobwork_capability_profile_id ( profile_id, title, city, state )
+  jobwork_capability:jobwork_capability_profile_id ( profile_id, title, city, state ),
+  job_seeker:job_seeker_profile_id ( profile_id, headline, city, state )
 `
 
-// Which of the 6 mutually-exclusive reference columns is set determines what
+// Which of the 7 mutually-exclusive reference columns is set determines what
 // an enquiry is "about" and where "View" should navigate. Kept as one lookup
 // table so every UI spot (list preview, detail header, detail section) reads
 // the same reference-type-to-route mapping via getEnquirySubject().
@@ -33,14 +35,17 @@ const SUBJECT_RESOLVERS = [
   { field: 'jobwork_requirement_id', key: 'jobwork_requirement', kind: 'JOBWORK_REQUIREMENT', path: row => `/job-work/requirements/${row.id}` },
   { field: 'job_post_id', key: 'job_post', kind: 'JOB_POST', path: row => `/jobs/${row.id}` },
   { field: 'service_capability_profile_id', key: 'service_capability', kind: 'SERVICE_CAPABILITY', path: row => `/services/providers/${row.profile_id}` },
-  { field: 'jobwork_capability_profile_id', key: 'jobwork_capability', kind: 'JOBWORK_CAPABILITY', path: row => `/job-work/vendors/${row.profile_id}` }
+  { field: 'jobwork_capability_profile_id', key: 'jobwork_capability', kind: 'JOBWORK_CAPABILITY', path: row => `/job-work/vendors/${row.profile_id}` },
+  { field: 'job_seeker_profile_id', key: 'job_seeker', kind: 'JOB_SEEKER', path: row => `/jobs/seekers/${row.profile_id}`, title: row => row.headline }
 ]
 
 /**
- * Resolve which of the 6 reference columns an enquiry row has set, and
+ * Resolve which of the 7 reference columns an enquiry row has set, and
  * return a uniform { kind, id, title, path, removed } shape for the UI —
  * `removed` is true when the referenced row was deleted or is no longer
- * visible under RLS (e.g. a deactivated capability profile).
+ * visible under RLS (e.g. a deactivated capability profile). Most subject
+ * rows expose `title` directly; job seeker profiles use `headline` instead,
+ * hence the per-resolver `title` override.
  */
 export function getEnquirySubject(enquiry) {
   const match = SUBJECT_RESOLVERS.find(r => enquiry[r.field])
@@ -50,7 +55,7 @@ export function getEnquirySubject(enquiry) {
   return {
     kind: match.kind,
     id: enquiry[match.field],
-    title: row?.title ?? null,
+    title: row ? (match.title ? match.title(row) : row.title) ?? null : null,
     path: row ? match.path(row) : null,
     removed: !row
   }
@@ -65,7 +70,8 @@ export async function createEnquiry({
   jobworkRequirementId,
   jobPostId,
   serviceCapabilityProfileId,
-  jobworkCapabilityProfileId
+  jobworkCapabilityProfileId,
+  jobSeekerProfileId
 }) {
   const { data, error } = await supabase
     .from('enquiries')
@@ -78,6 +84,7 @@ export async function createEnquiry({
       job_post_id: jobPostId ?? null,
       service_capability_profile_id: serviceCapabilityProfileId ?? null,
       jobwork_capability_profile_id: jobworkCapabilityProfileId ?? null,
+      job_seeker_profile_id: jobSeekerProfileId ?? null,
       message
     }])
     .select()

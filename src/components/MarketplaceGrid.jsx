@@ -15,7 +15,7 @@ const COPY = {
   }
 }
 
-function MarketplaceGrid({ intent }) {
+function MarketplaceGrid({ intent, initialSearch }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const copy = COPY[intent]
@@ -30,6 +30,7 @@ function MarketplaceGrid({ intent }) {
       emptyMessage={copy.empty}
       onItemClick={(listing) => navigate(`/marketplace/${listing.id}`)}
       renderItem={(listing) => <ListingCard listing={listing} />}
+      initialSearch={initialSearch}
     />
   )
 }

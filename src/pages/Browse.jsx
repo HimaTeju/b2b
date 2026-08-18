@@ -1,9 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import MarketplaceGrid from '../components/MarketplaceGrid'
 import './Browse.css'
 
 function Browse() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -28,7 +29,7 @@ function Browse() {
         </button>
       </div>
 
-      <MarketplaceGrid intent="SELL" />
+      <MarketplaceGrid intent="SELL" initialSearch={searchParams.get('search') || ''} />
 
       <div className="browse__cta">
         <p className="browse__cta-title">Didn't find what you're looking for?</p>

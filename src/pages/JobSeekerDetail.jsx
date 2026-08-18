@@ -1,36 +1,36 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getJobWorkVendor } from '../lib/api/jobworkCapabilities'
+import { getJobSeeker } from '../lib/api/jobSeekerProfiles'
 import { createEnquiry } from '../lib/api/enquiries'
 import { formatLocation } from '../lib/format'
 import EnquiryComposer from '../components/EnquiryComposer'
 import './EntityDetail.css'
 
-function JobWorkVendorDetail() {
+function JobSeekerDetail() {
   const { profileId } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [vendor, setVendor] = useState(null)
+  const [seeker, setSeeker] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
 
   useEffect(() => {
-    loadVendor()
+    loadSeeker()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId])
 
-  const loadVendor = async () => {
+  const loadSeeker = async () => {
     setLoading(true)
     setError('')
     try {
-      const data = await getJobWorkVendor(profileId)
-      setVendor(data)
+      const data = await getJobSeeker(profileId)
+      setSeeker(data)
     } catch (err) {
-      console.error('Error loading vendor:', err)
-      setError('Failed to load vendor')
+      console.error('Error loading job seeker:', err)
+      setError('Failed to load job seeker')
     } finally {
       setLoading(false)
     }
@@ -43,7 +43,7 @@ function JobWorkVendorDetail() {
       await createEnquiry({
         fromProfileId: user.id,
         toProfileId: profileId,
-        jobworkCapabilityProfileId: profileId,
+        jobSeekerProfileId: profileId,
         message
       })
       setEnquirySent(true)
@@ -59,30 +59,33 @@ function JobWorkVendorDetail() {
     return <div className="entity-detail__state">Loading…</div>
   }
 
-  if (error || !vendor) {
+  if (error || !seeker) {
     return (
       <div className="entity-detail__state">
-        <p className="banner">{error || 'Vendor not found'}</p>
-        <button className="btn btn--primary" onClick={() => navigate('/job-work')}>Back to vendors</button>
+        <p className="banner">{error || 'Job seeker not found'}</p>
+        <button className="btn btn--primary" onClick={() => navigate('/jobs/seekers')}>Back to job seekers</button>
       </div>
     )
   }
 
-  const isOwner = user?.id === vendor.profile_id
-  const categories = (vendor.jobwork_capability_categories || []).map(c => c.machine_categories?.name).filter(Boolean)
+  const isOwner = user?.id === seeker.profile_id
+  const categories = (seeker.job_seeker_categories || []).map(c => c.machine_categories?.name).filter(Boolean)
 
   return (
     <div className="entity-detail">
       <div className="entity-detail__content">
         <div className="entity-detail__header">
-          <span className="stamp stamp--solid stamp--jobwork">Job Work Vendor</span>
-          <h1 className="entity-detail__title">{vendor.title}</h1>
-          <p className="entity-detail__location">{formatLocation(vendor)}</p>
+          <span className="stamp stamp--solid stamp--jobs">Job Seeker</span>
+          <h1 className="entity-detail__title">{seeker.headline}</h1>
+          <p className="entity-detail__location">
+            {formatLocation(seeker)}
+            {seeker.experience_years > 0 && ` · ${seeker.experience_years} yr${seeker.experience_years === 1 ? '' : 's'} experience`}
+          </p>
         </div>
 
         {categories.length > 0 && (
           <div className="entity-detail__section">
-            <h2 className="entity-detail__section-title">Categories covered</h2>
+            <h2 className="entity-detail__section-title">Skills / categories</h2>
             <div className="entity-detail__tags">
               {categories.map(name => (
                 <span key={name} className="entity-detail__tag">{name}</span>
@@ -91,38 +94,35 @@ function JobWorkVendorDetail() {
           </div>
         )}
 
-        {vendor.description && (
+        {seeker.about && (
           <div className="entity-detail__section">
             <h2 className="entity-detail__section-title">About</h2>
-            <p className="entity-detail__description">{vendor.description}</p>
+            <p className="entity-detail__description">{seeker.about}</p>
           </div>
         )}
 
-        <div className="entity-detail__section">
-          <h2 className="entity-detail__section-title">Business</h2>
-          <div className="entity-detail__contact">
-            <p className="entity-detail__contact-name">{vendor.profiles?.company_name || 'Business account'}</p>
-            {vendor.profiles?.website && (
-              <a href={vendor.profiles.website} target="_blank" rel="noreferrer">{vendor.profiles.website}</a>
-            )}
+        {seeker.resume_url && (
+          <div className="entity-detail__section">
+            <h2 className="entity-detail__section-title">Resume</h2>
+            <a href={seeker.resume_url} target="_blank" rel="noreferrer">{seeker.resume_url}</a>
           </div>
-        </div>
+        )}
 
         {isOwner ? (
           <div className="entity-detail__owner-actions">
-            <button className="btn btn--ghost btn--block" onClick={() => navigate('/job-work/vendor/setup')}>
-              Edit your vendor profile
+            <button className="btn btn--ghost btn--block" onClick={() => navigate('/jobs/seeker/setup')}>
+              Edit your job seeker profile
             </button>
           </div>
         ) : (
           <EnquiryComposer
-            placeholder="Hi, I'm interested in your job-work capacity. Please share more details…"
-            ctaLabel="Contact vendor"
+            placeholder="Hi, we have a role that might suit you. Here are the details…"
+            ctaLabel="Contact candidate"
             sendLabel="Send message"
             onSubmit={handleSendEnquiry}
             sending={sendingEnquiry}
             sent={enquirySent}
-            sentMessage="Message sent — the vendor will get in touch."
+            sentMessage="Message sent — the candidate will get in touch."
           />
         )}
       </div>
@@ -130,4 +130,4 @@ function JobWorkVendorDetail() {
   )
 }
 
-export default JobWorkVendorDetail
+export default JobSeekerDetail

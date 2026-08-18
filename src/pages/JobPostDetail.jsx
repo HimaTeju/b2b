@@ -1,36 +1,36 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getServiceRequirement, deleteServiceRequirement } from '../lib/api/serviceRequirements'
+import { getJobPost, deleteJobPost } from '../lib/api/jobPosts'
 import { createEnquiry } from '../lib/api/enquiries'
 import { formatLocation } from '../lib/format'
 import EnquiryComposer from '../components/EnquiryComposer'
 import './EntityDetail.css'
 
-function ServiceRequirementDetail() {
+function JobPostDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [requirement, setRequirement] = useState(null)
+  const [jobPost, setJobPost] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
 
   useEffect(() => {
-    loadRequirement()
+    loadJobPost()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  const loadRequirement = async () => {
+  const loadJobPost = async () => {
     setLoading(true)
     setError('')
     try {
-      const data = await getServiceRequirement(id)
-      setRequirement(data)
+      const data = await getJobPost(id)
+      setJobPost(data)
     } catch (err) {
-      console.error('Error loading requirement:', err)
-      setError('Failed to load requirement')
+      console.error('Error loading job post:', err)
+      setError('Failed to load job post')
     } finally {
       setLoading(false)
     }
@@ -42,8 +42,8 @@ function ServiceRequirementDetail() {
     try {
       await createEnquiry({
         fromProfileId: user.id,
-        toProfileId: requirement.profile_id,
-        serviceRequirementId: id,
+        toProfileId: jobPost.profile_id,
+        jobPostId: id,
         message
       })
       setEnquirySent(true)
@@ -56,15 +56,15 @@ function ServiceRequirementDetail() {
   }
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(`Delete "${requirement.title}"? This cannot be undone.`)
+    const confirmed = window.confirm(`Delete "${jobPost.title}"? This cannot be undone.`)
     if (!confirmed) return
 
     try {
-      await deleteServiceRequirement(id)
-      navigate('/services/requirements')
+      await deleteJobPost(id)
+      navigate('/jobs')
     } catch (err) {
-      console.error('Error deleting requirement:', err)
-      alert('Failed to delete requirement. Please try again.')
+      console.error('Error deleting job post:', err)
+      alert('Failed to delete job post. Please try again.')
     }
   }
 
@@ -72,60 +72,60 @@ function ServiceRequirementDetail() {
     return <div className="entity-detail__state">Loading…</div>
   }
 
-  if (error || !requirement) {
+  if (error || !jobPost) {
     return (
       <div className="entity-detail__state">
-        <p className="banner">{error || 'Requirement not found'}</p>
-        <button className="btn btn--primary" onClick={() => navigate('/services/requirements')}>Back to requirements</button>
+        <p className="banner">{error || 'Job post not found'}</p>
+        <button className="btn btn--primary" onClick={() => navigate('/jobs')}>Back to job posts</button>
       </div>
     )
   }
 
-  const isOwner = user?.id === requirement.profile_id
+  const isOwner = user?.id === jobPost.profile_id
 
   return (
     <div className="entity-detail">
       <div className="entity-detail__content">
         <div className="entity-detail__header">
-          <span className="stamp stamp--solid stamp--services">Repair Requirement</span>
-          {requirement.machine_categories?.name && (
-            <span className="entity-detail__category mono">{requirement.machine_categories.name}</span>
+          <span className="stamp stamp--solid stamp--jobs">Job Post</span>
+          {jobPost.machine_categories?.name && (
+            <span className="entity-detail__category mono">{jobPost.machine_categories.name}</span>
           )}
-          <h1 className="entity-detail__title">{requirement.title}</h1>
-          <p className="entity-detail__location">{formatLocation(requirement)}</p>
+          <h1 className="entity-detail__title">{jobPost.title}</h1>
+          <p className="entity-detail__location">{formatLocation(jobPost)}</p>
         </div>
 
-        {requirement.description && (
+        {jobPost.description && (
           <div className="entity-detail__section">
             <h2 className="entity-detail__section-title">Description</h2>
-            <p className="entity-detail__description">{requirement.description}</p>
+            <p className="entity-detail__description">{jobPost.description}</p>
           </div>
         )}
 
         <div className="entity-detail__section">
           <h2 className="entity-detail__section-title">Posted by</h2>
           <div className="entity-detail__contact">
-            <p className="entity-detail__contact-name">{requirement.profiles?.company_name || 'Business account'}</p>
-            <p className="entity-detail__contact-meta">{formatLocation(requirement.profiles || {})}</p>
+            <p className="entity-detail__contact-name">{jobPost.profiles?.company_name || 'Business account'}</p>
+            <p className="entity-detail__contact-meta">{formatLocation(jobPost.profiles || {})}</p>
           </div>
         </div>
 
         {!isOwner && (
           <EnquiryComposer
-            placeholder="Hi, I can help with this. Here's what I'd suggest…"
-            ctaLabel="I can help"
-            sendLabel="Send offer"
+            placeholder="Hi, I'm interested in this role. Here's a bit about me…"
+            ctaLabel="Apply now"
+            sendLabel="Send application"
             onSubmit={handleSendEnquiry}
             sending={sendingEnquiry}
             sent={enquirySent}
-            sentMessage="Response sent — they'll get in touch."
+            sentMessage="Application sent — the employer will get in touch."
           />
         )}
 
         {isOwner && (
           <div className="entity-detail__owner-actions">
-            <button className="btn btn--ghost btn--block" onClick={() => navigate(`/services/requirements/edit/${id}`)}>
-              Edit requirement
+            <button className="btn btn--ghost btn--block" onClick={() => navigate(`/jobs/edit/${id}`)}>
+              Edit job post
             </button>
             <button className="btn btn--danger btn--block" onClick={handleDelete}>
               Delete
@@ -137,4 +137,4 @@ function ServiceRequirementDetail() {
   )
 }
 
-export default ServiceRequirementDetail
+export default JobPostDetail

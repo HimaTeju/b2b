@@ -18,6 +18,8 @@ Migrations, in apply order:
 | 010 | `010_auth_triggers.sql` | Auto-create a profile on signup |
 | 011 | `011_capability_category_write_rls.sql` | Owner-write RLS on the 3 capability-category join tables |
 | 012 | `012_enquiries_capability_references.sql` | Direct-contact enquiry references to service/jobwork capability profiles |
+| 013 | `013_enquiries_job_seeker_reference.sql` | Direct-contact enquiry reference to job seeker profiles |
+| 014 | `014_profile_onboarding.sql` | `profiles.interests` + `profiles.onboarded_at` for the onboarding wizard |
 
 ---
 
@@ -67,6 +69,7 @@ auth.users (Supabase Auth)
 | `listing_status` | `ACTIVE`, `INACTIVE` | `marketplace_listings`, `service_requirements`, `jobwork_requirements`, `job_posts` |
 | `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
 | `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
+| `interest_domain` | `marketplace`, `services`, `jobs`, `jobwork` | `profiles.interests` (added in `014_profile_onboarding.sql`) |
 
 ---
 
@@ -85,9 +88,11 @@ One row per authenticated user (`id` = `auth.users.id`, `ON DELETE CASCADE`). Au
 | `about` | `TEXT` | nullable |
 | `website` | `TEXT` | nullable; if present, must be non-blank |
 | `status` | `profile_status` | default `ACTIVE`, indexed |
+| `interests` | `interest_domain[]` | default `{}`; soft "what are you here for" signal from the onboarding wizard (`marketplace`/`services`/`jobs`/`jobwork`, mirrors `src/lib/domains.jsx`) — added in `014_profile_onboarding.sql`. Not a capability grant; distinct from `service_capabilities`/`jobwork_capabilities`/`job_seeker_profiles` |
+| `onboarded_at` | `TIMESTAMPTZ` | nullable; set when the onboarding wizard is completed *or skipped* — `NULL` means not yet shown, added in `014_profile_onboarding.sql` |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | `updated_at` auto-maintained |
 
-**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row.
+**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row — `interests`/`onboarded_at` ride along on the existing owner-write policy, no new RLS needed.
 
 ### `machine_categories`
 
@@ -232,7 +237,7 @@ Job vacancies posted by employers.
 
 ### `enquiries`
 
-Cross-module enquiry/contact messages. A single table backs enquiries for all marketplace-like modules **and** direct contact with a service/job-work provider profile; exactly one of six reference columns must be set.
+Cross-module enquiry/contact messages. A single table backs enquiries for all marketplace-like modules **and** direct contact with a service/job-work provider or job-seeker profile; exactly one of seven reference columns must be set.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -245,11 +250,12 @@ Cross-module enquiry/contact messages. A single table backs enquiries for all ma
 | `job_post_id` | `UUID` | FK → `job_posts(id)`, `ON DELETE CASCADE`, nullable |
 | `service_capability_profile_id` | `UUID` | FK → `service_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a service provider's profile, added in `012_enquiries_capability_references.sql` |
 | `jobwork_capability_profile_id` | `UUID` | FK → `jobwork_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a job-work vendor's profile, added in `012_enquiries_capability_references.sql` |
+| `job_seeker_profile_id` | `UUID` | FK → `job_seeker_profiles(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a job seeker's profile, added in `013_enquiries_job_seeker_reference.sql` |
 | `message` | `TEXT` | required |
 | `is_read` | `BOOLEAN` | default `FALSE` |
 | `created_at` | `TIMESTAMPTZ` | indexed `DESC` |
 
-`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the six reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile, never zero or multiple. Note there is deliberately no `job_seeker_profile_id` column yet — direct contact with a job-seeker profile is a known gap, deferred to the Jobs domain build.
+`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the seven reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile/seeker-profile, never zero or multiple.
 
 **RLS:** participants only. `SELECT` where the caller is sender or recipient. `INSERT` only as sender (`from_profile_id = auth.uid()`). `UPDATE` only by the recipient (`to_profile_id = auth.uid()`) — e.g. for marking `is_read`. No delete policy.
 

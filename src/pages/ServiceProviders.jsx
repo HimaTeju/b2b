@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getServiceProviders } from '../lib/api/serviceCapabilities'
 import BrowseGrid from '../components/BrowseGrid'
@@ -8,6 +8,7 @@ import './Browse.css'
 function ServiceProviders() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className="browse">
@@ -32,6 +33,7 @@ function ServiceProviders() {
         getItemKey={provider => provider.profile_id}
         onItemClick={provider => navigate(`/services/providers/${provider.profile_id}`)}
         renderItem={provider => <ProviderCard provider={provider} />}
+        initialSearch={searchParams.get('search') || ''}
       />
 
       <div className="browse__cta">

@@ -10,22 +10,14 @@
   border-bottom: 1.5px solid var(--color-ink);
 }
 
-.topbar__mark {
+.topbar__back {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.topbar__mark-main {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin-left: calc(var(--spacing-md) * -1);
   color: var(--color-ink);
-}
-
-.topbar__mark-sub {
-  display: none;
 }
 
 .topbar__greeting {
@@ -35,10 +27,4 @@
   letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--color-ink);
-}
-
-@media (min-width: 480px) {
-  .topbar__mark-sub {
-    display: inline;
-  }
 }

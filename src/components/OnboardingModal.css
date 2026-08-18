@@ -1,0 +1,105 @@
+.onboarding-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(28, 28, 26, 0.5);
+  padding: var(--spacing-md);
+}
+
+.onboarding-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 10px 10px 0 0;
+  padding: var(--spacing-lg) var(--spacing-md) max(var(--spacing-lg), env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.onboarding-modal__title {
+  font-size: 26px;
+  margin-top: 4px;
+}
+
+.onboarding-modal__hint {
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+}
+
+.onboarding-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.onboarding-modal__tile {
+  --accent: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  background: color-mix(in srgb, var(--accent) 8%, #fff);
+  color: var(--accent);
+  border: 1.5px solid var(--color-steel-line);
+  border-radius: var(--radius);
+  padding: 16px 8px;
+  transition: border-color var(--transition), background-color var(--transition), transform var(--transition);
+}
+
+.onboarding-modal__tile:active {
+  transform: scale(0.97);
+}
+
+.onboarding-modal__tile--selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, #fff);
+}
+
+.onboarding-modal__tile--marketplace { --accent: var(--color-marketplace); }
+.onboarding-modal__tile--services { --accent: var(--color-services); }
+.onboarding-modal__tile--jobs { --accent: var(--color-jobs); }
+.onboarding-modal__tile--jobwork { --accent: var(--color-jobwork); }
+
+.onboarding-modal__tile-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.onboarding-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.onboarding-modal__skip {
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .onboarding-modal__backdrop {
+    align-items: center;
+  }
+
+  .onboarding-modal {
+    border-radius: 10px;
+    max-height: 80vh;
+  }
+}
