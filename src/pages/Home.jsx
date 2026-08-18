@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getMyListings } from '../lib/api/listings'
 import { getEnquiryCounts } from '../lib/api/enquiries'
-import { DOMAIN_LIST } from '../lib/domains'
+import { getDomainActivity } from '../lib/api/activity'
+import { DOMAIN_LIST, rankDomains } from '../lib/domains'
 import './Home.css'
 
 function Home() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [activity, setActivity] = useState(null)
+  const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST)
 
   useEffect(() => {
     if (!user) return
@@ -29,6 +31,21 @@ function Home() {
     return () => { cancelled = true }
   }, [user])
 
+  useEffect(() => {
+    if (!user || !profile) return
+
+    let cancelled = false
+
+    getDomainActivity(user.id)
+      .then(domainActivity => {
+        if (cancelled) return
+        setDomainOrder(rankDomains(profile.interests, domainActivity))
+      })
+      .catch(err => console.error('Error loading domain activity:', err))
+
+    return () => { cancelled = true }
+  }, [user, profile])
+
   return (
     <div className="home">
       {activity && (activity.activeListings > 0 || activity.unreadEnquiries > 0) && (
@@ -45,7 +62,7 @@ function Home() {
       )}
 
       <div className="home__quicklinks">
-        {DOMAIN_LIST.map(domain => (
+        {domainOrder.map(domain => (
           <button
             key={domain.code}
             className={`quicklink quicklink--${domain.accent}`}

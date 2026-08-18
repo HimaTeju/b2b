@@ -19,6 +19,7 @@ Migrations, in apply order:
 | 011 | `011_capability_category_write_rls.sql` | Owner-write RLS on the 3 capability-category join tables |
 | 012 | `012_enquiries_capability_references.sql` | Direct-contact enquiry references to service/jobwork capability profiles |
 | 013 | `013_enquiries_job_seeker_reference.sql` | Direct-contact enquiry reference to job seeker profiles |
+| 014 | `014_profile_onboarding.sql` | `profiles.interests` + `profiles.onboarded_at` for the onboarding wizard |
 
 ---
 
@@ -68,6 +69,7 @@ auth.users (Supabase Auth)
 | `listing_status` | `ACTIVE`, `INACTIVE` | `marketplace_listings`, `service_requirements`, `jobwork_requirements`, `job_posts` |
 | `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
 | `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
+| `interest_domain` | `marketplace`, `services`, `jobs`, `jobwork` | `profiles.interests` (added in `014_profile_onboarding.sql`) |
 
 ---
 
@@ -86,9 +88,11 @@ One row per authenticated user (`id` = `auth.users.id`, `ON DELETE CASCADE`). Au
 | `about` | `TEXT` | nullable |
 | `website` | `TEXT` | nullable; if present, must be non-blank |
 | `status` | `profile_status` | default `ACTIVE`, indexed |
+| `interests` | `interest_domain[]` | default `{}`; soft "what are you here for" signal from the onboarding wizard (`marketplace`/`services`/`jobs`/`jobwork`, mirrors `src/lib/domains.jsx`) — added in `014_profile_onboarding.sql`. Not a capability grant; distinct from `service_capabilities`/`jobwork_capabilities`/`job_seeker_profiles` |
+| `onboarded_at` | `TIMESTAMPTZ` | nullable; set when the onboarding wizard is completed *or skipped* — `NULL` means not yet shown, added in `014_profile_onboarding.sql` |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | `updated_at` auto-maintained |
 
-**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row.
+**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row — `interests`/`onboarded_at` ride along on the existing owner-write policy, no new RLS needed.
 
 ### `machine_categories`
 
