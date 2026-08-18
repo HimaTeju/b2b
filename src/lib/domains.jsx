@@ -34,7 +34,7 @@ export const DOMAINS = {
     label: 'Jobs & Careers',
     to: '/jobs',
     accent: 'jobs',
-    ready: false,
+    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <rect x="3" y="7" width="18" height="13" rx="2" />

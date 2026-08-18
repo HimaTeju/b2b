@@ -127,8 +127,9 @@ function RAIL(logout, navigate) {
       icon: DOMAINS.jobs.icon,
       tiles: [
         { label: 'Browse Job Posts', icon: ICONS.browse, to: '/jobs' },
-        { label: 'Post a Job', icon: ICONS.post, to: '/jobs' },
-        { label: 'Find Work', icon: ICONS.badge, to: '/jobs' }
+        { label: 'Browse Job Seekers', icon: ICONS.browse, to: '/jobs/seekers' },
+        { label: 'Post a Job', icon: ICONS.post, to: '/jobs/new' },
+        { label: 'Build a Job Seeker Profile', icon: ICONS.badge, to: '/jobs/seeker/setup' }
       ]
     },
     {
@@ -164,7 +165,7 @@ function RAIL(logout, navigate) {
       tiles: [
         { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' },
         { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
-        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs' }
+        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' }
       ]
     },
     {
