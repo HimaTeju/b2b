@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { getBackPath } from '../lib/backNav'
 import './TopBar.css'
 
 function getGreeting() {
@@ -9,6 +10,11 @@ function getGreeting() {
   return 'Good evening'
 }
 
+/**
+ * Every non-Home page gets the same back button here, instead of each page
+ * rolling its own — see lib/backNav.js for why it navigates to a declared
+ * parent path rather than browser history.
+ */
 function TopBar() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -23,9 +29,15 @@ function TopBar() {
           {getGreeting()}{displayName ? `, ${displayName}` : ''}
         </p>
       ) : (
-        <button className="topbar__mark" onClick={() => navigate('/')}>
-          <span className="topbar__mark-main">B2B WORKS</span>
-          <span className="topbar__mark-sub eyebrow">Industrial Exchange</span>
+        <button
+          className="topbar__back"
+          onClick={() => navigate(getBackPath(location.pathname))}
+          aria-label="Back"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
         </button>
       )}
     </header>
