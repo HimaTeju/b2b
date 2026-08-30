@@ -27,6 +27,7 @@ function Post({ section = 'MACHINERY' }) {
 
     try {
       const listing = await createListing({ ...listingData, profile_id: user.id })
+      let notice
 
       if (images?.newFiles.length) {
         try {
@@ -37,11 +38,11 @@ function Post({ section = 'MACHINERY' }) {
           })
         } catch (imgErr) {
           console.error('Error uploading listing images:', imgErr)
-          alert('Listing posted, but the photos failed to upload. You can add them from the listing page.')
+          notice = 'Listing posted, but the photos failed to upload. You can add them from the listing page.'
         }
       }
 
-      navigate(`/marketplace/${listing.id}`)
+      navigate(`/marketplace/${listing.id}`, { state: { notice } })
     } catch (err) {
       console.error('Error creating listing:', err)
       setError(err.message || 'Failed to create listing')

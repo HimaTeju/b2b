@@ -24,6 +24,7 @@ function PostRequirement({ section = 'MACHINERY' }) {
 
     try {
       const listing = await createListing({ ...listingData, profile_id: user.id })
+      let notice
 
       if (images?.newFiles.length) {
         try {
@@ -34,11 +35,11 @@ function PostRequirement({ section = 'MACHINERY' }) {
           })
         } catch (imgErr) {
           console.error('Error uploading listing images:', imgErr)
-          alert('Requirement posted, but the photos failed to upload. You can add them from the listing page.')
+          notice = 'Requirement posted, but the photos failed to upload. You can add them from the listing page.'
         }
       }
 
-      navigate(`/marketplace/${listing.id}`)
+      navigate(`/marketplace/${listing.id}`, { state: { notice } })
     } catch (err) {
       console.error('Error posting requirement:', err)
       setError(err.message || 'Failed to post requirement')

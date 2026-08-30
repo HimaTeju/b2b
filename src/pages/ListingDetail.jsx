@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getListing, deleteListing } from '../lib/api/listings'
 import { createEnquiry } from '../lib/api/enquiries'
@@ -13,12 +13,16 @@ import './ListingDetail.css'
 function ListingDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const [listing, setListing] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [notice] = useState(location.state?.notice || '')
 
   useEffect(() => {
     loadListing()
@@ -41,6 +45,7 @@ function ListingDetail() {
 
   const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
+    setEnquiryError('')
 
     try {
       await createEnquiry({
@@ -52,7 +57,7 @@ function ListingDetail() {
       setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
-      alert('Failed to send enquiry. Please try again.')
+      setEnquiryError('Failed to send enquiry. Please try again.')
     } finally {
       setSendingEnquiry(false)
     }
@@ -62,12 +67,13 @@ function ListingDetail() {
     const confirmed = window.confirm(`Delete "${listing.title}"? This cannot be undone.`)
     if (!confirmed) return
 
+    setDeleteError('')
     try {
       await deleteListing(id, listing.listing_images)
       navigate('/dashboard')
     } catch (err) {
       console.error('Error deleting listing:', err)
-      alert('Failed to delete listing. Please try again.')
+      setDeleteError('Failed to delete listing. Please try again.')
     }
   }
 
@@ -96,6 +102,8 @@ function ListingDetail() {
         </div>
 
         <div className="listing-detail__content">
+          {notice && <div className="banner">{notice}</div>}
+
           <div className="listing-detail__header">
             <span className="stamp stamp--solid stamp--ink">{INTENT_LABELS[listing.intent]}</span>
             {listing.condition && <span className="stamp stamp--muted">{CONDITION_LABELS[listing.condition]}</span>}
@@ -174,11 +182,13 @@ function ListingDetail() {
               sending={sendingEnquiry}
               sent={enquirySent}
               sentMessage={isRequirement ? 'Response sent — the buyer will get in touch.' : 'Enquiry sent — the seller will get in touch.'}
+              error={enquiryError}
             />
           )}
 
           {isOwner && (
             <div className="listing-detail__owner-actions">
+              {deleteError && <div className="banner">{deleteError}</div>}
               <button className="btn btn--ghost btn--block" onClick={() => navigate(`/marketplace/post/edit/${id}`)}>
                 {isRequirement ? 'Edit requirement' : 'Edit listing'}
               </button>

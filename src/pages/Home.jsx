@@ -72,7 +72,6 @@ function Home() {
           >
             <span className="quicklink__icon">{domain.icon}</span>
             <span className="quicklink__label">{domain.label}</span>
-            {!domain.ready && <span className="quicklink__soon">Soon</span>}
           </button>
         ))}
       </div>

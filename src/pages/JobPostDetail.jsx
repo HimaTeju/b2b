@@ -16,6 +16,8 @@ function JobPostDetail() {
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     loadJobPost()
@@ -38,6 +40,7 @@ function JobPostDetail() {
 
   const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
+    setEnquiryError('')
 
     try {
       await createEnquiry({
@@ -49,7 +52,7 @@ function JobPostDetail() {
       setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
-      alert('Failed to send enquiry. Please try again.')
+      setEnquiryError('Failed to send enquiry. Please try again.')
     } finally {
       setSendingEnquiry(false)
     }
@@ -59,12 +62,13 @@ function JobPostDetail() {
     const confirmed = window.confirm(`Delete "${jobPost.title}"? This cannot be undone.`)
     if (!confirmed) return
 
+    setDeleteError('')
     try {
       await deleteJobPost(id)
       navigate('/jobs')
     } catch (err) {
       console.error('Error deleting job post:', err)
-      alert('Failed to delete job post. Please try again.')
+      setDeleteError('Failed to delete job post. Please try again.')
     }
   }
 
@@ -119,11 +123,13 @@ function JobPostDetail() {
             sending={sendingEnquiry}
             sent={enquirySent}
             sentMessage="Application sent — the employer will get in touch."
+            error={enquiryError}
           />
         )}
 
         {isOwner && (
           <div className="entity-detail__owner-actions">
+            {deleteError && <div className="banner">{deleteError}</div>}
             <button className="btn btn--ghost btn--block" onClick={() => navigate(`/jobs/edit/${id}`)}>
               Edit job post
             </button>

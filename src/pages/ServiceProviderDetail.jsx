@@ -16,6 +16,7 @@ function ServiceProviderDetail() {
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
 
   useEffect(() => {
     loadProvider()
@@ -38,6 +39,7 @@ function ServiceProviderDetail() {
 
   const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
+    setEnquiryError('')
 
     try {
       await createEnquiry({
@@ -49,7 +51,7 @@ function ServiceProviderDetail() {
       setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
-      alert('Failed to send enquiry. Please try again.')
+      setEnquiryError('Failed to send enquiry. Please try again.')
     } finally {
       setSendingEnquiry(false)
     }
@@ -123,6 +125,7 @@ function ServiceProviderDetail() {
             sending={sendingEnquiry}
             sent={enquirySent}
             sentMessage="Message sent — the provider will get in touch."
+            error={enquiryError}
           />
         )}
       </div>
