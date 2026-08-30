@@ -1,4 +1,5 @@
 import { supabase } from '../supabase'
+import { deleteListingImageFiles } from './listingImages'
 
 const LISTING_SUMMARY_SELECT = `
   id,
@@ -131,7 +132,16 @@ export async function updateListing(id, updates) {
   return data
 }
 
-export async function deleteListing(id) {
+/**
+ * Delete a listing. `images` should be the listing's already-loaded
+ * listing_images rows (e.g. from getListing) — passing them in avoids an
+ * extra SELECT just to find what to remove from Storage. The listing_images
+ * DB rows themselves aren't deleted explicitly: listing_images.listing_id
+ * cascades on delete, so removing the listing row clears them for free.
+ */
+export async function deleteListing(id, images) {
+  await deleteListingImageFiles(images)
+
   const { error } = await supabase
     .from('marketplace_listings')
     .delete()

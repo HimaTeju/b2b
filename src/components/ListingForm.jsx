@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import CategoryPicker from './CategoryPicker'
 import { CONDITIONS, CONDITION_LABELS } from '../lib/constants'
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, getListingImageUrl } from '../lib/api/listingImages'
 import './EntityForm.css'
+
+const MAX_PHOTOS = 6
 
 const EMPTY_FORM = {
   machine_category_id: '',
@@ -43,11 +46,70 @@ export const REQUIREMENT_COPY = {
   savingLabel: 'Posting…'
 }
 
-function ListingForm({ intent, copy, initialValues, onSubmit, onCancel, submitLabel, saving, error }) {
+function ListingForm({ intent, copy, initialValues, existingImages, onSubmit, onCancel, submitLabel, saving, error }) {
   const [form, setForm] = useState({ ...EMPTY_FORM, ...initialValues })
+  const [keptImages, setKeptImages] = useState(existingImages || [])
+  const [removedImageIds, setRemovedImageIds] = useState([])
+  const [newImages, setNewImages] = useState([]) // [{ file, previewUrl }]
+  const [photoError, setPhotoError] = useState('')
+  const fileInputRef = useRef(null)
+
+  // Revoke object URLs for locally-picked photos when they're replaced/unmounted.
+  useEffect(() => {
+    return () => newImages.forEach(image => URL.revokeObjectURL(image.previewUrl))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const totalPhotoCount = keptImages.length + newImages.length
 
   const handleChange = (field) => (e) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }))
+  }
+
+  const handleFilesSelected = (e) => {
+    const files = Array.from(e.target.files || [])
+    e.target.value = '' // allow re-selecting the same file later
+    if (files.length === 0) return
+
+    setPhotoError('')
+
+    const room = MAX_PHOTOS - totalPhotoCount
+    if (room <= 0) {
+      setPhotoError(`You can add up to ${MAX_PHOTOS} photos`)
+      return
+    }
+
+    const accepted = []
+    for (const file of files.slice(0, room)) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setPhotoError('Only JPEG, PNG, or WEBP images are allowed')
+        continue
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        setPhotoError('Each image must be smaller than 5MB')
+        continue
+      }
+      accepted.push({ file, previewUrl: URL.createObjectURL(file) })
+    }
+
+    if (accepted.length > 0) {
+      setNewImages(prev => [...prev, ...accepted])
+    }
+  }
+
+  const removeKeptImage = (imageId) => {
+    setKeptImages(prev => prev.filter(image => image.id !== imageId))
+    setRemovedImageIds(prev => [...prev, imageId])
+  }
+
+  const removeNewImage = (previewUrl) => {
+    setNewImages(prev => prev.filter(image => {
+      if (image.previewUrl === previewUrl) {
+        URL.revokeObjectURL(image.previewUrl)
+        return false
+      }
+      return true
+    }))
   }
 
   const handleSubmit = (e) => {
@@ -62,6 +124,10 @@ function ListingForm({ intent, copy, initialValues, onSubmit, onCancel, submitLa
       quantity: form.quantity === '' ? 1 : parseInt(form.quantity, 10),
       city: form.city.trim() || null,
       state: form.state.trim() || null
+    }, {
+      removedImageIds,
+      newFiles: newImages.map(image => image.file),
+      keptImageCount: keptImages.length
     })
   }
 
@@ -75,6 +141,56 @@ function ListingForm({ intent, copy, initialValues, onSubmit, onCancel, submitLa
         value={form.machine_category_id}
         onChange={(id) => setForm(prev => ({ ...prev, machine_category_id: id }))}
       />
+
+      <div className="field">
+        <span className="field__label">Photos</span>
+        <div className="entity-form__photos">
+          {keptImages.map(image => (
+            <div className="entity-form__photo" key={image.id}>
+              <img src={getListingImageUrl(image.storage_path)} alt="" />
+              <button
+                type="button"
+                className="entity-form__photo-remove"
+                aria-label="Remove photo"
+                onClick={() => removeKeptImage(image.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {newImages.map(image => (
+            <div className="entity-form__photo" key={image.previewUrl}>
+              <img src={image.previewUrl} alt="" />
+              <button
+                type="button"
+                className="entity-form__photo-remove"
+                aria-label="Remove photo"
+                onClick={() => removeNewImage(image.previewUrl)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {totalPhotoCount < MAX_PHOTOS && (
+            <button
+              type="button"
+              className="entity-form__photo-add"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              + Add
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          hidden
+          onChange={handleFilesSelected}
+        />
+        {photoError && <p className="entity-form__photo-error">{photoError}</p>}
+      </div>
 
       <div className="field">
         <label className="field__label" htmlFor="title">{copy.titleLabel}</label>
