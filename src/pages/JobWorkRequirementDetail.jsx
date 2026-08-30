@@ -16,6 +16,8 @@ function JobWorkRequirementDetail() {
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     loadRequirement()
@@ -38,6 +40,7 @@ function JobWorkRequirementDetail() {
 
   const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
+    setEnquiryError('')
 
     try {
       await createEnquiry({
@@ -49,7 +52,7 @@ function JobWorkRequirementDetail() {
       setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
-      alert('Failed to send enquiry. Please try again.')
+      setEnquiryError('Failed to send enquiry. Please try again.')
     } finally {
       setSendingEnquiry(false)
     }
@@ -59,12 +62,13 @@ function JobWorkRequirementDetail() {
     const confirmed = window.confirm(`Delete "${requirement.title}"? This cannot be undone.`)
     if (!confirmed) return
 
+    setDeleteError('')
     try {
       await deleteJobWorkRequirement(id)
       navigate('/job-work/requirements')
     } catch (err) {
       console.error('Error deleting requirement:', err)
-      alert('Failed to delete requirement. Please try again.')
+      setDeleteError('Failed to delete requirement. Please try again.')
     }
   }
 
@@ -119,11 +123,13 @@ function JobWorkRequirementDetail() {
             sending={sendingEnquiry}
             sent={enquirySent}
             sentMessage="Response sent — they'll get in touch."
+            error={enquiryError}
           />
         )}
 
         {isOwner && (
           <div className="entity-detail__owner-actions">
+            {deleteError && <div className="banner">{deleteError}</div>}
             <button className="btn btn--ghost btn--block" onClick={() => navigate(`/job-work/requirements/edit/${id}`)}>
               Edit requirement
             </button>

@@ -47,6 +47,7 @@ function EditListing() {
 
     try {
       await updateListing(id, updates)
+      let notice
 
       try {
         const removedImages = (listing.listing_images || [])
@@ -64,10 +65,10 @@ function EditListing() {
         }
       } catch (imgErr) {
         console.error('Error updating listing images:', imgErr)
-        alert('Listing saved, but some photo changes failed. You can retry from the listing page.')
+        notice = 'Listing saved, but some photo changes failed. You can retry from the listing page.'
       }
 
-      navigate(`/marketplace/${id}`)
+      navigate(`/marketplace/${id}`, { state: { notice } })
     } catch (err) {
       console.error('Error updating listing:', err)
       setError(err.message || 'Failed to update listing')

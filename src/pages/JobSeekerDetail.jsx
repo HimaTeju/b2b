@@ -16,6 +16,7 @@ function JobSeekerDetail() {
   const [error, setError] = useState('')
   const [sendingEnquiry, setSendingEnquiry] = useState(false)
   const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
 
   useEffect(() => {
     loadSeeker()
@@ -38,6 +39,7 @@ function JobSeekerDetail() {
 
   const handleSendEnquiry = async (message) => {
     setSendingEnquiry(true)
+    setEnquiryError('')
 
     try {
       await createEnquiry({
@@ -49,7 +51,7 @@ function JobSeekerDetail() {
       setEnquirySent(true)
     } catch (err) {
       console.error('Error sending enquiry:', err)
-      alert('Failed to send enquiry. Please try again.')
+      setEnquiryError('Failed to send enquiry. Please try again.')
     } finally {
       setSendingEnquiry(false)
     }
@@ -123,6 +125,7 @@ function JobSeekerDetail() {
             sending={sendingEnquiry}
             sent={enquirySent}
             sentMessage="Message sent — the candidate will get in touch."
+            error={enquiryError}
           />
         )}
       </div>

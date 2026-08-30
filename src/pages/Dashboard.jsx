@@ -14,6 +14,7 @@ function Dashboard() {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     loadDashboard()
@@ -42,13 +43,14 @@ function Dashboard() {
     const confirmed = window.confirm(`Delete "${title}"? This cannot be undone.`)
     if (!confirmed) return
 
+    setDeleteError('')
     try {
       const target = listings.find(l => l.id === listingId)
       await deleteListing(listingId, target?.listing_images)
       await loadDashboard()
     } catch (err) {
       console.error('Error deleting listing:', err)
-      alert('Failed to delete listing. Please try again.')
+      setDeleteError('Failed to delete listing. Please try again.')
     }
   }
 
@@ -61,6 +63,7 @@ function Dashboard() {
         <h1 className="dashboard__title">Your dashboard</h1>
 
         {error && <div className="banner">{error}</div>}
+        {deleteError && <div className="banner">{deleteError}</div>}
 
         {loading ? (
           <div className="dashboard__loading">Loading…</div>

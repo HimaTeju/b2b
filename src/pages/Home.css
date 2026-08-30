@@ -61,20 +61,6 @@
   line-height: 1.2;
 }
 
-.quicklink__soon {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-paper);
-  background: var(--accent);
-  border-radius: 2px;
-  padding: 1px 3px;
-}
 
 .home__search {
   display: flex;

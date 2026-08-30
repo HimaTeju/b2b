@@ -7,7 +7,7 @@ import './EnquiryComposer.css'
  * textarea, or a confirmation banner once sent. Caller owns the actual
  * enquiry creation and controls `sending`/`sent`.
  */
-function EnquiryComposer({ placeholder, ctaLabel, sendLabel = 'Send', sendingLabel = 'Sending…', onSubmit, sending, sent, sentMessage }) {
+function EnquiryComposer({ placeholder, ctaLabel, sendLabel = 'Send', sendingLabel = 'Sending…', onSubmit, sending, sent, sentMessage, error }) {
   const [showForm, setShowForm] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -22,14 +22,18 @@ function EnquiryComposer({ placeholder, ctaLabel, sendLabel = 'Send', sendingLab
 
   if (!showForm) {
     return (
-      <button className="btn btn--primary btn--block" onClick={() => setShowForm(true)}>
-        {ctaLabel}
-      </button>
+      <>
+        {error && <div className="banner">{error}</div>}
+        <button className="btn btn--primary btn--block" onClick={() => setShowForm(true)}>
+          {ctaLabel}
+        </button>
+      </>
     )
   }
 
   return (
     <form onSubmit={handleSubmit} className="enquiry-composer">
+      {error && <div className="banner">{error}</div>}
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}

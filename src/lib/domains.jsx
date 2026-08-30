@@ -9,7 +9,6 @@ export const DOMAINS = {
     label: 'Marketplace',
     to: '/marketplace',
     accent: 'marketplace',
-    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <path d="M6 8V6a6 6 0 0 1 12 0v2" />
@@ -23,7 +22,6 @@ export const DOMAINS = {
     label: 'Services',
     to: '/services',
     accent: 'services',
-    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4L14.7 12z" />
@@ -37,7 +35,6 @@ export const DOMAINS = {
     label: 'Jobs & Careers',
     to: '/jobs',
     accent: 'jobs',
-    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -52,7 +49,6 @@ export const DOMAINS = {
     label: 'Job Work',
     to: '/job-work',
     accent: 'jobwork',
-    ready: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <circle cx="12" cy="12" r="3" />
