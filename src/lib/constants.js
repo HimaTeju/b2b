@@ -13,3 +13,25 @@ export const CONDITION_LABELS = {
   NEW: 'New',
   USED: 'Used'
 }
+
+export const SECTIONS = ['MACHINERY', 'TOOLS_ACCESSORIES', 'SCRAP']
+
+export const SECTION_LABELS = {
+  MACHINERY: 'Machinery',
+  TOOLS_ACCESSORIES: 'Tools & Accessories',
+  SCRAP: 'Scrap'
+}
+
+// Route segment appended after /marketplace for each section (Machinery keeps the bare path).
+export const SECTION_PATH = {
+  MACHINERY: '',
+  TOOLS_ACCESSORIES: '/tools-accessories',
+  SCRAP: '/scrap'
+}
+
+export const WEIGHT_UNITS = ['GM', 'KG']
+
+export const WEIGHT_UNIT_LABELS = {
+  GM: 'gm',
+  KG: 'kg'
+}

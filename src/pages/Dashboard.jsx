@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { getMyListings, deleteListing } from '../lib/api/listings'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { formatListingPrice } from '../lib/format'
-import { INTENT_LABELS } from '../lib/constants'
+import { INTENT_LABELS, SECTION_LABELS } from '../lib/constants'
 import './Dashboard.css'
 
 function Dashboard() {
@@ -115,7 +115,7 @@ function Dashboard() {
                           </span>
                         </div>
                         <h3 className="listing-row__title">{listing.title}</h3>
-                        <p className="listing-row__meta mono">{listing.machine_categories?.name} · {formatListingPrice(listing)}</p>
+                        <p className="listing-row__meta mono">{listing.machine_categories?.name || SECTION_LABELS[listing.section]} · {formatListingPrice(listing)}</p>
                       </div>
                       <div className="listing-row__actions">
                         <button

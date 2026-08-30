@@ -4,6 +4,7 @@ import { getListing, updateListing } from '../lib/api/listings'
 import { uploadListingImages, deleteListingImages } from '../lib/api/listingImages'
 import { useAuth } from '../context/AuthContext'
 import ListingForm, { SELL_COPY, REQUIREMENT_COPY } from '../components/ListingForm'
+import { SECTION_LABELS } from '../lib/constants'
 import './Post.css'
 
 function EditListing() {
@@ -97,24 +98,30 @@ function EditListing() {
   }
 
   const isRequirement = listing.intent === 'REQUIREMENT'
+  const section = listing.section || 'MACHINERY'
   const initialValues = {
-    machine_category_id: listing.machine_category_id,
+    machine_category_id: listing.machine_category_id || '',
     title: listing.title,
     description: listing.description || '',
     condition: listing.condition || '',
     price: listing.price ?? '',
     quantity: String(listing.quantity ?? 1),
     city: listing.city || '',
-    state: listing.state || ''
+    state: listing.state || '',
+    material_type: listing.material_type || '',
+    shape: listing.shape || '',
+    weight: listing.weight ?? '',
+    weight_unit: listing.weight_unit || 'KG'
   }
 
   return (
     <div className="post">
       <div className="post__container">
         <span className="eyebrow">MP · Marketplace</span>
-        <h1 className="post__title">{isRequirement ? 'Edit requirement' : 'Edit listing'}</h1>
+        <h1 className="post__title">{isRequirement ? `Edit ${SECTION_LABELS[section]} requirement` : `Edit ${SECTION_LABELS[section]} listing`}</h1>
 
         <ListingForm
+          section={section}
           intent={listing.intent}
           copy={isRequirement ? REQUIREMENT_COPY : SELL_COPY}
           initialValues={initialValues}

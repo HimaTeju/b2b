@@ -1,16 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createListing } from '../lib/api/listings'
 import { uploadListingImages } from '../lib/api/listingImages'
 import { useAuth } from '../context/AuthContext'
 import ListingForm, { REQUIREMENT_COPY } from '../components/ListingForm'
+import { SECTION_LABELS } from '../lib/constants'
 import './Post.css'
 
-function PostRequirement() {
+function PostRequirement({ section = 'MACHINERY' }) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    setError('')
+    setSaving(false)
+  }, [section])
 
   const handleSubmit = async (listingData, images) => {
     setSaving(true)
@@ -45,9 +51,11 @@ function PostRequirement() {
     <div className="post">
       <div className="post__container">
         <span className="eyebrow">MP · Marketplace</span>
-        <h1 className="post__title">Post a requirement</h1>
+        <h1 className="post__title">Post a {SECTION_LABELS[section]} requirement</h1>
 
         <ListingForm
+          key={section}
+          section={section}
           intent="REQUIREMENT"
           copy={REQUIREMENT_COPY}
           onSubmit={handleSubmit}

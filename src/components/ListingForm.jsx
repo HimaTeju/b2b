@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import CategoryPicker from './CategoryPicker'
-import { CONDITIONS, CONDITION_LABELS } from '../lib/constants'
+import { CONDITIONS, CONDITION_LABELS, WEIGHT_UNITS, WEIGHT_UNIT_LABELS } from '../lib/constants'
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, getListingImageUrl } from '../lib/api/listingImages'
 import './EntityForm.css'
 
@@ -14,7 +14,11 @@ const EMPTY_FORM = {
   price: '',
   quantity: '1',
   city: '',
-  state: ''
+  state: '',
+  material_type: '',
+  shape: '',
+  weight: '',
+  weight_unit: 'KG'
 }
 
 export const SELL_COPY = {
@@ -46,7 +50,7 @@ export const REQUIREMENT_COPY = {
   savingLabel: 'Posting…'
 }
 
-function ListingForm({ intent, copy, initialValues, existingImages, onSubmit, onCancel, submitLabel, saving, error }) {
+function ListingForm({ section = 'MACHINERY', intent, copy, initialValues, existingImages, onSubmit, onCancel, submitLabel, saving, error }) {
   const [form, setForm] = useState({ ...EMPTY_FORM, ...initialValues })
   const [keptImages, setKeptImages] = useState(existingImages || [])
   const [removedImageIds, setRemovedImageIds] = useState([])
@@ -116,14 +120,19 @@ function ListingForm({ intent, copy, initialValues, existingImages, onSubmit, on
     e.preventDefault()
     onSubmit({
       intent,
-      machine_category_id: form.machine_category_id,
+      section,
+      machine_category_id: section === 'SCRAP' ? null : (form.machine_category_id || null),
       title: form.title.trim(),
       description: form.description.trim() || null,
       condition: form.condition || null,
       price: form.price === '' ? null : parseFloat(form.price),
       quantity: form.quantity === '' ? 1 : parseInt(form.quantity, 10),
       city: form.city.trim() || null,
-      state: form.state.trim() || null
+      state: form.state.trim() || null,
+      material_type: section === 'SCRAP' ? (form.material_type.trim() || null) : null,
+      shape: section === 'SCRAP' ? (form.shape.trim() || null) : null,
+      weight: section === 'SCRAP' && form.weight !== '' ? parseFloat(form.weight) : null,
+      weight_unit: section === 'SCRAP' ? (form.weight_unit || null) : null
     }, {
       removedImageIds,
       newFiles: newImages.map(image => image.file),
@@ -137,10 +146,79 @@ function ListingForm({ intent, copy, initialValues, existingImages, onSubmit, on
 
       {copy.intro && <p className="entity-form__intro">{copy.intro}</p>}
 
-      <CategoryPicker
-        value={form.machine_category_id}
-        onChange={(id) => setForm(prev => ({ ...prev, machine_category_id: id }))}
-      />
+      {section === 'MACHINERY' && (
+        <CategoryPicker
+          value={form.machine_category_id}
+          onChange={(id) => setForm(prev => ({ ...prev, machine_category_id: id }))}
+        />
+      )}
+
+      {section === 'TOOLS_ACCESSORIES' && (
+        <CategoryPicker
+          value={form.machine_category_id}
+          onChange={(id) => setForm(prev => ({ ...prev, machine_category_id: id }))}
+          required={false}
+          label="Related machine category"
+        />
+      )}
+
+      {section === 'SCRAP' && (
+        <>
+          <div className="field__row">
+            <div className="field">
+              <label className="field__label" htmlFor="material_type">Material Type</label>
+              <input
+                id="material_type"
+                type="text"
+                value={form.material_type}
+                onChange={handleChange('material_type')}
+                placeholder="e.g. Copper, Steel, Aluminum"
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label" htmlFor="shape">Shape</label>
+              <input
+                id="shape"
+                type="text"
+                value={form.shape}
+                onChange={handleChange('shape')}
+                placeholder="e.g. Sheet, Rod, Turnings"
+              />
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="field__label" htmlFor="weight">Weight</label>
+            <input
+              id="weight"
+              type="number"
+              className="input--mono"
+              value={form.weight}
+              onChange={handleChange('weight')}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            />
+          </div>
+
+          <div className="field">
+            <span className="field__label">Weight Unit</span>
+            <div className="entity-form__chip-toggle">
+              {WEIGHT_UNITS.map(unit => (
+                <button
+                  type="button"
+                  key={unit}
+                  className={`entity-form__chip ${form.weight_unit === unit ? 'entity-form__chip--active' : ''}`}
+                  onClick={() => setForm(prev => ({ ...prev, weight_unit: unit }))}
+                >
+                  {WEIGHT_UNIT_LABELS[unit]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="field">
         <span className="field__label">Photos</span>

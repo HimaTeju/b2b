@@ -62,10 +62,22 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/browse" element={<BrowseHub />} />
 
-            <Route path="/marketplace" element={<Browse />} />
-            <Route path="/marketplace/requirements" element={<BrowseRequirements />} />
-            <Route path="/marketplace/requirements/new" element={<PostRequirement />} />
-            <Route path="/marketplace/sell/new" element={<Post />} />
+            <Route path="/marketplace" element={<Browse section="MACHINERY" />} />
+            <Route path="/marketplace/tools-accessories" element={<Browse section="TOOLS_ACCESSORIES" />} />
+            <Route path="/marketplace/scrap" element={<Browse section="SCRAP" />} />
+
+            <Route path="/marketplace/requirements" element={<BrowseRequirements section="MACHINERY" />} />
+            <Route path="/marketplace/tools-accessories/requirements" element={<BrowseRequirements section="TOOLS_ACCESSORIES" />} />
+            <Route path="/marketplace/scrap/requirements" element={<BrowseRequirements section="SCRAP" />} />
+
+            <Route path="/marketplace/requirements/new" element={<PostRequirement section="MACHINERY" />} />
+            <Route path="/marketplace/tools-accessories/requirements/new" element={<PostRequirement section="TOOLS_ACCESSORIES" />} />
+            <Route path="/marketplace/scrap/requirements/new" element={<PostRequirement section="SCRAP" />} />
+
+            <Route path="/marketplace/sell/new" element={<Post section="MACHINERY" />} />
+            <Route path="/marketplace/tools-accessories/sell/new" element={<Post section="TOOLS_ACCESSORIES" />} />
+            <Route path="/marketplace/scrap/sell/new" element={<Post section="SCRAP" />} />
+
             <Route path="/marketplace/post/edit/:id" element={<EditListing />} />
             <Route path="/marketplace/:id" element={<ListingDetail />} />
 

@@ -15,7 +15,7 @@ const COPY = {
   }
 }
 
-function MarketplaceGrid({ intent, initialSearch }) {
+function MarketplaceGrid({ section = 'MACHINERY', intent, initialSearch }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const copy = COPY[intent]
@@ -23,7 +23,7 @@ function MarketplaceGrid({ intent, initialSearch }) {
   return (
     <BrowseGrid
       fetchItems={({ categoryIds, search, excludeProfileId }) =>
-        getListings({ categoryIds, intent, search, excludeProfileId })
+        getListings({ categoryIds, intent, section, search, excludeProfileId })
       }
       excludeProfileId={user?.id}
       searchPlaceholder={copy.searchPlaceholder}
@@ -31,6 +31,7 @@ function MarketplaceGrid({ intent, initialSearch }) {
       onItemClick={(listing) => navigate(`/marketplace/${listing.id}`)}
       renderItem={(listing) => <ListingCard listing={listing} />}
       initialSearch={initialSearch}
+      showCategoryFilter={section !== 'SCRAP'}
     />
   )
 }

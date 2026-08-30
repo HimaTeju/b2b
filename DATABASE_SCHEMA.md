@@ -70,6 +70,8 @@ auth.users (Supabase Auth)
 | `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
 | `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
 | `interest_domain` | `marketplace`, `services`, `jobs`, `jobwork` | `profiles.interests` (added in `014_profile_onboarding.sql`) |
+| `marketplace_section` | `MACHINERY`, `TOOLS_ACCESSORIES`, `SCRAP` | `marketplace_listings.section` (added in `017_marketplace_sections.sql`) |
+| `weight_unit_type` | `GM`, `KG` | `marketplace_listings.weight_unit` (added in `017_marketplace_sections.sql`) |
 
 ---
 
@@ -115,14 +117,15 @@ Seeded with a two-level taxonomy in `009_seed_machine_categories.sql` (24 top-le
 
 ### `marketplace_listings`
 
-Buy / Sell / Requirement listings for machinery, tools & accessories.
+Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tools & Accessories, Scrap (`section`, added in `017_marketplace_sections.sql`).
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `UUID` PK | |
 | `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
-| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT` |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT`, nullable — required only when `section = 'MACHINERY'` (`chk_marketplace_machinery_requires_category`); optional "related category" link for Tools & Accessories; unused for Scrap |
 | `intent` | `listing_intent` | `BUY` / `SELL` / `REQUIREMENT` |
+| `section` | `marketplace_section` | `MACHINERY` / `TOOLS_ACCESSORIES` / `SCRAP`, default `MACHINERY`, indexed |
 | `title` | `TEXT` | required |
 | `description` | `TEXT` | nullable |
 | `condition` | `condition_type` | nullable (`NEW` / `USED`) |
@@ -130,9 +133,13 @@ Buy / Sell / Requirement listings for machinery, tools & accessories.
 | `quantity` | `INTEGER` | default `1`, must be `> 0` |
 | `city` / `state` | `TEXT` | nullable, indexed |
 | `status` | `listing_status` | default `ACTIVE`, indexed |
+| `material_type` | `TEXT` | nullable, free text — Scrap only (`chk_marketplace_scrap_fields_scoped`) |
+| `shape` | `TEXT` | nullable, free text — Scrap only |
+| `weight` | `NUMERIC(12,2)` | nullable, must be `>= 0` — Scrap only |
+| `weight_unit` | `weight_unit_type` | nullable, `GM` / `KG` — Scrap only |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-Indexed on `profile_id`, `machine_category_id`, `intent`, `status`, `city`, `state`.
+Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`.
 
 **RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
 

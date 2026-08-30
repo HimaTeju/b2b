@@ -1,4 +1,4 @@
-import { CONDITION_LABELS } from '../lib/constants'
+import { CONDITION_LABELS, SECTION_LABELS } from '../lib/constants'
 import { formatListingPrice, formatLocation } from '../lib/format'
 import { getPrimaryImage, getListingImageUrl } from '../lib/api/listingImages'
 import './ListingCard.css'
@@ -27,7 +27,7 @@ function ListingCard({ listing }) {
       </div>
 
       <div className="listing-card__content">
-        <span className="listing-card__category mono">{listing.machine_categories?.name}</span>
+        <span className="listing-card__category mono">{listing.machine_categories?.name || SECTION_LABELS[listing.section]}</span>
         <h3 className="listing-card__title">{listing.title}</h3>
         <p className="listing-card__location">{formatLocation(listing)}</p>
         <div className="listing-card__price mono">{formatListingPrice(listing)}</div>

@@ -9,7 +9,7 @@ import './BrowseGrid.css'
  * (`renderItem`) — this component owns category drill-down, debounced
  * search, and loading/error/empty states only.
  */
-function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '' }) {
+function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '', showCategoryFilter = true }) {
   const [categories, setCategories] = useState([])
   const [categoryTree, setCategoryTree] = useState([])
   const [activeTopId, setActiveTopId] = useState(null)
@@ -23,6 +23,7 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (!showCategoryFilter) return
     getMachineCategories()
       .then(data => {
         setCategories(data)
@@ -32,7 +33,7 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
         console.error('Error loading categories:', err)
         setError('Failed to load categories')
       })
-  }, [])
+  }, [showCategoryFilter])
 
   useEffect(() => {
     const timeout = setTimeout(() => setSearch(searchInput.trim()), 400)
@@ -80,12 +81,14 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
         onChange={(e) => setSearchInput(e.target.value)}
       />
 
-      <CategoryFilterSheet
-        categoryTree={categoryTree}
-        activeTopId={activeTopId}
-        activeSubId={activeSubId}
-        onSelect={handleCategorySelect}
-      />
+      {showCategoryFilter && (
+        <CategoryFilterSheet
+          categoryTree={categoryTree}
+          activeTopId={activeTopId}
+          activeSubId={activeSubId}
+          onSelect={handleCategorySelect}
+        />
+      )}
 
       <div className="browse-grid__content">
         {error && (

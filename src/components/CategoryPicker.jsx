@@ -5,7 +5,7 @@ import { getMachineCategories, buildCategoryTree } from '../lib/api/categories'
  * Two-level category picker (top-level + sub-category). Reports the resolved
  * leaf (or top-level, if it has no children) machine_category_id via onChange.
  */
-function CategoryPicker({ value, onChange, required = true }) {
+function CategoryPicker({ value, onChange, required = true, label = 'Category' }) {
   const [categoryTree, setCategoryTree] = useState([])
   const [categories, setCategories] = useState([])
   const [categoriesLoaded, setCategoriesLoaded] = useState(false)
@@ -44,7 +44,7 @@ function CategoryPicker({ value, onChange, required = true }) {
   return (
     <>
       <div className="field">
-        <label className="field__label" htmlFor="topCategory">Category{required ? ' *' : ' (optional)'}</label>
+        <label className="field__label" htmlFor="topCategory">{label}{required ? ' *' : ' (optional)'}</label>
         <select id="topCategory" value={topCategoryId} onChange={handleTopChange} required={required}>
           <option value="" disabled={required}>Select a category</option>
           {categoryTree.map(cat => (

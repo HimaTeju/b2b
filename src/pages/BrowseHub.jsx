@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { DOMAINS } from '../lib/domains'
+import { SECTIONS, SECTION_LABELS, SECTION_PATH } from '../lib/constants'
 import './BrowseHub.css'
 
 const ICONS = {
@@ -79,6 +80,34 @@ const RAIL_ICONS = {
 }
 
 function RAIL(logout, navigate) {
+  const marketplaceRailItems = SECTIONS.map(section => {
+    const base = `/marketplace${SECTION_PATH[section]}`
+
+    return {
+      key: `marketplace-${section}`,
+      code: DOMAINS.marketplace.code,
+      label: SECTION_LABELS[section],
+      accent: DOMAINS.marketplace.accent,
+      icon: DOMAINS.marketplace.icon,
+      groups: [
+        {
+          question: 'Looking to buy?',
+          tiles: [
+            { label: 'Browse Listings', icon: ICONS.browse, to: base },
+            { label: 'Post a Requirement', icon: ICONS.post, to: `${base}/requirements/new` }
+          ]
+        },
+        {
+          question: 'Looking to sell?',
+          tiles: [
+            { label: 'Sell Something', icon: ICONS.post, to: `${base}/sell/new` },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: `${base}/requirements` }
+          ]
+        }
+      ]
+    }
+  })
+
   return [
     {
       key: 'top',
@@ -93,29 +122,7 @@ function RAIL(logout, navigate) {
         { label: 'Placeholder 4', icon: ICONS.placeholder, placeholder: true }
       ]
     },
-    {
-      key: 'marketplace',
-      code: DOMAINS.marketplace.code,
-      label: DOMAINS.marketplace.label,
-      accent: DOMAINS.marketplace.accent,
-      icon: DOMAINS.marketplace.icon,
-      groups: [
-        {
-          question: 'Looking to buy?',
-          tiles: [
-            { label: 'Browse Listings', icon: ICONS.browse, to: '/marketplace' },
-            { label: 'Post a Requirement', icon: ICONS.post, to: '/marketplace/requirements/new' }
-          ]
-        },
-        {
-          question: 'Looking to sell?',
-          tiles: [
-            { label: 'Sell Something', icon: ICONS.post, to: '/marketplace/sell/new' },
-            { label: 'Browse Requirements', icon: ICONS.browse, to: '/marketplace/requirements' }
-          ]
-        }
-      ]
-    },
+    ...marketplaceRailItems,
     {
       key: 'services',
       code: DOMAINS.services.code,

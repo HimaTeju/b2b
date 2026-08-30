@@ -6,6 +6,7 @@ const LISTING_SUMMARY_SELECT = `
   profile_id,
   machine_category_id,
   intent,
+  section,
   title,
   description,
   condition,
@@ -14,6 +15,10 @@ const LISTING_SUMMARY_SELECT = `
   city,
   state,
   status,
+  material_type,
+  shape,
+  weight,
+  weight_unit,
   created_at,
   updated_at,
   machine_categories:machine_category_id ( id, name ),
@@ -32,6 +37,7 @@ const LISTING_DETAIL_SELECT = `
 export async function getListings({
   categoryIds,
   intent,
+  section,
   city,
   search,
   minPrice,
@@ -52,6 +58,10 @@ export async function getListings({
 
   if (intent) {
     query = query.eq('intent', intent)
+  }
+
+  if (section) {
+    query = query.eq('section', section)
   }
 
   if (city) {

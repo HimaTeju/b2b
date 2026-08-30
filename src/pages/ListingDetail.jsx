@@ -5,7 +5,7 @@ import { getListing, deleteListing } from '../lib/api/listings'
 import { createEnquiry } from '../lib/api/enquiries'
 import { getOrderedImages } from '../lib/api/listingImages'
 import { formatPrice, formatLocation } from '../lib/format'
-import { INTENT_LABELS, CONDITION_LABELS } from '../lib/constants'
+import { INTENT_LABELS, CONDITION_LABELS, SECTION_LABELS, WEIGHT_UNIT_LABELS } from '../lib/constants'
 import EnquiryComposer from '../components/EnquiryComposer'
 import ListingGallery from '../components/ListingGallery'
 import './ListingDetail.css'
@@ -100,7 +100,11 @@ function ListingDetail() {
             <span className="stamp stamp--solid stamp--ink">{INTENT_LABELS[listing.intent]}</span>
             {listing.condition && <span className="stamp stamp--muted">{CONDITION_LABELS[listing.condition]}</span>}
 
-            <span className="listing-detail__category mono">{listing.machine_categories?.name}</span>
+            {(listing.machine_categories?.name || listing.section) && (
+              <span className="listing-detail__category mono">
+                {listing.machine_categories?.name || SECTION_LABELS[listing.section]}
+              </span>
+            )}
             <h1 className="listing-detail__title">{listing.title}</h1>
             <p className="listing-detail__location">{formatLocation(listing)}</p>
             <p className="listing-detail__price mono">
@@ -119,6 +123,24 @@ function ListingDetail() {
           <div className="listing-detail__section">
             <h2 className="listing-detail__section-title">Details</h2>
             <dl className="listing-detail__specs">
+              {listing.section === 'SCRAP' && listing.material_type && (
+                <div className="listing-detail__spec">
+                  <dt>Material</dt>
+                  <dd className="mono">{listing.material_type}</dd>
+                </div>
+              )}
+              {listing.section === 'SCRAP' && listing.shape && (
+                <div className="listing-detail__spec">
+                  <dt>Shape</dt>
+                  <dd className="mono">{listing.shape}</dd>
+                </div>
+              )}
+              {listing.section === 'SCRAP' && listing.weight != null && (
+                <div className="listing-detail__spec">
+                  <dt>Weight</dt>
+                  <dd className="mono">{listing.weight} {WEIGHT_UNIT_LABELS[listing.weight_unit]}</dd>
+                </div>
+              )}
               <div className="listing-detail__spec">
                 <dt>{isRequirement ? 'Quantity needed' : 'Quantity'}</dt>
                 <dd className="mono">{listing.quantity}</dd>
