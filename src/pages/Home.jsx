@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getMyListings } from '../lib/api/listings'
+import { getMyListings } from '../domains/marketplace/api/listings'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAIN_LIST, rankDomains } from '../lib/domains'

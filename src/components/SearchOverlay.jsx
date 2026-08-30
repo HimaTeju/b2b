@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getUniversalSearchResults } from '../lib/api/search'
 import { DOMAINS, DOMAIN_LIST } from '../lib/domains'
-import ListingCard from './ListingCard'
+import ListingCard from '../domains/marketplace/components/ListingCard'
 import RequirementCard from './RequirementCard'
 import ProviderCard from './ProviderCard'
-import SeekerCard from './SeekerCard'
+import SeekerCard from '../domains/jobs/components/SeekerCard'
 import './SearchOverlay.css'
 
 const LISTING_SURFACES = new Set(['marketplace-listings', 'marketplace-requirements'])
