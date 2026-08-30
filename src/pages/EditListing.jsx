@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getListing, updateListing } from '../lib/api/listings'
+import { uploadListingImages, deleteListingImages } from '../lib/api/listingImages'
 import { useAuth } from '../context/AuthContext'
 import ListingForm, { SELL_COPY, REQUIREMENT_COPY } from '../components/ListingForm'
 import './Post.css'
@@ -39,12 +40,32 @@ function EditListing() {
     }
   }
 
-  const handleSubmit = async (updates) => {
+  const handleSubmit = async (updates, images) => {
     setSaving(true)
     setError('')
 
     try {
       await updateListing(id, updates)
+
+      try {
+        const removedImages = (listing.listing_images || [])
+          .filter(image => images.removedImageIds.includes(image.id))
+        if (removedImages.length) {
+          await deleteListingImages(removedImages)
+        }
+        if (images.newFiles.length) {
+          await uploadListingImages(images.newFiles, {
+            profileId: user.id,
+            listingId: id,
+            startOrder: images.keptImageCount,
+            makeFirstPrimary: images.keptImageCount === 0
+          })
+        }
+      } catch (imgErr) {
+        console.error('Error updating listing images:', imgErr)
+        alert('Listing saved, but some photo changes failed. You can retry from the listing page.')
+      }
+
       navigate(`/marketplace/${id}`)
     } catch (err) {
       console.error('Error updating listing:', err)
@@ -97,6 +118,7 @@ function EditListing() {
           intent={listing.intent}
           copy={isRequirement ? REQUIREMENT_COPY : SELL_COPY}
           initialValues={initialValues}
+          existingImages={listing.listing_images}
           onSubmit={handleSubmit}
           onCancel={() => navigate(`/marketplace/${id}`)}
           submitLabel="Save changes"

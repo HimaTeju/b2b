@@ -43,7 +43,8 @@ function Dashboard() {
     if (!confirmed) return
 
     try {
-      await deleteListing(listingId)
+      const target = listings.find(l => l.id === listingId)
+      await deleteListing(listingId, target?.listing_images)
       await loadDashboard()
     } catch (err) {
       console.error('Error deleting listing:', err)

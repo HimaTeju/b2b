@@ -151,6 +151,8 @@ Images for a `marketplace_listings` row, stored in Supabase Storage (this table 
 
 **RLS:** anyone can `SELECT`. Insert/delete only permitted when the caller owns the parent listing (checked via `EXISTS` against `marketplace_listings`). No update policy — images are added/removed, not edited.
 
+**Storage:** `storage_path` values live in the public `listing-images` Storage bucket (`017_listing_images_storage.sql`), under `{profile_id}/{listing_id}/{filename}`. Storage RLS mirrors the table above but checks ownership from the path prefix (`storage.foldername(name)[1] = auth.uid()::text`) since `storage.objects` can't join to `marketplace_listings`. Anyone can read; only the owning profile can insert/update/delete. Uploads are capped at 5MB and restricted to `image/jpeg`, `image/png`, `image/webp` (enforced both by the bucket's `file_size_limit`/`allowed_mime_types` and client-side in `src/lib/api/listingImages.js`). Frontend access goes through that module — `getListingImageUrl()`, `uploadListingImage(s)()`, `deleteListingImages()` — never `storage_path` used directly as a URL.
+
 ### `service_capabilities`
 
 One-to-one "I offer repair/service" business profile. `profile_id` is the primary key (not a surrogate `id`), enforcing at most one capability row per profile.

@@ -1,5 +1,6 @@
 import { CONDITION_LABELS } from '../lib/constants'
 import { formatListingPrice, formatLocation } from '../lib/format'
+import { getPrimaryImage, getListingImageUrl } from '../lib/api/listingImages'
 import './ListingCard.css'
 
 /**
@@ -8,10 +9,16 @@ import './ListingCard.css'
  * rendered by BrowseGrid.
  */
 function ListingCard({ listing }) {
+  const primaryImage = getPrimaryImage(listing.listing_images)
+
   return (
     <>
       <div className="listing-card__image">
-        <span className="listing-card__placeholder">⚙</span>
+        {primaryImage ? (
+          <img src={getListingImageUrl(primaryImage.storage_path)} alt="" />
+        ) : (
+          <span className="listing-card__placeholder">⚙</span>
+        )}
         {listing.condition && (
           <span className="stamp stamp--muted listing-card__condition">
             {CONDITION_LABELS[listing.condition]}
