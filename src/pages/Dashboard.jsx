@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getMyListings, deleteListing } from '../lib/api/listings'
+import { getMyListings, deleteListing } from '../domains/marketplace/api/listings'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { formatListingPrice } from '../lib/format'
 import { INTENT_LABELS, SECTION_LABELS } from '../lib/constants'
