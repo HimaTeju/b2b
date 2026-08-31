@@ -105,6 +105,10 @@ Never discard existing user changes or use destructive Git commands unless expli
 
 Do not claim something was tested, migrated, or deployed unless it was actually verified.
 
+### Commit messages
+
+Do not add a Claude session link or a "Co-Authored-By: Claude" line to commit messages, PR descriptions, or GitHub comments.
+
 ## Scope
 
 Do not silently expand the task.
