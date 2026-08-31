@@ -6,13 +6,14 @@ import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAIN_LIST, rankDomains } from '../lib/domains'
 import SearchOverlay from '../components/SearchOverlay'
+import SponsoredListings from '../domains/marketplace/components/SponsoredListings'
 import './Home.css'
 
 function Home() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [activity, setActivity] = useState(null)
-  const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST)
+  const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST.filter(d => d.homeVisible !== false))
   const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
@@ -41,7 +42,7 @@ function Home() {
     getDomainActivity(user.id)
       .then(domainActivity => {
         if (cancelled) return
-        setDomainOrder(rankDomains(profile.interests, domainActivity))
+        setDomainOrder(rankDomains(profile.interests, domainActivity).filter(d => d.homeVisible !== false))
       })
       .catch(err => console.error('Error loading domain activity:', err))
 
@@ -85,6 +86,8 @@ function Home() {
       </button>
 
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+
+      <SponsoredListings />
     </div>
   )
 }

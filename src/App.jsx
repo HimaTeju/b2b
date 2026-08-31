@@ -37,6 +37,14 @@ import JobWorkRequirements from './domains/jobwork/pages/JobWorkRequirements'
 import JobWorkRequirementDetail from './domains/jobwork/pages/JobWorkRequirementDetail'
 import PostJobWorkRequirement from './domains/jobwork/pages/PostJobWorkRequirement'
 import EditJobWorkRequirement from './domains/jobwork/pages/EditJobWorkRequirement'
+import PackersMoversVendors from './domains/packersmovers/pages/PackersMoversVendors'
+import PackersMoversVendorDetail from './domains/packersmovers/pages/PackersMoversVendorDetail'
+import PackersMoversVendorSetup from './domains/packersmovers/pages/PackersMoversVendorSetup'
+import PackersMoversRequirements from './domains/packersmovers/pages/PackersMoversRequirements'
+import PackersMoversRequirementDetail from './domains/packersmovers/pages/PackersMoversRequirementDetail'
+import PostMachineLifting from './domains/packersmovers/pages/PostMachineLifting'
+import PostShopLifting from './domains/packersmovers/pages/PostShopLifting'
+import EditPackersMoversRequirement from './domains/packersmovers/pages/EditPackersMoversRequirement'
 import InstallButton from './components/InstallButton'
 import './App.css'
 
@@ -105,6 +113,15 @@ function App() {
             <Route path="/job-work/requirements/new" element={<PostJobWorkRequirement />} />
             <Route path="/job-work/requirements/edit/:id" element={<EditJobWorkRequirement />} />
             <Route path="/job-work/requirements/:id" element={<JobWorkRequirementDetail />} />
+
+            <Route path="/packers-movers" element={<PackersMoversVendors />} />
+            <Route path="/packers-movers/vendors/:profileId" element={<PackersMoversVendorDetail />} />
+            <Route path="/packers-movers/vendor/setup" element={<PackersMoversVendorSetup />} />
+            <Route path="/packers-movers/requirements" element={<PackersMoversRequirements />} />
+            <Route path="/packers-movers/requirements/machine-lifting/new" element={<PostMachineLifting />} />
+            <Route path="/packers-movers/requirements/shop-lifting/new" element={<PostShopLifting />} />
+            <Route path="/packers-movers/requirements/edit/:id" element={<EditPackersMoversRequirement />} />
+            <Route path="/packers-movers/requirements/:id" element={<PackersMoversRequirementDetail />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/enquiries" element={<Enquiries />} />

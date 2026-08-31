@@ -9,7 +9,7 @@ import './BrowseGrid.css'
  * (`renderItem`) — this component owns category drill-down, debounced
  * search, and loading/error/empty states only.
  */
-function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '', showCategoryFilter = true }) {
+function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '', showCategoryFilter = true, extraFilters, renderExtraFilter }) {
   const [categories, setCategories] = useState([])
   const [categoryTree, setCategoryTree] = useState([])
   const [activeTopId, setActiveTopId] = useState(null)
@@ -43,7 +43,7 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
   useEffect(() => {
     loadItems()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTopId, activeSubId, search])
+  }, [activeTopId, activeSubId, search, extraFilters])
 
   const loadItems = async () => {
     setLoading(true)
@@ -56,7 +56,7 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
         categoryIds = categoryAndDescendantIds(activeTopId, categories)
       }
 
-      const data = await fetchItems({ categoryIds, search: search || undefined, excludeProfileId })
+      const data = await fetchItems({ categoryIds, search: search || undefined, excludeProfileId, ...extraFilters })
       setItems(data || [])
     } catch (err) {
       console.error('Error loading items:', err)
@@ -80,6 +80,8 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
       />
+
+      {renderExtraFilter}
 
       {showCategoryFilter && (
         <CategoryFilterSheet

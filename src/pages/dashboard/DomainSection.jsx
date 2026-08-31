@@ -8,7 +8,7 @@ import { DASHBOARD_DOMAIN_CONFIG } from './domainDashboardConfig'
  * visibility check), so what shows is driven by what the user has done,
  * not a fixed set of sections.
  */
-function DomainSection({ domainKey, records, capability, onDeleteRecord }) {
+function DomainSection({ domainKey, records, capability, onDeleteRecord, onToggleAdvertise }) {
   const navigate = useNavigate()
   const domain = DOMAINS[domainKey]
   const config = DASHBOARD_DOMAIN_CONFIG[domainKey]
@@ -60,6 +60,14 @@ function DomainSection({ domainKey, records, capability, onDeleteRecord }) {
                 <p className="listing-row__meta mono">{config.recordMeta(record)}</p>
               </div>
               <div className="listing-row__actions">
+                {config.canAdvertise?.(record) && (
+                  <button
+                    className="btn btn--ghost btn--sm"
+                    onClick={() => onToggleAdvertise(record)}
+                  >
+                    {record.is_advertised ? 'Un-boost' : 'Boost this post'}
+                  </button>
+                )}
                 <button
                   className="btn btn--ghost btn--sm"
                   onClick={() => navigate(config.editRecordPath(record.id))}

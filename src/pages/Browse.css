@@ -72,6 +72,12 @@
   margin-bottom: var(--spacing-md);
 }
 
+.browse__cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
 @media (min-width: 768px) {
   .browse__header {
     padding: var(--spacing-lg) var(--spacing-lg) 0;

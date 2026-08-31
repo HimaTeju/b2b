@@ -13,6 +13,7 @@
   --color-services: #1f6f72;
   --color-jobs: #b6511a;
   --color-jobwork: #3c6e47;
+  --color-packersmovers: #2d5f8a;
 
   --color-danger: #b3261e;
   --color-positive: #3c6e47;
@@ -192,6 +193,7 @@ ul, ol {
 .stamp--services { color: var(--color-services); }
 .stamp--jobs { color: var(--color-jobs); }
 .stamp--jobwork { color: var(--color-jobwork); }
+.stamp--packersmovers { color: var(--color-packersmovers); }
 .stamp--danger { color: var(--color-danger); }
 .stamp--positive { color: var(--color-positive); }
 

@@ -11,6 +11,8 @@ const ENQUIRY_SELECT = `
   service_capability_profile_id,
   jobwork_capability_profile_id,
   job_seeker_profile_id,
+  packers_movers_requirement_id,
+  packers_movers_capability_profile_id,
   message,
   is_read,
   created_at,
@@ -22,10 +24,12 @@ const ENQUIRY_SELECT = `
   job_post:job_post_id ( id, title, city, state ),
   service_capability:service_capability_profile_id ( profile_id, title, city, state ),
   jobwork_capability:jobwork_capability_profile_id ( profile_id, title, city, state ),
-  job_seeker:job_seeker_profile_id ( profile_id, headline, city, state )
+  job_seeker:job_seeker_profile_id ( profile_id, headline, city, state ),
+  packers_movers_requirement:packers_movers_requirement_id ( id, title, pickup_city, pickup_state ),
+  packers_movers_capability:packers_movers_capability_profile_id ( profile_id, title, city, state )
 `
 
-// Which of the 7 mutually-exclusive reference columns is set determines what
+// Which of the 9 mutually-exclusive reference columns is set determines what
 // an enquiry is "about" and where "View" should navigate. Kept as one lookup
 // table so every UI spot (list preview, detail header, detail section) reads
 // the same reference-type-to-route mapping via getEnquirySubject().
@@ -36,11 +40,13 @@ const SUBJECT_RESOLVERS = [
   { field: 'job_post_id', key: 'job_post', kind: 'JOB_POST', path: row => `/jobs/${row.id}` },
   { field: 'service_capability_profile_id', key: 'service_capability', kind: 'SERVICE_CAPABILITY', path: row => `/services/providers/${row.profile_id}` },
   { field: 'jobwork_capability_profile_id', key: 'jobwork_capability', kind: 'JOBWORK_CAPABILITY', path: row => `/job-work/vendors/${row.profile_id}` },
-  { field: 'job_seeker_profile_id', key: 'job_seeker', kind: 'JOB_SEEKER', path: row => `/jobs/seekers/${row.profile_id}`, title: row => row.headline }
+  { field: 'job_seeker_profile_id', key: 'job_seeker', kind: 'JOB_SEEKER', path: row => `/jobs/seekers/${row.profile_id}`, title: row => row.headline },
+  { field: 'packers_movers_requirement_id', key: 'packers_movers_requirement', kind: 'PACKERS_MOVERS_REQUIREMENT', path: row => `/packers-movers/requirements/${row.id}` },
+  { field: 'packers_movers_capability_profile_id', key: 'packers_movers_capability', kind: 'PACKERS_MOVERS_CAPABILITY', path: row => `/packers-movers/vendors/${row.profile_id}` }
 ]
 
 /**
- * Resolve which of the 7 reference columns an enquiry row has set, and
+ * Resolve which of the 9 reference columns an enquiry row has set, and
  * return a uniform { kind, id, title, path, removed } shape for the UI —
  * `removed` is true when the referenced row was deleted or is no longer
  * visible under RLS (e.g. a deactivated capability profile). Most subject
@@ -71,7 +77,9 @@ export async function createEnquiry({
   jobPostId,
   serviceCapabilityProfileId,
   jobworkCapabilityProfileId,
-  jobSeekerProfileId
+  jobSeekerProfileId,
+  packersMoversRequirementId,
+  packersMoversCapabilityProfileId
 }) {
   const { data, error } = await supabase
     .from('enquiries')
@@ -85,6 +93,8 @@ export async function createEnquiry({
       service_capability_profile_id: serviceCapabilityProfileId ?? null,
       jobwork_capability_profile_id: jobworkCapabilityProfileId ?? null,
       job_seeker_profile_id: jobSeekerProfileId ?? null,
+      packers_movers_requirement_id: packersMoversRequirementId ?? null,
+      packers_movers_capability_profile_id: packersMoversCapabilityProfileId ?? null,
       message
     }])
     .select()

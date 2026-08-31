@@ -20,6 +20,10 @@ Migrations, in apply order:
 | 012 | `012_enquiries_capability_references.sql` | Direct-contact enquiry references to service/jobwork capability profiles |
 | 013 | `013_enquiries_job_seeker_reference.sql` | Direct-contact enquiry reference to job seeker profiles |
 | 014 | `014_profile_onboarding.sql` | `profiles.interests` + `profiles.onboarded_at` for the onboarding wizard |
+| 023 | `023_marketplace_advertising.sql` | `marketplace_listings.is_advertised` / `.advertised_at` — one-click boost/advertise flag |
+| 024 | `024_job_posts_category.sql` | `job_posts.job_category` — role type (Technician/Mechanic/…), free text |
+| 025 | `025_packers_movers.sql` | `packers_movers_capabilities`, `packers_movers_capability_categories`, `packers_movers_requirements` |
+| 026 | `026_enquiries_packers_movers_references.sql` | Direct-contact + requirement-contact enquiry references for Packers & Movers |
 
 ---
 
@@ -43,15 +47,22 @@ auth.users (Supabase Auth)
       │        (via jobwork_capability_categories)                        │
       ├── job_seeker_profiles (1:1, profile_id is PK) ──N:M── machine_categories
       │        (via job_seeker_categories)                                │
+      ├── packers_movers_capabilities (1:1, profile_id is PK) ──N:M── machine_categories
+      │        (via packers_movers_capability_categories)                 │
       │                                                                    │
       ├── service_requirements ──N:1── machine_categories                 │
       ├── jobwork_requirements ──N:1── machine_categories                 │
       ├── job_posts ──N:1(nullable)── machine_categories                  │
+      ├── packers_movers_requirements ──N:1(nullable)── machine_categories│
+      │        (nullable: only set when request_type = MACHINE_LIFTING)   │
       │                                                                    │
       └── enquiries (from_profile_id / to_profile_id) ────────────────────┘
                └── references exactly ONE of:
                    marketplace_listing_id | service_requirement_id |
-                   jobwork_requirement_id | job_post_id
+                   jobwork_requirement_id | job_post_id |
+                   service_capability_profile_id | jobwork_capability_profile_id |
+                   job_seeker_profile_id | packers_movers_requirement_id |
+                   packers_movers_capability_profile_id
 ```
 
 ---
@@ -66,12 +77,13 @@ auth.users (Supabase Auth)
 | Type | Values | Used by |
 |------|--------|---------|
 | `listing_intent` | `BUY`, `SELL`, `REQUIREMENT` | `marketplace_listings.intent` |
-| `listing_status` | `ACTIVE`, `INACTIVE` | `marketplace_listings`, `service_requirements`, `jobwork_requirements`, `job_posts` |
+| `listing_status` | `ACTIVE`, `INACTIVE` | `marketplace_listings`, `service_requirements`, `jobwork_requirements`, `job_posts`, `packers_movers_requirements` |
 | `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
 | `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
 | `interest_domain` | `marketplace`, `services`, `jobs`, `jobwork` | `profiles.interests` (added in `014_profile_onboarding.sql`) |
 | `marketplace_section` | `MACHINERY`, `TOOLS_ACCESSORIES`, `SCRAP` | `marketplace_listings.section` (added in `017_marketplace_sections.sql`) |
 | `weight_unit_type` | `GM`, `KG` | `marketplace_listings.weight_unit` (added in `017_marketplace_sections.sql`) |
+| `packers_movers_request_type` | `MACHINE_LIFTING`, `SHOP_LIFTING` | `packers_movers_requirements.request_type` (added in `025_packers_movers.sql`) |
 
 ---
 
@@ -137,9 +149,11 @@ Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tool
 | `shape` | `TEXT` | nullable, free text — Scrap only |
 | `weight` | `NUMERIC(12,2)` | nullable, must be `>= 0` — Scrap only |
 | `weight_unit` | `weight_unit_type` | nullable, `GM` / `KG` — Scrap only |
+| `is_advertised` | `BOOLEAN` | default `FALSE` — owner-toggled "boost this post" flag, added in `023_marketplace_advertising.sql`; shows the listing in the Home page Sponsored section |
+| `advertised_at` | `TIMESTAMPTZ` | nullable — set when boosted, orders the Sponsored section most-recent first |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`.
+Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`, and a partial index on `advertised_at DESC WHERE is_advertised = TRUE`.
 
 **RLS:** any *authenticated* user can `SELECT` where `status = 'ACTIVE'` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`). Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
 
@@ -196,15 +210,22 @@ One-to-one professional profile for users seeking employment.
 
 **RLS:** same pattern — read requires an authenticated session (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`) plus `is_active = TRUE`; owner has full access.
 
+### `packers_movers_capabilities`
+
+Business profile for users offering machine/shop lifting and moving services, added in `025_packers_movers.sql`. Same shape as `service_capabilities`/`jobwork_capabilities` (`profile_id` PK, `title`, `description`, `city`, `state`, `is_active`) — a mover's category tags (see below) describe what kinds of machinery they're equipped to lift, used for the same category-filtered browse UX as Services/Job Work.
+
+**RLS:** same pattern as `service_capabilities` — read requires an authenticated session plus `is_active = TRUE`; owner has full access.
+
 ### Capability ↔ category mapping tables
 
-Three parallel many-to-many join tables link a capability profile to the `machine_categories` it covers (a service/job-work provider or job seeker can list multiple categories of expertise):
+Four parallel many-to-many join tables link a capability profile to the `machine_categories` it covers (a service/job-work/packers-movers provider or job seeker can list multiple categories of expertise):
 
 - **`service_capability_categories`** — `(profile_id, machine_category_id)` PK. `profile_id` FK → `service_capabilities(profile_id)`, `ON DELETE CASCADE`.
 - **`jobwork_capability_categories`** — same shape, FK → `jobwork_capabilities(profile_id)`.
 - **`job_seeker_categories`** — same shape, FK → `job_seeker_profiles(profile_id)`.
+- **`packers_movers_capability_categories`** — same shape, FK → `packers_movers_capabilities(profile_id)`, added in `025_packers_movers.sql`.
 
-All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RESTRICT`. **RLS:** any *authenticated* user can `SELECT` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously `USING (TRUE)`, readable by the anon/unauthenticated role too) plus an owner-scoped `FOR ALL` policy (`profile_id = auth.uid()`, added in `011_capability_category_write_rls.sql`) — users can tag/untag categories on their own capability profile.
+All four: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RESTRICT`. **RLS:** any *authenticated* user can `SELECT` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously `USING (TRUE)`, readable by the anon/unauthenticated role too) plus an owner-scoped `FOR ALL` policy (`profile_id = auth.uid()`, added in `011_capability_category_write_rls.sql` for the first three, and directly in `025_packers_movers.sql` for the fourth) — users can tag/untag categories on their own capability profile.
 
 ### `service_requirements`
 
@@ -227,6 +248,27 @@ All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RES
 
 Same shape and policies as `service_requirements`, for "I need a job-work vendor" posts.
 
+### `packers_movers_requirements`
+
+Requirements posted by users needing a machine or shop lifted/moved, added in `025_packers_movers.sql`. Unlike every other requirement-shaped table, a move needs a from-location and a to-location, not one city/state pair — and one of its two request types has no machine category at all, so `machine_category_id` is nullable and conditional rather than required.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `UUID` PK | |
+| `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
+| `request_type` | `packers_movers_request_type` | `MACHINE_LIFTING` / `SHOP_LIFTING` |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE SET NULL` — required when `request_type = 'MACHINE_LIFTING'`, must be `NULL` when `SHOP_LIFTING` (`chk_packers_movers_machine_lifting_requires_category` / `chk_packers_movers_shop_lifting_has_no_category`) |
+| `title` | `TEXT` | required |
+| `description` | `TEXT` | nullable |
+| `pickup_city` / `pickup_state` | `TEXT` | nullable — from-location |
+| `drop_city` / `drop_state` | `TEXT` | nullable — to-location |
+| `status` | `listing_status` | default `ACTIVE`, indexed |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | |
+
+Indexed on `profile_id`, `machine_category_id`, `status`, `request_type`.
+
+**RLS:** any *authenticated* user can `SELECT` when `ACTIVE`; owner has full access.
+
 ### `job_posts`
 
 Job vacancies posted by employers.
@@ -238,6 +280,7 @@ Job vacancies posted by employers.
 | `machine_category_id` | `UUID` | FK → `machine_categories(id)`, **`ON DELETE SET NULL`**, nullable (a job post doesn't strictly need a category) |
 | `title` | `TEXT` | required |
 | `description` | `TEXT` | nullable |
+| `job_category` | `TEXT` | nullable, indexed — role type (Technician/Mechanic/Designer/Programmer/…), free text validated against a static frontend list (`JOB_CATEGORIES` in `src/lib/constants.js`), added in `024_job_posts_category.sql` |
 | `city` / `state` | `TEXT` | nullable, indexed |
 | `status` | `listing_status` | default `ACTIVE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
@@ -260,11 +303,13 @@ Cross-module enquiry/contact messages. A single table backs enquiries for all ma
 | `service_capability_profile_id` | `UUID` | FK → `service_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a service provider's profile, added in `012_enquiries_capability_references.sql` |
 | `jobwork_capability_profile_id` | `UUID` | FK → `jobwork_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a job-work vendor's profile, added in `012_enquiries_capability_references.sql` |
 | `job_seeker_profile_id` | `UUID` | FK → `job_seeker_profiles(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a job seeker's profile, added in `013_enquiries_job_seeker_reference.sql` |
+| `packers_movers_requirement_id` | `UUID` | FK → `packers_movers_requirements(id)`, `ON DELETE CASCADE`, nullable — contacting a posted lifting requirement, added in `026_enquiries_packers_movers_references.sql` |
+| `packers_movers_capability_profile_id` | `UUID` | FK → `packers_movers_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a mover's profile, added in `026_enquiries_packers_movers_references.sql` |
 | `message` | `TEXT` | required |
 | `is_read` | `BOOLEAN` | default `FALSE` |
 | `created_at` | `TIMESTAMPTZ` | indexed `DESC` |
 
-`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the seven reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile/seeker-profile, never zero or multiple.
+`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the nine reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile/seeker-profile, never zero or multiple.
 
 **RLS:** participants only. `SELECT` where the caller is sender or recipient. `INSERT` only as sender (`from_profile_id = auth.uid()`). `UPDATE` only by the recipient (`to_profile_id = auth.uid()`) — e.g. for marking `is_read`. No delete policy.
 
@@ -281,10 +326,12 @@ Note: there is no dedicated messages/conversation-thread table — `enquiries` i
 | `trg_service_capabilities_updated_at` | `service_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_jobwork_capabilities_updated_at` | `jobwork_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_job_seeker_profiles_updated_at` | `job_seeker_profiles` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_packers_movers_capabilities_updated_at` | `packers_movers_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_marketplace_updated_at` | `marketplace_listings` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_service_requirements_updated_at` | `service_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_jobwork_requirements_updated_at` | `jobwork_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_job_posts_updated_at` | `job_posts` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_packers_movers_requirements_updated_at` | `packers_movers_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `on_auth_user_created` | `auth.users` | `AFTER INSERT` | `public.handle_new_user()` — inserts a matching `profiles` row (`SECURITY DEFINER`) |
 
 `listing_images` and `enquiries` have no `updated_at` column and no update trigger (rows are effectively append-only / delete-only).
