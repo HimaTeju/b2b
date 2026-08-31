@@ -7,6 +7,7 @@ export const DOMAINS = {
     key: 'marketplace',
     code: 'MP',
     label: 'Marketplace',
+    blurb: 'Buy and sell machines, tools, and scrap',
     to: '/marketplace',
     accent: 'marketplace',
     icon: (
@@ -20,6 +21,7 @@ export const DOMAINS = {
     key: 'services',
     code: 'SV',
     label: 'Services',
+    blurb: 'Get repair work done, or offer your repair service',
     to: '/services',
     accent: 'services',
     icon: (
@@ -33,6 +35,7 @@ export const DOMAINS = {
     key: 'jobs',
     code: 'JC',
     label: 'Jobs & Careers',
+    blurb: 'Put up a job opening, or look for one',
     to: '/jobs',
     accent: 'jobs',
     icon: (
@@ -47,6 +50,7 @@ export const DOMAINS = {
     key: 'jobwork',
     code: 'JW',
     label: 'Job Work',
+    blurb: 'Get job work done by someone, or take up job work',
     to: '/job-work',
     accent: 'jobwork',
     icon: (
