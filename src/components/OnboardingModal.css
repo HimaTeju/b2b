@@ -23,6 +23,23 @@
   gap: var(--spacing-md);
 }
 
+.onboarding-modal__dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.onboarding-modal__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-steel-line);
+}
+
+.onboarding-modal__dot--active {
+  background: var(--color-ink);
+}
+
 .onboarding-modal__title {
   font-size: 26px;
   margin-top: 4px;
@@ -32,6 +49,45 @@
   font-size: 14px;
   color: var(--color-ink-soft);
   line-height: 1.5;
+}
+
+.onboarding-modal__info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboarding-modal__info-row {
+  --accent: var(--color-ink);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: color-mix(in srgb, var(--accent) 8%, #fff);
+  border: 1.5px solid var(--color-steel-line);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.onboarding-modal__info-row--marketplace { --accent: var(--color-marketplace); }
+.onboarding-modal__info-row--services { --accent: var(--color-services); }
+.onboarding-modal__info-row--jobs { --accent: var(--color-jobs); }
+.onboarding-modal__info-row--jobwork { --accent: var(--color-jobwork); }
+
+.onboarding-modal__info-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.onboarding-modal__info-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.onboarding-modal__info-blurb {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  line-height: 1.4;
 }
 
 .onboarding-modal__grid {

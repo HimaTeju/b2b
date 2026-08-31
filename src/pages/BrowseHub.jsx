@@ -51,6 +51,13 @@ const ICONS = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <rect x="4" y="4" width="16" height="16" rx="2" strokeDasharray="3 3" />
     </svg>
+  ),
+  help: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.6-2.4 2-2.4 3.4" />
+      <path d="M12 17h.01" />
+    </svg>
   )
 }
 
@@ -223,6 +230,7 @@ function RAIL(logout, navigate) {
       icon: RAIL_ICONS.account,
       tiles: [
         { label: 'Profile', icon: ICONS.profile, to: '/profile' },
+        { label: 'Help', icon: ICONS.help, to: '/help' },
         { label: 'Sign Out', icon: ICONS.signout, action: async () => { await logout(); navigate('/login') } }
       ]
     }

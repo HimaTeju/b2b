@@ -13,6 +13,7 @@ import EditListing from './domains/marketplace/pages/EditListing'
 import Dashboard from './pages/Dashboard'
 import Enquiries from './pages/Enquiries'
 import Profile from './pages/Profile'
+import Help from './pages/Help'
 import Admin from './pages/Admin'
 import ListingDetail from './domains/marketplace/pages/ListingDetail'
 import ServiceProviders from './domains/services/pages/ServiceProviders'
@@ -109,6 +110,7 @@ function App() {
             <Route path="/enquiries" element={<Enquiries />} />
             <Route path="/enquiries/:id" element={<Enquiries />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/help" element={<Help />} />
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           </Route>
         </Routes>
