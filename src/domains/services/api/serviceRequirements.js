@@ -1,5 +1,4 @@
-import { supabase } from '../../../lib/supabase'
-import { sanitizeTerm } from '../../../lib/api/searchUtil'
+import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 
 const REQUIREMENT_SUMMARY_SELECT = `
   id,
@@ -25,91 +24,15 @@ const REQUIREMENT_DETAIL_SELECT = `
  * lib/api/listings.js minus price/quantity/condition/intent (service_requirements
  * has no such columns).
  */
-export async function getServiceRequirements({ categoryIds, search, excludeProfileId, limit = 50, offset = 0 } = {}) {
-  let query = supabase
-    .from('service_requirements')
-    .select(REQUIREMENT_SUMMARY_SELECT)
-    .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: false })
+const api = createRequirementApi({
+  table: 'service_requirements',
+  summarySelect: REQUIREMENT_SUMMARY_SELECT,
+  detailSelect: REQUIREMENT_DETAIL_SELECT
+})
 
-  if (categoryIds && categoryIds.length > 0) {
-    query = query.in('machine_category_id', categoryIds)
-  }
-
-  if (excludeProfileId) {
-    query = query.neq('profile_id', excludeProfileId)
-  }
-
-  if (search) {
-    const term = sanitizeTerm(search)
-    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
-  }
-
-  query = query.range(offset, offset + limit - 1)
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getServiceRequirement(id) {
-  const { data, error } = await supabase
-    .from('service_requirements')
-    .select(REQUIREMENT_DETAIL_SELECT)
-    .eq('id', id)
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getMyServiceRequirements(profileId) {
-  const { data, error } = await supabase
-    .from('service_requirements')
-    .select(REQUIREMENT_SUMMARY_SELECT)
-    .eq('profile_id', profileId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return data
-}
-
-export async function createServiceRequirement(requirementData) {
-  const { data, error } = await supabase
-    .from('service_requirements')
-    .insert([requirementData])
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function updateServiceRequirement(id, updates) {
-  const { data, error } = await supabase
-    .from('service_requirements')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function deleteServiceRequirement(id) {
-  const { error } = await supabase
-    .from('service_requirements')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-
-  return true
-}
+export const getServiceRequirements = api.getMany
+export const getServiceRequirement = api.getOne
+export const getMyServiceRequirements = api.getMine
+export const createServiceRequirement = api.create
+export const updateServiceRequirement = api.update
+export const deleteServiceRequirement = api.remove

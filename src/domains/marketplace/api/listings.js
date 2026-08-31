@@ -1,5 +1,4 @@
-import { supabase } from '../../../lib/supabase'
-import { sanitizeTerm } from '../../../lib/api/searchUtil'
+import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 import { deleteListingImageFiles } from './listingImages'
 
 const LISTING_SUMMARY_SELECT = `
@@ -32,134 +31,52 @@ const LISTING_DETAIL_SELECT = `
 `
 
 /**
+ * Marketplace listings — same shape/filter pattern as serviceRequirements.js/
+ * jobworkRequirements.js/jobPosts.js, plus intent/section/price/city filters
+ * and Storage cleanup on delete, which those tables have no equivalent of.
+ */
+const api = createRequirementApi({
+  table: 'marketplace_listings',
+  summarySelect: LISTING_SUMMARY_SELECT,
+  detailSelect: LISTING_DETAIL_SELECT,
+  applyFilters(query, { intent, section, city, minPrice, maxPrice }) {
+    if (intent) {
+      query = query.eq('intent', intent)
+    }
+
+    if (section) {
+      query = query.eq('section', section)
+    }
+
+    if (city) {
+      query = query.ilike('city', `%${city}%`)
+    }
+
+    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+      query = query.gte('price', minPrice)
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+      query = query.lte('price', maxPrice)
+    }
+
+    return query
+  },
+  // `images` should be the listing's already-loaded listing_images rows
+  // (e.g. from getListing) — passing them in avoids an extra SELECT just to
+  // find what to remove from Storage. The listing_images DB rows themselves
+  // aren't deleted explicitly: listing_images.listing_id cascades on
+  // delete, so removing the listing row clears them for free.
+  beforeDelete: (id, images) => deleteListingImageFiles(images)
+})
+
+/**
  * Get active marketplace listings with optional filters.
  * `categoryIds` matches against a set of category ids (a top-level category plus its children).
  */
-export async function getListings({
-  categoryIds,
-  intent,
-  section,
-  city,
-  search,
-  minPrice,
-  maxPrice,
-  excludeProfileId,
-  limit = 50,
-  offset = 0
-} = {}) {
-  let query = supabase
-    .from('marketplace_listings')
-    .select(LISTING_SUMMARY_SELECT)
-    .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: false })
-
-  if (categoryIds && categoryIds.length > 0) {
-    query = query.in('machine_category_id', categoryIds)
-  }
-
-  if (intent) {
-    query = query.eq('intent', intent)
-  }
-
-  if (section) {
-    query = query.eq('section', section)
-  }
-
-  if (city) {
-    query = query.ilike('city', `%${city}%`)
-  }
-
-  if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
-    query = query.gte('price', minPrice)
-  }
-
-  if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
-    query = query.lte('price', maxPrice)
-  }
-
-  if (excludeProfileId) {
-    query = query.neq('profile_id', excludeProfileId)
-  }
-
-  if (search) {
-    const term = sanitizeTerm(search)
-    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
-  }
-
-  query = query.range(offset, offset + limit - 1)
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getListing(id) {
-  const { data, error } = await supabase
-    .from('marketplace_listings')
-    .select(LISTING_DETAIL_SELECT)
-    .eq('id', id)
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getMyListings(profileId) {
-  const { data, error } = await supabase
-    .from('marketplace_listings')
-    .select(LISTING_SUMMARY_SELECT)
-    .eq('profile_id', profileId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return data
-}
-
-export async function createListing(listingData) {
-  const { data, error } = await supabase
-    .from('marketplace_listings')
-    .insert([listingData])
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function updateListing(id, updates) {
-  const { data, error } = await supabase
-    .from('marketplace_listings')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-/**
- * Delete a listing. `images` should be the listing's already-loaded
- * listing_images rows (e.g. from getListing) — passing them in avoids an
- * extra SELECT just to find what to remove from Storage. The listing_images
- * DB rows themselves aren't deleted explicitly: listing_images.listing_id
- * cascades on delete, so removing the listing row clears them for free.
- */
-export async function deleteListing(id, images) {
-  await deleteListingImageFiles(images)
-
-  const { error } = await supabase
-    .from('marketplace_listings')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-
-  return true
-}
+export const getListings = api.getMany
+export const getListing = api.getOne
+export const getMyListings = api.getMine
+export const createListing = api.create
+export const updateListing = api.update
+export const deleteListing = api.remove
