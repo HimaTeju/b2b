@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { getBackPath } from './backNav'
+import { describe, it, expect, afterEach } from 'vitest'
+import { getBackPath, canGoBack } from './backNav'
 
 describe('getBackPath', () => {
   it('sends a listing edit page back to the listing detail page (parent resolved from params)', () => {
@@ -30,5 +30,26 @@ describe('getBackPath', () => {
 
   it('sends the admin page back to the dashboard', () => {
     expect(getBackPath('/admin')).toBe('/dashboard')
+  })
+})
+
+describe('canGoBack', () => {
+  afterEach(() => {
+    window.history.replaceState(null, '')
+  })
+
+  it('is false when this is the first entry the router created', () => {
+    window.history.replaceState({ idx: 0 }, '')
+    expect(canGoBack()).toBe(false)
+  })
+
+  it('is false when there is no router-managed history state', () => {
+    window.history.replaceState(null, '')
+    expect(canGoBack()).toBe(false)
+  })
+
+  it('is true once the router has pushed at least one entry', () => {
+    window.history.replaceState({ idx: 1 }, '')
+    expect(canGoBack()).toBe(true)
   })
 })

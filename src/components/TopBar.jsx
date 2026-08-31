@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getBackPath } from '../lib/backNav'
+import { canGoBack, getBackPath } from '../lib/backNav'
 import './TopBar.css'
 
 function getGreeting() {
@@ -12,8 +12,8 @@ function getGreeting() {
 
 /**
  * Every non-Home page gets the same back button here, instead of each page
- * rolling its own — see lib/backNav.js for why it navigates to a declared
- * parent path rather than browser history.
+ * rolling its own — see lib/backNav.js for how it picks between real
+ * history and a declared parent path.
  */
 function TopBar() {
   const navigate = useNavigate()
@@ -21,6 +21,14 @@ function TopBar() {
   const { user, profile } = useAuth()
   const isHome = location.pathname === '/'
   const displayName = profile?.company_name || user?.user_metadata?.full_name
+
+  const handleBack = () => {
+    if (canGoBack()) {
+      navigate(-1)
+    } else {
+      navigate(getBackPath(location.pathname))
+    }
+  }
 
   return (
     <header className="topbar">
@@ -31,7 +39,7 @@ function TopBar() {
       ) : (
         <button
           className="topbar__back"
-          onClick={() => navigate(getBackPath(location.pathname))}
+          onClick={handleBack}
           aria-label="Back"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
