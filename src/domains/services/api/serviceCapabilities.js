@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { sanitizeTerm } from '../../../lib/api/searchUtil'
 
 const CAPABILITY_FIELDS = `
   profile_id,
@@ -42,7 +43,8 @@ export async function getServiceProviders({ categoryIds, search, city, excludePr
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    const term = sanitizeTerm(search)
+    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
   }
 
   query = query.range(offset, offset + limit - 1)

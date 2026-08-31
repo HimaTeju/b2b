@@ -1,14 +1,8 @@
 import { supabase } from '../supabase'
 import { getMachineCategories, categoryAndDescendantIds } from './categories'
+import { sanitizeTerm } from './searchUtil'
 
 const PREVIEW_LIMIT = 3
-
-function sanitizeTerm(term) {
-  // Strip characters that would corrupt PostgREST's or-filter grammar
-  // (`,` separates conditions, `()` wraps in-lists) or behave as ilike
-  // wildcards (`%`) rather than literal search text.
-  return term.trim().replace(/[,()%]/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 async function matchedCategoryIds(term) {
   const categories = await getMachineCategories()
