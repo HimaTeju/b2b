@@ -1,12 +1,13 @@
 import { matchPath } from 'react-router-dom'
 
-// Declares, for every non-Home route, where its back button goes — a real
-// destination computed from the URL, not browser history. `navigate(-1)`
-// silently breaks the moment there's no history to pop (a shared link, a
-// home-screen shortcut into a specific item, or an installed PWA relaunch
-// on a platform that doesn't restore history) — which matters a lot more
-// here than in a regular website, since the installed PWA has no OS
-// chrome back button to fall back on either.
+// The back button prefers real browser/router history (see canGoBack below)
+// so it retraces the actual path the user followed — e.g. Browse
+// Requirements > Post Requirement > back lands on Browse Requirements, not
+// on whatever this route's parent is declared to be. BACK_ROUTES below is
+// only the fallback for when there's no in-app history to pop: a shared
+// link, a home-screen shortcut into a specific item, or an installed PWA
+// relaunch on a platform that doesn't restore history. It declares, for
+// every non-Home route, a sensible parent destination computed from the URL.
 //
 // Order matters within each group: a literal path (e.g. '/jobs/new') must
 // come before a same-depth dynamic one ('/jobs/:id'), or the dynamic
@@ -64,4 +65,21 @@ export function getBackPath(pathname) {
     }
   }
   return '/'
+}
+
+/**
+ * Whether there's an actual in-app history entry to pop back to. React
+ * Router's history stack tags every entry it pushes with an incrementing
+ * `idx` in `window.history.state`, starting at 0 for the first entry it
+ * creates in this tab. `idx > 0` means the current entry was reached via at
+ * least one in-app navigation, so `navigate(-1)` has something real to
+ * return to. `idx === 0` (or missing, e.g. no window) means this is the
+ * first entry — a shared link, a home-screen shortcut, or a fresh PWA
+ * launch — so there's nothing to pop and callers should fall back to
+ * `getBackPath`.
+ */
+export function canGoBack() {
+  if (typeof window === 'undefined') return false
+  const idx = window.history.state?.idx
+  return typeof idx === 'number' && idx > 0
 }
