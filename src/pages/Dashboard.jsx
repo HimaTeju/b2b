@@ -8,6 +8,8 @@ import { getMyJobWorkRequirements } from '../domains/jobwork/api/jobworkRequirem
 import { getMyJobWorkCapability } from '../domains/jobwork/api/jobworkCapabilities'
 import { getMyJobPosts } from '../domains/jobs/api/jobPosts'
 import { getMyJobSeekerProfile } from '../domains/jobs/api/jobSeekerProfiles'
+import { getMyPackersMoversRequirements } from '../domains/packersmovers/api/packersMoversRequirements'
+import { getMyPackersMoversCapability } from '../domains/packersmovers/api/packersMoversCapabilities'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAINS, rankDomains } from '../lib/domains'
@@ -38,6 +40,8 @@ function Dashboard() {
         jobworkCapability,
         jobPosts,
         jobSeekerProfile,
+        packersMoversRequirements,
+        packersMoversCapability,
         countsData,
         activity
       ] = await Promise.all([
@@ -48,6 +52,8 @@ function Dashboard() {
         getMyJobWorkCapability(user.id),
         getMyJobPosts(user.id),
         getMyJobSeekerProfile(user.id),
+        getMyPackersMoversRequirements(user.id),
+        getMyPackersMoversCapability(user.id),
         getEnquiryCounts(user.id),
         getDomainActivity(user.id)
       ])
@@ -56,7 +62,8 @@ function Dashboard() {
         marketplace: { records: listings || [], capability: null },
         services: { records: serviceRequirements || [], capability: serviceCapability },
         jobwork: { records: jobworkRequirements || [], capability: jobworkCapability },
-        jobs: { records: jobPosts || [], capability: jobSeekerProfile }
+        jobs: { records: jobPosts || [], capability: jobSeekerProfile },
+        packersmovers: { records: packersMoversRequirements || [], capability: packersMoversCapability }
       }
 
       setDomainData(data)

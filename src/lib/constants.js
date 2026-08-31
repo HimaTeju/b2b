@@ -48,3 +48,8 @@ export const JOB_CATEGORIES = [
   'Helper / Labour',
   'Other'
 ]
+
+export const PACKERS_MOVERS_REQUEST_TYPE_LABELS = {
+  MACHINE_LIFTING: 'Machine Lifting',
+  SHOP_LIFTING: 'Shop Lifting'
+}

@@ -13,7 +13,7 @@ function Home() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [activity, setActivity] = useState(null)
-  const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST)
+  const [domainOrder, setDomainOrder] = useState(DOMAIN_LIST.filter(d => d.homeVisible !== false))
   const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function Home() {
     getDomainActivity(user.id)
       .then(domainActivity => {
         if (cancelled) return
-        setDomainOrder(rankDomains(profile.interests, domainActivity))
+        setDomainOrder(rankDomains(profile.interests, domainActivity).filter(d => d.homeVisible !== false))
       })
       .catch(err => console.error('Error loading domain activity:', err))
 

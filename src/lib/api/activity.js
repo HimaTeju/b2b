@@ -9,7 +9,8 @@ const DOMAIN_TABLES = {
   marketplace: ['marketplace_listings'],
   services: ['service_requirements', 'service_capabilities'],
   jobwork: ['jobwork_requirements', 'jobwork_capabilities'],
-  jobs: ['job_posts', 'job_seeker_profiles']
+  jobs: ['job_posts', 'job_seeker_profiles'],
+  packersmovers: ['packers_movers_requirements', 'packers_movers_capabilities']
 }
 
 async function latestCreatedAt(table, profileId) {

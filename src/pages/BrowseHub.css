@@ -30,6 +30,7 @@
 .browse-hub__rail-item--services { --accent: var(--color-services); }
 .browse-hub__rail-item--jobs { --accent: var(--color-jobs); }
 .browse-hub__rail-item--jobwork { --accent: var(--color-jobwork); }
+.browse-hub__rail-item--packersmovers { --accent: var(--color-packersmovers); }
 
 .browse-hub__rail-item--active {
   border-left-color: var(--accent);
@@ -111,6 +112,7 @@
 .browse-hub__tile-icon--services { --accent: var(--color-services); }
 .browse-hub__tile-icon--jobs { --accent: var(--color-jobs); }
 .browse-hub__tile-icon--jobwork { --accent: var(--color-jobwork); }
+.browse-hub__tile-icon--packersmovers { --accent: var(--color-packersmovers); }
 
 .browse-hub__tile-label {
   font-size: 12px;

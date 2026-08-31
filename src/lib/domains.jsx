@@ -1,6 +1,10 @@
-// Shared identity (code, label, route, accent color, icon) for the app's 4
+// Shared identity (code, label, route, accent color, icon) for the app's
 // marketplace domains. Single source of truth for anything that renders the
-// domain list — Home quicklinks, the Browse hub rail, etc.
+// domain list — Home quicklinks, the Browse hub rail, Dashboard's per-domain
+// activity sections, etc. `homeVisible: false` (default true) opts a domain
+// out of Home's quicklink grid while still participating in Dashboard/rail —
+// used by packersmovers, which is a Browse-hub-only sub-section, not a
+// peer of the 4 primary marketplace verticals.
 
 export const DOMAINS = {
   marketplace: {
@@ -57,6 +61,24 @@ export const DOMAINS = {
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    )
+  },
+  packersmovers: {
+    key: 'packersmovers',
+    code: 'PM',
+    label: 'Packers & Movers',
+    blurb: 'Get a machine or shop lifted and moved, or offer lifting services',
+    to: '/packers-movers',
+    accent: 'packersmovers',
+    homeVisible: false,
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+        <path d="M3 16V6a1 1 0 0 1 1-1h9v11" />
+        <path d="M13 10h4l4 4v2h-2" />
+        <circle cx="7" cy="18" r="2" />
+        <circle cx="17" cy="18" r="2" />
+        <path d="M9 18h6" />
       </svg>
     )
   }

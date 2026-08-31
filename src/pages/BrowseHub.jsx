@@ -200,6 +200,30 @@ function RAIL(logout, navigate) {
       ]
     },
     {
+      key: 'packersmovers',
+      code: DOMAINS.packersmovers.code,
+      label: DOMAINS.packersmovers.label,
+      accent: DOMAINS.packersmovers.accent,
+      icon: DOMAINS.packersmovers.icon,
+      groups: [
+        {
+          question: 'Need something moved?',
+          tiles: [
+            { label: 'Find a Mover', icon: ICONS.browse, to: '/packers-movers' },
+            { label: 'Request Machine Lifting', icon: ICONS.post, to: '/packers-movers/requirements/machine-lifting/new' },
+            { label: 'Request Shop Lifting', icon: ICONS.post, to: '/packers-movers/requirements/shop-lifting/new' }
+          ]
+        },
+        {
+          question: 'Can you move things?',
+          tiles: [
+            { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/packers-movers/requirements' }
+          ]
+        }
+      ]
+    },
+    {
       key: 'activity',
       code: 'MA',
       label: 'My Activity',
@@ -219,7 +243,8 @@ function RAIL(logout, navigate) {
       tiles: [
         { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' },
         { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
-        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' }
+        { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' },
+        { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' }
       ]
     },
     {
