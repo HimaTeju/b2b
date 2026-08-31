@@ -10,7 +10,7 @@ const EMPTY_FORM = {
   state: ''
 }
 
-function EntityRequirementForm({ categoryRequired = true, copy, initialValues, onSubmit, onCancel, submitLabel, saving, error }) {
+function EntityRequirementForm({ categoryRequired = true, copy, initialValues, onSubmit, onCancel, submitLabel, saving, error, extraFields }) {
   const [form, setForm] = useState({ ...EMPTY_FORM, ...initialValues })
 
   const handleChange = (field) => (e) => {
@@ -52,6 +52,8 @@ function EntityRequirementForm({ categoryRequired = true, copy, initialValues, o
           required
         />
       </div>
+
+      {extraFields}
 
       <div className="field">
         <label className="field__label" htmlFor="description">{copy.descriptionLabel}</label>

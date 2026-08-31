@@ -6,6 +6,11 @@
   margin-bottom: var(--spacing-md);
 }
 
+.browse-grid__extra-filter {
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
+
 .browse-grid__content {
   margin-top: var(--spacing-sm);
 }

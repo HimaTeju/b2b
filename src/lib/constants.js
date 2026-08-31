@@ -35,3 +35,16 @@ export const WEIGHT_UNIT_LABELS = {
   GM: 'gm',
   KG: 'kg'
 }
+
+// job_posts.job_category is free text (not a DB enum, see 024_job_posts_category.sql)
+// validated against this static list so it can grow without a migration.
+export const JOB_CATEGORIES = [
+  'Technician',
+  'Mechanic',
+  'Designer',
+  'Programmer',
+  'Operator',
+  'Driver',
+  'Helper / Labour',
+  'Other'
+]

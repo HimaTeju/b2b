@@ -48,7 +48,7 @@ export const DASHBOARD_DOMAIN_CONFIG = {
     newRecordPath: '/jobs/new',
     editRecordPath: id => `/jobs/edit/${id}`,
     viewRecordPath: id => `/jobs/${id}`,
-    recordMeta: record => [record.machine_categories?.name, record.city].filter(Boolean).join(' · '),
+    recordMeta: record => [record.job_category, record.machine_categories?.name, record.city].filter(Boolean).join(' · '),
     deleteRecord: record => deleteJobPost(record.id),
     capability: { label: 'Job seeker profile', editPath: '/jobs/seeker/setup' }
   }

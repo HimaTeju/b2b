@@ -14,6 +14,9 @@ function RequirementCard({ item }) {
         {item.machine_categories?.name && (
           <span className="requirement-card__category mono">{item.machine_categories.name}</span>
         )}
+        {item.job_category && (
+          <span className="stamp stamp--muted">{item.job_category}</span>
+        )}
         <span className="requirement-card__date mono">{formatRelativeDate(item.created_at)}</span>
       </div>
       <h3 className="requirement-card__title">{item.title}</h3>

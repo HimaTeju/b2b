@@ -92,6 +92,9 @@ function JobPostDetail() {
       <div className="entity-detail__content">
         <div className="entity-detail__header">
           <span className="stamp stamp--solid stamp--jobs">Job Post</span>
+          {jobPost.job_category && (
+            <span className="stamp stamp--muted">{jobPost.job_category}</span>
+          )}
           {jobPost.machine_categories?.name && (
             <span className="entity-detail__category mono">{jobPost.machine_categories.name}</span>
           )}

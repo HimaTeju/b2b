@@ -21,6 +21,7 @@ Migrations, in apply order:
 | 013 | `013_enquiries_job_seeker_reference.sql` | Direct-contact enquiry reference to job seeker profiles |
 | 014 | `014_profile_onboarding.sql` | `profiles.interests` + `profiles.onboarded_at` for the onboarding wizard |
 | 023 | `023_marketplace_advertising.sql` | `marketplace_listings.is_advertised` / `.advertised_at` — one-click boost/advertise flag |
+| 024 | `024_job_posts_category.sql` | `job_posts.job_category` — role type (Technician/Mechanic/…), free text |
 
 ---
 
@@ -241,6 +242,7 @@ Job vacancies posted by employers.
 | `machine_category_id` | `UUID` | FK → `machine_categories(id)`, **`ON DELETE SET NULL`**, nullable (a job post doesn't strictly need a category) |
 | `title` | `TEXT` | required |
 | `description` | `TEXT` | nullable |
+| `job_category` | `TEXT` | nullable, indexed — role type (Technician/Mechanic/Designer/Programmer/…), free text validated against a static frontend list (`JOB_CATEGORIES` in `src/lib/constants.js`), added in `024_job_posts_category.sql` |
 | `city` / `state` | `TEXT` | nullable, indexed |
 | `status` | `listing_status` | default `ACTIVE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getJobPost, updateJobPost } from '../api/jobPosts'
 import { useAuth } from '../../../context/AuthContext'
+import { JOB_CATEGORIES } from '../../../lib/constants'
 import EntityRequirementForm from '../../../components/EntityRequirementForm'
 import '../../../pages/Post.css'
 
@@ -21,6 +22,7 @@ function EditJobPost() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [jobCategory, setJobCategory] = useState('')
 
   useEffect(() => {
     loadJobPost()
@@ -39,6 +41,7 @@ function EditJobPost() {
       }
 
       setJobPost(data)
+      setJobCategory(data.job_category || '')
     } catch (err) {
       console.error('Error loading job post:', err)
       setError('Failed to load job post')
@@ -52,7 +55,7 @@ function EditJobPost() {
     setError('')
 
     try {
-      await updateJobPost(id, updates)
+      await updateJobPost(id, { ...updates, job_category: jobCategory || null })
       navigate(`/jobs/${id}`)
     } catch (err) {
       console.error('Error updating job post:', err)
@@ -106,6 +109,17 @@ function EditJobPost() {
           submitLabel="Save changes"
           saving={saving}
           error={error}
+          extraFields={
+            <div className="field">
+              <label className="field__label" htmlFor="jobCategory">Role type</label>
+              <select id="jobCategory" value={jobCategory} onChange={(e) => setJobCategory(e.target.value)}>
+                <option value="">Select a role type (optional)</option>
+                {JOB_CATEGORIES.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+          }
         />
       </div>
     </div>

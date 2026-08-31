@@ -4,6 +4,7 @@ const JOB_POST_SUMMARY_SELECT = `
   id,
   profile_id,
   machine_category_id,
+  job_category,
   title,
   description,
   city,
@@ -27,7 +28,14 @@ const JOB_POST_DETAIL_SELECT = `
 const api = createRequirementApi({
   table: 'job_posts',
   summarySelect: JOB_POST_SUMMARY_SELECT,
-  detailSelect: JOB_POST_DETAIL_SELECT
+  detailSelect: JOB_POST_DETAIL_SELECT,
+  applyFilters(query, { jobCategory }) {
+    if (jobCategory) {
+      query = query.eq('job_category', jobCategory)
+    }
+
+    return query
+  }
 })
 
 export const getJobPosts = api.getMany

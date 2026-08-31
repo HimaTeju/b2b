@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createJobPost } from '../api/jobPosts'
 import { useAuth } from '../../../context/AuthContext'
+import { JOB_CATEGORIES } from '../../../lib/constants'
 import EntityRequirementForm from '../../../components/EntityRequirementForm'
 import '../../../pages/Post.css'
 
@@ -19,13 +20,14 @@ function PostJob() {
   const { user } = useAuth()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [jobCategory, setJobCategory] = useState('')
 
   const handleSubmit = async (data) => {
     setSaving(true)
     setError('')
 
     try {
-      const jobPost = await createJobPost({ ...data, profile_id: user.id })
+      const jobPost = await createJobPost({ ...data, job_category: jobCategory || null, profile_id: user.id })
       navigate(`/jobs/${jobPost.id}`)
     } catch (err) {
       console.error('Error posting job:', err)
@@ -53,6 +55,17 @@ function PostJob() {
           submitLabel="Post job"
           saving={saving}
           error={error}
+          extraFields={
+            <div className="field">
+              <label className="field__label" htmlFor="jobCategory">Role type</label>
+              <select id="jobCategory" value={jobCategory} onChange={(e) => setJobCategory(e.target.value)}>
+                <option value="">Select a role type (optional)</option>
+                {JOB_CATEGORIES.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+          }
         />
       </div>
     </div>
