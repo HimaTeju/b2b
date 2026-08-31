@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { sanitizeTerm } from '../../../lib/api/searchUtil'
 
 const JOB_POST_SUMMARY_SELECT = `
   id,
@@ -40,7 +41,8 @@ export async function getJobPosts({ categoryIds, search, excludeProfileId, limit
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    const term = sanitizeTerm(search)
+    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
   }
 
   query = query.range(offset, offset + limit - 1)

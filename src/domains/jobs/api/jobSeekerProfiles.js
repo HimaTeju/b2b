@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { sanitizeTerm } from '../../../lib/api/searchUtil'
 
 const SEEKER_FIELDS = `
   profile_id,
@@ -43,7 +44,8 @@ export async function getJobSeekers({ categoryIds, search, city, excludeProfileI
   }
 
   if (search) {
-    query = query.or(`headline.ilike.%${search}%,about.ilike.%${search}%`)
+    const term = sanitizeTerm(search)
+    query = query.or(`headline.ilike.%${term}%,about.ilike.%${term}%`)
   }
 
   query = query.range(offset, offset + limit - 1)

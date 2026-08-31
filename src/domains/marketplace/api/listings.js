@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { sanitizeTerm } from '../../../lib/api/searchUtil'
 import { deleteListingImageFiles } from './listingImages'
 
 const LISTING_SUMMARY_SELECT = `
@@ -81,7 +82,8 @@ export async function getListings({
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    const term = sanitizeTerm(search)
+    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
   }
 
   query = query.range(offset, offset + limit - 1)
