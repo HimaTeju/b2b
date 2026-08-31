@@ -1,5 +1,4 @@
-import { supabase } from '../../../lib/supabase'
-import { sanitizeTerm } from '../../../lib/api/searchUtil'
+import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 
 const REQUIREMENT_SUMMARY_SELECT = `
   id,
@@ -24,91 +23,15 @@ const REQUIREMENT_DETAIL_SELECT = `
  * "I need a job-work vendor" requirement posts — same shape/filter pattern
  * as serviceRequirements.js, for the jobwork_requirements table.
  */
-export async function getJobWorkRequirements({ categoryIds, search, excludeProfileId, limit = 50, offset = 0 } = {}) {
-  let query = supabase
-    .from('jobwork_requirements')
-    .select(REQUIREMENT_SUMMARY_SELECT)
-    .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: false })
+const api = createRequirementApi({
+  table: 'jobwork_requirements',
+  summarySelect: REQUIREMENT_SUMMARY_SELECT,
+  detailSelect: REQUIREMENT_DETAIL_SELECT
+})
 
-  if (categoryIds && categoryIds.length > 0) {
-    query = query.in('machine_category_id', categoryIds)
-  }
-
-  if (excludeProfileId) {
-    query = query.neq('profile_id', excludeProfileId)
-  }
-
-  if (search) {
-    const term = sanitizeTerm(search)
-    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
-  }
-
-  query = query.range(offset, offset + limit - 1)
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getJobWorkRequirement(id) {
-  const { data, error } = await supabase
-    .from('jobwork_requirements')
-    .select(REQUIREMENT_DETAIL_SELECT)
-    .eq('id', id)
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getMyJobWorkRequirements(profileId) {
-  const { data, error } = await supabase
-    .from('jobwork_requirements')
-    .select(REQUIREMENT_SUMMARY_SELECT)
-    .eq('profile_id', profileId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return data
-}
-
-export async function createJobWorkRequirement(requirementData) {
-  const { data, error } = await supabase
-    .from('jobwork_requirements')
-    .insert([requirementData])
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function updateJobWorkRequirement(id, updates) {
-  const { data, error } = await supabase
-    .from('jobwork_requirements')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function deleteJobWorkRequirement(id) {
-  const { error } = await supabase
-    .from('jobwork_requirements')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-
-  return true
-}
+export const getJobWorkRequirements = api.getMany
+export const getJobWorkRequirement = api.getOne
+export const getMyJobWorkRequirements = api.getMine
+export const createJobWorkRequirement = api.create
+export const updateJobWorkRequirement = api.update
+export const deleteJobWorkRequirement = api.remove

@@ -1,5 +1,4 @@
-import { supabase } from '../../../lib/supabase'
-import { sanitizeTerm } from '../../../lib/api/searchUtil'
+import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 
 const JOB_POST_SUMMARY_SELECT = `
   id,
@@ -25,91 +24,15 @@ const JOB_POST_DETAIL_SELECT = `
  * for the job_posts table. Unlike service/job-work capabilities, posting a
  * job has no capability gate: any profile can post one directly.
  */
-export async function getJobPosts({ categoryIds, search, excludeProfileId, limit = 50, offset = 0 } = {}) {
-  let query = supabase
-    .from('job_posts')
-    .select(JOB_POST_SUMMARY_SELECT)
-    .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: false })
+const api = createRequirementApi({
+  table: 'job_posts',
+  summarySelect: JOB_POST_SUMMARY_SELECT,
+  detailSelect: JOB_POST_DETAIL_SELECT
+})
 
-  if (categoryIds && categoryIds.length > 0) {
-    query = query.in('machine_category_id', categoryIds)
-  }
-
-  if (excludeProfileId) {
-    query = query.neq('profile_id', excludeProfileId)
-  }
-
-  if (search) {
-    const term = sanitizeTerm(search)
-    query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`)
-  }
-
-  query = query.range(offset, offset + limit - 1)
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getJobPost(id) {
-  const { data, error } = await supabase
-    .from('job_posts')
-    .select(JOB_POST_DETAIL_SELECT)
-    .eq('id', id)
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function getMyJobPosts(profileId) {
-  const { data, error } = await supabase
-    .from('job_posts')
-    .select(JOB_POST_SUMMARY_SELECT)
-    .eq('profile_id', profileId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return data
-}
-
-export async function createJobPost(jobPostData) {
-  const { data, error } = await supabase
-    .from('job_posts')
-    .insert([jobPostData])
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function updateJobPost(id, updates) {
-  const { data, error } = await supabase
-    .from('job_posts')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function deleteJobPost(id) {
-  const { error } = await supabase
-    .from('job_posts')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-
-  return true
-}
+export const getJobPosts = api.getMany
+export const getJobPost = api.getOne
+export const getMyJobPosts = api.getMine
+export const createJobPost = api.create
+export const updateJobPost = api.update
+export const deleteJobPost = api.remove
