@@ -94,7 +94,7 @@ One row per authenticated user (`id` = `auth.users.id`, `ON DELETE CASCADE`). Au
 | `onboarded_at` | `TIMESTAMPTZ` | nullable; set when the onboarding wizard is completed *or skipped* — `NULL` means not yet shown, added in `014_profile_onboarding.sql` |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | `updated_at` auto-maintained |
 
-**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row — `interests`/`onboarded_at` ride along on the existing owner-write policy, no new RLS needed.
+**RLS:** any *authenticated* user can `SELECT` where `status = 'ACTIVE'` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously readable by the anon/unauthenticated role too). Only the owning user (`id = auth.uid()`) can `INSERT`/`UPDATE`/`DELETE` their own row — `interests`/`onboarded_at` ride along on the existing owner-write policy, no new RLS needed.
 
 ### `machine_categories`
 
@@ -141,7 +141,7 @@ Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tool
 
 Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`.
 
-**RLS:** anyone can `SELECT` where `status = 'ACTIVE'`. Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
+**RLS:** any *authenticated* user can `SELECT` where `status = 'ACTIVE'` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`). Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
 
 ### `listing_images`
 
@@ -173,7 +173,7 @@ One-to-one "I offer repair/service" business profile. `profile_id` is the primar
 | `is_active` | `BOOLEAN` | default `TRUE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-**RLS:** anyone can `SELECT` where `is_active = TRUE`. Owner has full (`FOR ALL`) access via `profile_id = auth.uid()`.
+**RLS:** any *authenticated* user can `SELECT` where `is_active = TRUE` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`). Owner has full (`FOR ALL`) access via `profile_id = auth.uid()`.
 
 ### `jobwork_capabilities`
 
@@ -194,7 +194,7 @@ One-to-one professional profile for users seeking employment.
 | `is_active` | `BOOLEAN` | default `TRUE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-**RLS:** same pattern — public read when active, owner has full access.
+**RLS:** same pattern — read requires an authenticated session (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`) plus `is_active = TRUE`; owner has full access.
 
 ### Capability ↔ category mapping tables
 
