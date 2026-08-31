@@ -111,7 +111,7 @@ Self-referencing hierarchical category tree (top-level categories have `parent_i
 
 Unique constraint: `(parent_id, name)` — sibling categories must have distinct names.
 
-**RLS:** anyone can `SELECT` where `is_active = TRUE`. No public insert/update/delete policy (management is expected to happen outside the app / via migrations or an admin path).
+**RLS:** any *authenticated* user can `SELECT` where `is_active = TRUE` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously readable by the anon/unauthenticated role too). No public insert/update/delete policy (management is expected to happen outside the app / via migrations or an admin path).
 
 Seeded with a two-level taxonomy in `009_seed_machine_categories.sql` (24 top-level categories, ~140 subcategories — e.g. Metal Working Machines → Lathe, CNC Milling, etc.).
 
@@ -156,9 +156,9 @@ Images for a `marketplace_listings` row, stored in Supabase Storage (this table 
 | `is_primary` | `BOOLEAN` | default `FALSE`, indexed |
 | `created_at` | `TIMESTAMPTZ` | |
 
-**RLS:** anyone can `SELECT`. Insert/delete only permitted when the caller owns the parent listing (checked via `EXISTS` against `marketplace_listings`). No update policy — images are added/removed, not edited.
+**RLS:** any *authenticated* user can `SELECT` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously readable by the anon/unauthenticated role too). Insert/delete only permitted when the caller owns the parent listing (checked via `EXISTS` against `marketplace_listings`). No update policy — images are added/removed, not edited.
 
-**Storage:** `storage_path` values live in the public `listing-images` Storage bucket (`017_listing_images_storage.sql`), under `{profile_id}/{listing_id}/{filename}`. Storage RLS mirrors the table above but checks ownership from the path prefix (`storage.foldername(name)[1] = auth.uid()::text`) since `storage.objects` can't join to `marketplace_listings`. Anyone can read; only the owning profile can insert/update/delete. Uploads are capped at 5MB and restricted to `image/jpeg`, `image/png`, `image/webp` (enforced both by the bucket's `file_size_limit`/`allowed_mime_types` and client-side in `src/lib/api/listingImages.js`). Frontend access goes through that module — `getListingImageUrl()`, `uploadListingImage(s)()`, `deleteListingImages()` — never `storage_path` used directly as a URL.
+**Storage:** `storage_path` values live in the public `listing-images` Storage bucket (`017_listing_images_storage.sql`), under `{profile_id}/{listing_id}/{filename}`. Storage RLS mirrors the table's write rules — only the owning profile can insert/update/delete, checked from the path prefix (`storage.foldername(name)[1] = auth.uid()::text`) since `storage.objects` can't join to `marketplace_listings`. Unlike the table, the bucket itself is provisioned with `public = TRUE`, so Supabase serves objects via unsigned public URLs regardless of the `storage.objects` SELECT policy — the actual image files stay reachable without a session even after `020_require_auth_for_public_reads.sql` locked down the `listing_images` table row data. Locking that down too would mean switching to signed URLs, a separate frontend-visible decision not made as part of that migration. Uploads are capped at 5MB and restricted to `image/jpeg`, `image/png`, `image/webp` (enforced both by the bucket's `file_size_limit`/`allowed_mime_types` and client-side in `src/lib/api/listingImages.js`). Frontend access goes through that module — `getListingImageUrl()`, `uploadListingImage(s)()`, `deleteListingImages()` — never `storage_path` used directly as a URL.
 
 ### `service_capabilities`
 
@@ -204,7 +204,7 @@ Three parallel many-to-many join tables link a capability profile to the `machin
 - **`jobwork_capability_categories`** — same shape, FK → `jobwork_capabilities(profile_id)`.
 - **`job_seeker_categories`** — same shape, FK → `job_seeker_profiles(profile_id)`.
 
-All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RESTRICT`. **RLS:** public read (`USING (TRUE)`) plus an owner-scoped `FOR ALL` policy (`profile_id = auth.uid()`, added in `011_capability_category_write_rls.sql`) — users can tag/untag categories on their own capability profile.
+All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RESTRICT`. **RLS:** any *authenticated* user can `SELECT` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously `USING (TRUE)`, readable by the anon/unauthenticated role too) plus an owner-scoped `FOR ALL` policy (`profile_id = auth.uid()`, added in `011_capability_category_write_rls.sql`) — users can tag/untag categories on their own capability profile.
 
 ### `service_requirements`
 
@@ -221,7 +221,7 @@ All three: `machine_category_id` FK → `machine_categories(id)`, `ON DELETE RES
 | `status` | `listing_status` | default `ACTIVE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-**RLS:** public read when `ACTIVE`; owner has full access.
+**RLS:** any *authenticated* user can `SELECT` when `ACTIVE` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously readable by the anon/unauthenticated role too); owner has full access.
 
 ### `jobwork_requirements`
 
@@ -242,7 +242,7 @@ Job vacancies posted by employers.
 | `status` | `listing_status` | default `ACTIVE`, indexed |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-**RLS:** public read when `ACTIVE`; owner has full access.
+**RLS:** any *authenticated* user can `SELECT` when `ACTIVE` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql` — previously readable by the anon/unauthenticated role too); owner has full access.
 
 ### `enquiries`
 
@@ -295,10 +295,10 @@ Note: there is no dedicated messages/conversation-thread table — `enquiries` i
 
 RLS is enabled on every table. General pattern:
 
-- **Public read** is scoped to "active" rows only (`status = 'ACTIVE'` or `is_active = TRUE`), never to all rows — inactive/suspended data is invisible to other users.
+- **Read requires an authenticated session** (`auth.role() = 'authenticated'`, added repo-wide in `020_require_auth_for_public_reads.sql`) and, on top of that, is scoped to "active" rows only where the table has a status concept (`status = 'ACTIVE'` or `is_active = TRUE`), never to all rows — inactive/suspended data is invisible to other users. Before `020`, these SELECT policies had no auth check and were readable by the anon/unauthenticated role too; see that migration's header comment for the full table list and for the one exception it doesn't cover (the public `listing-images` Storage bucket, still reachable via unsigned URL regardless of table RLS).
 - **Writes are owner-scoped** via `profile_id = auth.uid()` (or `id = auth.uid()` for `profiles` itself). There are no admin/service-role bypass policies defined in these migrations.
 - **`enquiries`** is the exception to "owner-scoped": visibility and mutation are scoped to *participant* (`from_profile_id` or `to_profile_id`), not a single owner.
-- **Category tables** (`machine_categories` and all three capability-category join tables) are public-read-only with no self-service write policy — inserts/updates currently require elevated privileges (service role) rather than a logged-in user's own RLS grant.
+- **Category tables** (`machine_categories` and all three capability-category join tables) are read-only for authenticated users with no self-service write policy — inserts/updates currently require elevated privileges (service role) rather than a logged-in user's own RLS grant.
 
 ---
 
