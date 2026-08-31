@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 // Separate from vite.config.js so the PWA/build config used for GitHub Pages
@@ -9,6 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.js'],
+    exclude: [...configDefaults.exclude, 'e2e/**'],
     env: {
       // supabase.js throws if these are missing; tests mock the client
       // itself, these just need to be present for the module to load.
