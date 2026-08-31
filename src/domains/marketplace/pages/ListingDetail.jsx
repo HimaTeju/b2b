@@ -4,7 +4,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { getListing, deleteListing } from '../api/listings'
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { getOrderedImages } from '../api/listingImages'
-import { formatPrice, formatLocation } from '../../../lib/format'
+import { formatListingPrice, formatLocation } from '../../../lib/format'
 import { INTENT_LABELS, CONDITION_LABELS, SECTION_LABELS, WEIGHT_UNIT_LABELS } from '../../../lib/constants'
 import EnquiryComposer from '../../../components/EnquiryComposer'
 import ListingGallery from '../components/ListingGallery'
@@ -115,10 +115,7 @@ function ListingDetail() {
             )}
             <h1 className="listing-detail__title">{listing.title}</h1>
             <p className="listing-detail__location">{formatLocation(listing)}</p>
-            <p className="listing-detail__price mono">
-              {isRequirement && <span className="listing-detail__price-label">Budget </span>}
-              {listing.price ? formatPrice(listing.price) : (isRequirement ? 'Open to offers' : formatPrice(listing.price))}
-            </p>
+            <p className="listing-detail__price mono">{formatListingPrice(listing)}</p>
           </div>
 
           {listing.description && (

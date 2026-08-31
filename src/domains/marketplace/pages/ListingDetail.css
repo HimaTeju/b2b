@@ -61,15 +61,6 @@
   margin-top: var(--spacing-sm);
 }
 
-.listing-detail__price-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-right: 4px;
-}
-
 .listing-detail__section {
   margin-bottom: var(--spacing-xl);
 }
