@@ -1,3 +1,4 @@
+import { supabase } from '../../../lib/supabase'
 import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 import { deleteListingImageFiles } from './listingImages'
 
@@ -19,6 +20,8 @@ const LISTING_SUMMARY_SELECT = `
   shape,
   weight,
   weight_unit,
+  is_advertised,
+  advertised_at,
   created_at,
   updated_at,
   machine_categories:machine_category_id ( id, name ),
@@ -80,3 +83,31 @@ export const getMyListings = api.getMine
 export const createListing = api.create
 export const updateListing = api.update
 export const deleteListing = api.remove
+
+/** Owner-only toggle for the Dashboard "Boost this post" / "Un-boost" action. */
+export async function toggleListingAdvertise(id, isAdvertised) {
+  return updateListing(id, {
+    is_advertised: isAdvertised,
+    advertised_at: isAdvertised ? new Date().toISOString() : null
+  })
+}
+
+/**
+ * Boosted SELL listings for the Home page's mandatory Sponsored section,
+ * most-recently-boosted first. Separate from getListings/getMany's
+ * category-filterable browse shape since this is a small, unfiltered strip.
+ */
+export async function getSponsoredListings({ limit = 10 } = {}) {
+  const { data, error } = await supabase
+    .from('marketplace_listings')
+    .select(LISTING_SUMMARY_SELECT)
+    .eq('status', 'ACTIVE')
+    .eq('intent', 'SELL')
+    .eq('is_advertised', true)
+    .order('advertised_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+
+  return data
+}

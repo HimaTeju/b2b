@@ -1,4 +1,4 @@
-import { deleteListing } from '../../domains/marketplace/api/listings'
+import { deleteListing, toggleListingAdvertise } from '../../domains/marketplace/api/listings'
 import { deleteServiceRequirement } from '../../domains/services/api/serviceRequirements'
 import { deleteJobWorkRequirement } from '../../domains/jobwork/api/jobworkRequirements'
 import { deleteJobPost } from '../../domains/jobs/api/jobPosts'
@@ -21,7 +21,9 @@ export const DASHBOARD_DOMAIN_CONFIG = {
     viewRecordPath: id => `/marketplace/${id}`,
     recordBadge: record => INTENT_LABELS[record.intent],
     recordMeta: record => `${record.machine_categories?.name || SECTION_LABELS[record.section]} · ${formatListingPrice(record)}`,
-    deleteRecord: record => deleteListing(record.id, record.listing_images)
+    deleteRecord: record => deleteListing(record.id, record.listing_images),
+    canAdvertise: record => record.intent === 'SELL',
+    toggleAdvertise: record => toggleListingAdvertise(record.id, !record.is_advertised)
   },
   services: {
     recordNounSingular: 'requirement',

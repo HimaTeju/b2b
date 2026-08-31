@@ -20,6 +20,7 @@ Migrations, in apply order:
 | 012 | `012_enquiries_capability_references.sql` | Direct-contact enquiry references to service/jobwork capability profiles |
 | 013 | `013_enquiries_job_seeker_reference.sql` | Direct-contact enquiry reference to job seeker profiles |
 | 014 | `014_profile_onboarding.sql` | `profiles.interests` + `profiles.onboarded_at` for the onboarding wizard |
+| 023 | `023_marketplace_advertising.sql` | `marketplace_listings.is_advertised` / `.advertised_at` — one-click boost/advertise flag |
 
 ---
 
@@ -137,9 +138,11 @@ Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tool
 | `shape` | `TEXT` | nullable, free text — Scrap only |
 | `weight` | `NUMERIC(12,2)` | nullable, must be `>= 0` — Scrap only |
 | `weight_unit` | `weight_unit_type` | nullable, `GM` / `KG` — Scrap only |
+| `is_advertised` | `BOOLEAN` | default `FALSE` — owner-toggled "boost this post" flag, added in `023_marketplace_advertising.sql`; shows the listing in the Home page Sponsored section |
+| `advertised_at` | `TIMESTAMPTZ` | nullable — set when boosted, orders the Sponsored section most-recent first |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |
 
-Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`.
+Indexed on `profile_id`, `machine_category_id`, `intent`, `section`, `status`, `city`, `state`, and a partial index on `advertised_at DESC WHERE is_advertised = TRUE`.
 
 **RLS:** any *authenticated* user can `SELECT` where `status = 'ACTIVE'` (`auth.role() = 'authenticated'`, added in `020_require_auth_for_public_reads.sql`). Owner (`profile_id = auth.uid()`) can insert/update/delete their own listings.
 

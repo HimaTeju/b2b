@@ -24,6 +24,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleteError, setDeleteError] = useState('')
+  const [advertiseError, setAdvertiseError] = useState('')
 
   const loadDashboard = useCallback(async () => {
     setLoading(true)
@@ -94,6 +95,17 @@ function Dashboard() {
     }
   }
 
+  const handleToggleAdvertise = async (domainKey, record) => {
+    setAdvertiseError('')
+    try {
+      await DASHBOARD_DOMAIN_CONFIG[domainKey].toggleAdvertise(record)
+      await loadDashboard()
+    } catch (err) {
+      console.error('Error toggling advertise:', err)
+      setAdvertiseError('Failed to update. Please try again.')
+    }
+  }
+
   const activeCount = domainData
     ? Object.values(domainData).reduce(
         (sum, { records }) => sum + records.filter(r => r.status === 'ACTIVE').length,
@@ -113,6 +125,7 @@ function Dashboard() {
 
         {error && <div className="banner">{error}</div>}
         {deleteError && <div className="banner">{deleteError}</div>}
+        {advertiseError && <div className="banner">{advertiseError}</div>}
 
         {loading ? (
           <div className="dashboard__loading">Loading…</div>
@@ -154,6 +167,7 @@ function Dashboard() {
                   records={domainData[key].records}
                   capability={domainData[key].capability}
                   onDeleteRecord={record => handleDeleteRecord(key, record)}
+                  onToggleAdvertise={record => handleToggleAdvertise(key, record)}
                 />
               ))
             )}

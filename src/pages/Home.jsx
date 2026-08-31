@@ -6,6 +6,7 @@ import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAIN_LIST, rankDomains } from '../lib/domains'
 import SearchOverlay from '../components/SearchOverlay'
+import SponsoredListings from '../domains/marketplace/components/SponsoredListings'
 import './Home.css'
 
 function Home() {
@@ -85,6 +86,8 @@ function Home() {
       </button>
 
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+
+      <SponsoredListings />
     </div>
   )
 }
