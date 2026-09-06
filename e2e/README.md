@@ -31,3 +31,10 @@ npm run test:e2e:ui    # interactive UI mode
 
 The Playwright config starts `npm run dev` automatically if nothing is already listening on
 `http://localhost:3000/b2b/`.
+
+## CI
+
+The suite runs on every pull request via the `e2e` job in `.github/workflows/ci.yml`, against
+the same live Supabase project, using `E2E_USER1_EMAIL` / `E2E_USER1_PASSWORD` / `E2E_USER2_EMAIL`
+/ `E2E_USER2_PASSWORD` GitHub Actions repo secrets (two `e2e-test-` prefixed accounts, pre-confirmed
+in that project). On failure, the Playwright HTML report is uploaded as a build artifact.
