@@ -72,3 +72,38 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  pwa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run PWA tests
+        run: npm run test:pwa
+        env:
+          # Service worker/manifest behavior doesn't depend on real listing
+          # data, so a placeholder Supabase project is fine for this build.
+          VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa-playwright-report
+          path: playwright-report/
+          retention-days: 7
