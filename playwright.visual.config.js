@@ -1,0 +1,35 @@
+import { defineConfig, devices } from '@playwright/test'
+
+// Separate from playwright.config.js so visual baselines (e2e-visual/) don't
+// mix with functional e2e specs (e2e/) in the same snapshot directory.
+export default defineConfig({
+  testDir: './e2e-visual',
+  fullyParallel: false,
+  workers: 1,
+  retries: process.env.CI ? 1 : 0,
+  reporter: 'html',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.02,
+      animations: 'disabled',
+    },
+  },
+  use: {
+    baseURL: 'http://localhost:3000/b2b/',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    viewport: { width: 390, height: 844 },
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000/b2b/',
+    reuseExistingServer: !process.env.CI,
+    timeout: 60_000,
+  },
+})
