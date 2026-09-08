@@ -15,6 +15,7 @@ import { getDomainActivity } from '../lib/api/activity'
 import { DOMAINS, rankDomains } from '../lib/domains'
 import { DASHBOARD_DOMAIN_CONFIG } from './dashboard/domainDashboardConfig'
 import DomainSection from './dashboard/DomainSection'
+import DashboardSkeleton from './dashboard/DashboardSkeleton'
 import './Dashboard.css'
 
 function Dashboard() {
@@ -135,7 +136,7 @@ function Dashboard() {
         {advertiseError && <div className="banner">{advertiseError}</div>}
 
         {loading ? (
-          <div className="dashboard__loading">Loading…</div>
+          <DashboardSkeleton />
         ) : (
           <>
             <div className="dashboard__stats">

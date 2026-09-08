@@ -32,6 +32,7 @@ function MarketplaceGrid({ section = 'MACHINERY', intent, initialSearch }) {
       renderItem={(listing) => <ListingCard listing={listing} />}
       initialSearch={initialSearch}
       showCategoryFilter={section !== 'SCRAP'}
+      hasImage
     />
   )
 }

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getReceivedEnquiries, getSentEnquiries, setEnquiryRead, getEnquirySubject } from '../lib/api/enquiries'
 import { formatRelativeDate } from '../lib/format'
+import Skeleton from '../components/Skeleton'
 import './Enquiries.css'
 
 function Enquiries() {
@@ -97,7 +98,20 @@ function Enquiries() {
         </div>
 
         {loading ? (
-          <div className="enquiries__state">Loading…</div>
+          <div className="enquiries__list" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, i) => (
+              <div key={i} className="enquiry-item">
+                <div className="enquiry-item__content">
+                  <div className="enquiry-item__header">
+                    <Skeleton style={{ width: '40%', height: 13 }} />
+                    <Skeleton style={{ width: '3em', height: 10 }} />
+                  </div>
+                  <Skeleton style={{ width: '55%', height: 11, margin: '4px 0' }} />
+                  <Skeleton style={{ width: '80%', height: 12 }} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="enquiries__state">{error}</div>
         ) : enquiries.length === 0 ? (

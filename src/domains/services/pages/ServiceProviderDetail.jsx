@@ -5,6 +5,7 @@ import { getServiceProvider } from '../api/serviceCapabilities'
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { formatLocation } from '../../../lib/format'
 import EnquiryComposer from '../../../components/EnquiryComposer'
+import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
 import '../../../pages/EntityDetail.css'
 
 function ServiceProviderDetail() {
@@ -58,7 +59,7 @@ function ServiceProviderDetail() {
   }
 
   if (loading) {
-    return <div className="entity-detail__state">Loading…</div>
+    return <EntityDetailSkeleton />
   }
 
   if (error || !provider) {
