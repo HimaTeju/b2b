@@ -5,6 +5,7 @@ import { getJobPost, deleteJobPost } from '../api/jobPosts'
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { formatLocation } from '../../../lib/format'
 import EnquiryComposer from '../../../components/EnquiryComposer'
+import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
 import '../../../pages/EntityDetail.css'
 
 function JobPostDetail() {
@@ -73,7 +74,7 @@ function JobPostDetail() {
   }
 
   if (loading) {
-    return <div className="entity-detail__state">Loading…</div>
+    return <EntityDetailSkeleton />
   }
 
   if (error || !jobPost) {

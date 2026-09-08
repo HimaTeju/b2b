@@ -8,6 +8,7 @@ import { formatListingPrice, formatLocation } from '../../../lib/format'
 import { INTENT_LABELS, CONDITION_LABELS, SECTION_LABELS, WEIGHT_UNIT_LABELS } from '../../../lib/constants'
 import EnquiryComposer from '../../../components/EnquiryComposer'
 import ListingGallery from '../components/ListingGallery'
+import ListingDetailSkeleton from './ListingDetailSkeleton'
 import './ListingDetail.css'
 
 function ListingDetail() {
@@ -78,7 +79,7 @@ function ListingDetail() {
   }
 
   if (loading) {
-    return <div className="listing-detail__state">Loading…</div>
+    return <ListingDetailSkeleton />
   }
 
   if (error || !listing) {

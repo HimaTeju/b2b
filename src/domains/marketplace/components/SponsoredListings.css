@@ -12,7 +12,6 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.sponsored__loading,
 .sponsored__empty {
   padding: var(--spacing-md);
   text-align: center;

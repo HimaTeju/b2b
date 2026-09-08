@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { getMachineCategories, buildCategoryTree, categoryAndDescendantIds } from '../lib/api/categories'
 import CategoryFilterSheet from './CategoryFilterSheet'
+import SkeletonCard from './SkeletonCard'
 import './BrowseGrid.css'
+
+const SKELETON_COUNT = 6
 
 /**
  * Generic category-filterable, searchable browse grid. Caller owns the data
@@ -9,7 +12,7 @@ import './BrowseGrid.css'
  * (`renderItem`) — this component owns category drill-down, debounced
  * search, and loading/error/empty states only.
  */
-function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '', showCategoryFilter = true, extraFilters, renderExtraFilter }) {
+function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMessage, getItemKey = item => item.id, onItemClick, renderItem, initialSearch = '', showCategoryFilter = true, extraFilters, renderExtraFilter, hasImage = false }) {
   const [categories, setCategories] = useState([])
   const [categoryTree, setCategoryTree] = useState([])
   const [activeTopId, setActiveTopId] = useState(null)
@@ -101,7 +104,13 @@ function BrowseGrid({ fetchItems, excludeProfileId, searchPlaceholder, emptyMess
         )}
 
         {loading ? (
-          <div className="browse-grid__loading">Loading…</div>
+          <div className="browse-grid__grid" aria-hidden="true">
+            {Array.from({ length: SKELETON_COUNT }, (_, i) => (
+              <div key={i} className="browse-grid__item browse-grid__item--skeleton">
+                <SkeletonCard hasImage={hasImage} />
+              </div>
+            ))}
+          </div>
         ) : items.length === 0 ? (
           <div className="browse-grid__empty">{emptyMessage}</div>
         ) : (

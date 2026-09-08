@@ -5,6 +5,7 @@ import { getPackersMoversRequirement, deletePackersMoversRequirement } from '../
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { PACKERS_MOVERS_REQUEST_TYPE_LABELS } from '../../../lib/constants'
 import EnquiryComposer from '../../../components/EnquiryComposer'
+import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
 import '../../../pages/EntityDetail.css'
 
 function formatLocationPair(city, state) {
@@ -77,7 +78,7 @@ function PackersMoversRequirementDetail() {
   }
 
   if (loading) {
-    return <div className="entity-detail__state">Loading…</div>
+    return <EntityDetailSkeleton />
   }
 
   if (error || !requirement) {

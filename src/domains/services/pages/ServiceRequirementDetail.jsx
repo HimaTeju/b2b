@@ -5,6 +5,7 @@ import { getServiceRequirement, deleteServiceRequirement } from '../api/serviceR
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { formatLocation } from '../../../lib/format'
 import EnquiryComposer from '../../../components/EnquiryComposer'
+import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
 import '../../../pages/EntityDetail.css'
 
 function ServiceRequirementDetail() {
@@ -73,7 +74,7 @@ function ServiceRequirementDetail() {
   }
 
   if (loading) {
-    return <div className="entity-detail__state">Loading…</div>
+    return <EntityDetailSkeleton />
   }
 
   if (error || !requirement) {

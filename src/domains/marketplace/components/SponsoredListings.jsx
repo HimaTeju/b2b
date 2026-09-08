@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSponsoredListings } from '../api/listings'
 import ListingCard from './ListingCard'
+import SkeletonCard from '../../../components/SkeletonCard'
 import './SponsoredListings.css'
+
+const SKELETON_COUNT = 4
 
 /**
  * Mandatory Home page section for boosted (is_advertised) SELL listings —
@@ -46,7 +49,13 @@ function SponsoredListings() {
           <button className="btn btn--sm" onClick={loadListings}>Retry</button>
         </div>
       ) : loading ? (
-        <div className="sponsored__loading">Loading…</div>
+        <div className="sponsored__strip" aria-hidden="true">
+          {Array.from({ length: SKELETON_COUNT }, (_, i) => (
+            <div key={i} className="sponsored__item">
+              <SkeletonCard hasImage />
+            </div>
+          ))}
+        </div>
       ) : listings.length === 0 ? (
         <div className="sponsored__empty">No sponsored listings yet — boost your listing from Dashboard to feature it here.</div>
       ) : (
