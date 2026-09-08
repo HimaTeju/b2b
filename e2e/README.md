@@ -54,3 +54,6 @@ in that project). On failure, the Playwright HTML report is uploaded as a build 
   set up/tear down cross-user fixtures and grant/revoke the test admin role — keep this key out
   of `.env` (the client-bundled file) and only ever load it for this suite. Skips (not fails)
   when any of these env vars are missing.
+- `npm run test:load` (`load/`) — k6 load test of browse/search/listing-detail/sign-in/enquiry
+  flows against the same live project, manual/on-demand only. See `load/README.md` for the
+  required opt-in and concurrency guardrails before running it.
