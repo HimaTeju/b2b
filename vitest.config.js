@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.js'],
-    exclude: [...configDefaults.exclude, 'e2e/**', 'e2e-pwa/**', 'e2e-visual/**', 'rls/**'],
+    exclude: [...configDefaults.exclude, 'e2e/**', 'e2e-pwa/**', 'rls/**'],
     env: {
       // supabase.js throws if these are missing; tests mock the client
       // itself, these just need to be present for the module to load.

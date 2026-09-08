@@ -43,14 +43,6 @@ in that project). On failure, the Playwright HTML report is uploaded as a build 
 
 - `npm run test:pwa` (`e2e-pwa/`, `playwright.pwa.config.js`) — service worker/manifest/offline
   behavior, run against a production build+preview (service workers don't register under `vite dev`).
-- `npm run test:visual` (`e2e-visual/`, `playwright.visual.config.js`) — visual regression
-  screenshots for screens with no live-data dependency (login/register/browse hub/post-listing
-  form/listing detail). Baselines are generated on `ubuntu-latest` (matching the `visual` CI job)
-  via the manually-triggered "Update visual regression baselines" workflow
-  (`.github/workflows/visual-baselines.yml`) — run it from the Actions tab after an intentional UI
-  change, then download the `visual-baselines` artifact and commit its contents over
-  `e2e-visual/**/*-snapshots/`. Baselines generated locally on a non-Linux machine will not match
-  CI due to font-rendering differences.
 - `npm run test:rls` (`rls/`, `vitest.rls.config.js`) — Supabase RLS integration tests against
   the same live project, using `@supabase/supabase-js` directly (no mocking, no browser) to
   assert row-level security actually enforces authorization: cross-user listing/capability
