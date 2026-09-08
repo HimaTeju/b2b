@@ -28,7 +28,7 @@ test.describe('Browse & filter', () => {
   test('the category filter sheet opens and can be dismissed', async ({ page }) => {
     await page.goto('/#/marketplace')
 
-    await page.getByRole('button', { name: 'All categories' }).click()
+    await page.locator('.category-filter-sheet__trigger').click()
     await expect(page.getByRole('dialog', { name: 'Select category' })).toBeVisible()
   })
 })

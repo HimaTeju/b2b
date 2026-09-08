@@ -31,3 +31,26 @@ npm run test:e2e:ui    # interactive UI mode
 
 The Playwright config starts `npm run dev` automatically if nothing is already listening on
 `http://localhost:3000/b2b/`.
+
+## CI
+
+The suite runs on every pull request via the `e2e` job in `.github/workflows/ci.yml`, against
+the same live Supabase project, using `E2E_USER1_EMAIL` / `E2E_USER1_PASSWORD` / `E2E_USER2_EMAIL`
+/ `E2E_USER2_PASSWORD` GitHub Actions repo secrets (two `e2e-test-` prefixed accounts, pre-confirmed
+in that project). On failure, the Playwright HTML report is uploaded as a build artifact.
+
+## Related suites
+
+- `npm run test:pwa` (`e2e-pwa/`, `playwright.pwa.config.js`) — service worker/manifest/offline
+  behavior, run against a production build+preview (service workers don't register under `vite dev`).
+- `npm run test:rls` (`rls/`, `vitest.rls.config.js`) — Supabase RLS integration tests against
+  the same live project, using `@supabase/supabase-js` directly (no mocking, no browser) to
+  assert row-level security actually enforces authorization: cross-user listing/capability
+  writes are blocked, enquiry visibility is restricted to sender/recipient, unauthenticated reads
+  are blocked (`020_require_auth_for_public_reads.sql`), and admin-only moderation plus the
+  is_admin escalation guard behave as `021_admin_role.sql`/`022_fix_admin_escalation_guard.sql`
+  intend. In addition to `E2E_USER1_EMAIL`/`E2E_USER1_PASSWORD`/`E2E_USER2_EMAIL`/
+  `E2E_USER2_PASSWORD`, this suite needs `SUPABASE_SERVICE_ROLE_KEY` (see `.env.e2e.example`) to
+  set up/tear down cross-user fixtures and grant/revoke the test admin role — keep this key out
+  of `.env` (the client-bundled file) and only ever load it for this suite. Skips (not fails)
+  when any of these env vars are missing.
