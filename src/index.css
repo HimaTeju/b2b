@@ -187,23 +187,21 @@ ul, ol {
   line-height: 1.6;
 }
 
-.stamp--ink { color: var(--color-ink); }
-.stamp--muted { color: var(--color-steel); }
-.stamp--marketplace { color: var(--color-marketplace-ink); }
-.stamp--services { color: var(--color-services); }
-.stamp--jobs { color: var(--color-jobs); }
-.stamp--jobwork { color: var(--color-jobwork); }
-.stamp--packersmovers { color: var(--color-packersmovers); }
-.stamp--danger { color: var(--color-danger); }
-.stamp--positive { color: var(--color-positive); }
+.stamp--ink { --stamp-accent: var(--color-ink); color: var(--stamp-accent); }
+.stamp--muted { --stamp-accent: var(--color-steel); color: var(--stamp-accent); }
+.stamp--marketplace { --stamp-accent: var(--color-marketplace-ink); color: var(--stamp-accent); }
+.stamp--services { --stamp-accent: var(--color-services); color: var(--stamp-accent); }
+.stamp--jobs { --stamp-accent: var(--color-jobs); color: var(--stamp-accent); }
+.stamp--jobwork { --stamp-accent: var(--color-jobwork); color: var(--stamp-accent); }
+.stamp--packersmovers { --stamp-accent: var(--color-packersmovers); color: var(--stamp-accent); }
+.stamp--danger { --stamp-accent: var(--color-danger); color: var(--stamp-accent); }
+.stamp--positive { --stamp-accent: var(--color-positive); color: var(--stamp-accent); }
 
 .stamp--solid {
+  background: var(--stamp-accent);
+  border-color: var(--stamp-accent);
   color: var(--color-paper);
-  background: currentColor;
-  border-color: currentColor;
 }
-
-.stamp--solid .stamp__label { color: var(--color-paper); }
 
 /* Buttons */
 .btn {
