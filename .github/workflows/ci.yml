@@ -108,6 +108,38 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  rls:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run RLS integration tests
+        run: npm run test:rls
+        env:
+          # Runs against the same live Supabase project as the e2e suite
+          # (see e2e/README.md) — this repo has no local/dockerized Supabase
+          # stack. The service-role key is used only here, never bundled
+          # into the app, to set up/tear down cross-user fixtures and to
+          # grant/revoke the test admin role.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_USER1_EMAIL: ${{ secrets.E2E_USER1_EMAIL }}
+          E2E_USER1_PASSWORD: ${{ secrets.E2E_USER1_PASSWORD }}
+          E2E_USER2_EMAIL: ${{ secrets.E2E_USER2_EMAIL }}
+          E2E_USER2_PASSWORD: ${{ secrets.E2E_USER2_PASSWORD }}
+
   visual:
     runs-on: ubuntu-latest
 

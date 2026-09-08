@@ -51,3 +51,14 @@ in that project). On failure, the Playwright HTML report is uploaded as a build 
   change, then download the `visual-baselines` artifact and commit its contents over
   `e2e-visual/**/*-snapshots/`. Baselines generated locally on a non-Linux machine will not match
   CI due to font-rendering differences.
+- `npm run test:rls` (`rls/`, `vitest.rls.config.js`) — Supabase RLS integration tests against
+  the same live project, using `@supabase/supabase-js` directly (no mocking, no browser) to
+  assert row-level security actually enforces authorization: cross-user listing/capability
+  writes are blocked, enquiry visibility is restricted to sender/recipient, unauthenticated reads
+  are blocked (`020_require_auth_for_public_reads.sql`), and admin-only moderation plus the
+  is_admin escalation guard behave as `021_admin_role.sql`/`022_fix_admin_escalation_guard.sql`
+  intend. In addition to `E2E_USER1_EMAIL`/`E2E_USER1_PASSWORD`/`E2E_USER2_EMAIL`/
+  `E2E_USER2_PASSWORD`, this suite needs `SUPABASE_SERVICE_ROLE_KEY` (see `.env.e2e.example`) to
+  set up/tear down cross-user fixtures and grant/revoke the test admin role — keep this key out
+  of `.env` (the client-bundled file) and only ever load it for this suite. Skips (not fails)
+  when any of these env vars are missing.
