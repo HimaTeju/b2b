@@ -24,7 +24,7 @@ export const DOMAINS = {
   services: {
     key: 'services',
     code: 'SV',
-    label: 'Services',
+    label: 'Repair & Services',
     blurb: 'Get repair work done, or offer your repair service',
     to: '/services',
     accent: 'services',

@@ -110,7 +110,7 @@ function SearchOverlay({ onClose }) {
       <div className="search-overlay__body">
         {term.length < 2 && (
           <p className="search-overlay__hint">
-            Keep typing — matches from Marketplace, Services, Job Work and Jobs all show up here as you go.
+            Keep typing — matches from Marketplace, Repair & Services, Job Work and Jobs all show up here as you go.
           </p>
         )}
 

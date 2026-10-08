@@ -36,6 +36,30 @@ export const WEIGHT_UNIT_LABELS = {
   KG: 'kg'
 }
 
+// marketplace_listings.material_type and .shape are free text (Scrap only,
+// see DATABASE_SCHEMA.md), validated against these static lists so they can
+// grow without a migration — same pattern as JOB_CATEGORIES below.
+export const SCRAP_MATERIAL_TYPES = ['Plastic', 'Metal', 'E-Waste']
+
+// Only shown as a second dropdown when Metal is selected above; the metal
+// chosen here (not the literal word "Metal") is what gets saved as material_type.
+export const SCRAP_METAL_TYPES = [
+  'Aluminium',
+  'Steel',
+  'Iron',
+  'Copper',
+  'Brass',
+  'Bronze',
+  'Cobalt',
+  'Nickel',
+  'Tin',
+  'Zinc',
+  'MS',
+'MSJ'
+]
+
+export const SCRAP_SHAPES = ['Solid', 'Sheet', 'Square', 'Round', 'Powder', 'Metal Chips']
+
 // job_posts.job_category is free text (not a DB enum, see 024_job_posts_category.sql)
 // validated against this static list so it can grow without a migration.
 export const JOB_CATEGORIES = [

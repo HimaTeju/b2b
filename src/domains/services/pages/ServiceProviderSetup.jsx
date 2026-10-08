@@ -12,7 +12,7 @@ const COPY = {
   descriptionLabel: 'About your service',
   descriptionPlaceholder: 'Turnaround time, specialties, certifications…',
   categoryFieldLabel: 'Categories you service *',
-  activeLabel: 'Visible to seekers browsing Services',
+  activeLabel: 'Visible to seekers browsing Repair & Services',
   savingLabel: 'Saving…'
 }
 
@@ -76,7 +76,7 @@ function ServiceProviderSetup() {
   return (
     <div className="post">
       <div className="post__container">
-        <span className="eyebrow">SV · Services</span>
+        <span className="eyebrow">SV · Repair &amp; Services</span>
         <h1 className="post__title">{existing ? 'Edit your provider profile' : 'Become a service provider'}</h1>
 
         <button className="post__market-link" onClick={() => navigate('/services/requirements')}>
