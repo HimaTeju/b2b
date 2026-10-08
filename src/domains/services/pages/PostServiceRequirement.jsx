@@ -38,7 +38,7 @@ function PostServiceRequirement() {
   return (
     <div className="post">
       <div className="post__container">
-        <span className="eyebrow">SV · Services</span>
+        <span className="eyebrow">SV · Repair &amp; Services</span>
         <h1 className="post__title">Post a repair requirement</h1>
 
         <EntityRequirementForm

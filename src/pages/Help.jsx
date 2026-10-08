@@ -30,14 +30,14 @@ const SECTIONS = [
     key: 'services',
     accent: 'services',
     icon: DOMAINS.services.icon,
-    title: 'Services — repairs & maintenance',
+    title: 'Repair & Services — repairs & maintenance',
     body: [
-      'Need a repair done? Open Services to find repair providers near you and message them.',
+      'Need a repair done? Open Repair & Services to find repair providers near you and message them.',
       'Can’t find the right fit? Post a Requirement describing the work, and providers can reach out to you.',
       'Do repair work yourself? Turn on Offer Repair Services from your Profile to be listed as a provider.'
     ],
     cta: [
-      { label: 'Go to Services', to: '/services' },
+      { label: 'Go to Repair & Services', to: '/services' },
       { label: 'Offer repair services', to: '/services/provider/setup' }
     ]
   },
@@ -76,7 +76,7 @@ const SECTIONS = [
     title: 'Your posts & messages',
     body: [
       'Dashboard shows everything you have posted — listings, requirements, and job posts — in one place.',
-      'Enquiries shows every message you have sent or received, across Marketplace, Services, Job Work, and Jobs.'
+      'Enquiries shows every message you have sent or received, across Marketplace, Repair & Services, Job Work, and Jobs.'
     ],
     cta: [
       { label: 'Go to Dashboard', to: '/dashboard' },

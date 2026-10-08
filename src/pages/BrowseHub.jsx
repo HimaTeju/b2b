@@ -154,24 +154,25 @@ function RAIL(logout, navigate) {
       ]
     },
     {
-      key: 'jobs',
-      code: DOMAINS.jobs.code,
-      label: DOMAINS.jobs.label,
-      accent: DOMAINS.jobs.accent,
-      icon: DOMAINS.jobs.icon,
+      key: 'packersmovers',
+      code: DOMAINS.packersmovers.code,
+      label: DOMAINS.packersmovers.label,
+      accent: DOMAINS.packersmovers.accent,
+      icon: DOMAINS.packersmovers.icon,
       groups: [
         {
-          question: 'Looking for work?',
+          question: 'Need something moved?',
           tiles: [
-            { label: 'Browse Job Posts', icon: ICONS.browse, to: '/jobs' },
-            { label: 'Build a Job Seeker Profile', icon: ICONS.badge, to: '/jobs/seeker/setup' }
+            { label: 'Find a Mover', icon: ICONS.browse, to: '/packers-movers' },
+            { label: 'Request Machine Lifting', icon: ICONS.post, to: '/packers-movers/requirements/machine-lifting/new' },
+            { label: 'Request Shop Lifting', icon: ICONS.post, to: '/packers-movers/requirements/shop-lifting/new' }
           ]
         },
         {
-          question: 'Hiring?',
+          question: 'Can you move things?',
           tiles: [
-            { label: 'Post a Job', icon: ICONS.post, to: '/jobs/new' },
-            { label: 'Browse Job Seekers', icon: ICONS.browse, to: '/jobs/seekers' }
+            { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/packers-movers/requirements' }
           ]
         }
       ]
@@ -200,25 +201,24 @@ function RAIL(logout, navigate) {
       ]
     },
     {
-      key: 'packersmovers',
-      code: DOMAINS.packersmovers.code,
-      label: DOMAINS.packersmovers.label,
-      accent: DOMAINS.packersmovers.accent,
-      icon: DOMAINS.packersmovers.icon,
+      key: 'jobs',
+      code: DOMAINS.jobs.code,
+      label: DOMAINS.jobs.label,
+      accent: DOMAINS.jobs.accent,
+      icon: DOMAINS.jobs.icon,
       groups: [
         {
-          question: 'Need something moved?',
+          question: 'Looking for work?',
           tiles: [
-            { label: 'Find a Mover', icon: ICONS.browse, to: '/packers-movers' },
-            { label: 'Request Machine Lifting', icon: ICONS.post, to: '/packers-movers/requirements/machine-lifting/new' },
-            { label: 'Request Shop Lifting', icon: ICONS.post, to: '/packers-movers/requirements/shop-lifting/new' }
+            { label: 'Browse Job Posts', icon: ICONS.browse, to: '/jobs' },
+            { label: 'Build a Job Seeker Profile', icon: ICONS.badge, to: '/jobs/seeker/setup' }
           ]
         },
         {
-          question: 'Can you move things?',
+          question: 'Hiring?',
           tiles: [
-            { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' },
-            { label: 'Browse Requirements', icon: ICONS.browse, to: '/packers-movers/requirements' }
+            { label: 'Post a Job', icon: ICONS.post, to: '/jobs/new' },
+            { label: 'Browse Job Seekers', icon: ICONS.browse, to: '/jobs/seekers' }
           ]
         }
       ]
@@ -237,7 +237,7 @@ function RAIL(logout, navigate) {
     {
       key: 'provider',
       code: 'BP',
-      label: 'Become a Provider',
+      label: 'Become a Partner',
       accent: 'ink',
       icon: RAIL_ICONS.provider,
       tiles: [

@@ -15,7 +15,7 @@ function ServiceRequirements() {
       <div className="browse__header">
         <div className="browse__title-row">
           <div>
-            <span className="eyebrow">SV · Services</span>
+            <span className="eyebrow">SV · Repair &amp; Services</span>
             <h1 className="browse__title">Repair requirements</h1>
           </div>
         </div>

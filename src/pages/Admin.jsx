@@ -14,7 +14,7 @@ import './Admin.css'
 const TABS = [
   { id: 'users', label: 'Users' },
   { id: 'marketplace', label: 'Marketplace' },
-  { id: 'services', label: 'Services' },
+  { id: 'services', label: 'Repair & Services' },
   { id: 'jobs', label: 'Jobs' },
   { id: 'jobwork', label: 'Job work' }
 ]
