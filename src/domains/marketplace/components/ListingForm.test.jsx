@@ -78,8 +78,9 @@ describe('ListingForm', () => {
     const { onSubmit } = renderForm({ section: 'SCRAP' })
 
     await user.type(screen.getByLabelText(/Title/), 'Mixed scrap')
-    await user.type(screen.getByLabelText('Material Type'), 'Copper')
-    await user.type(screen.getByLabelText('Shape'), 'Rod')
+    await user.selectOptions(screen.getByLabelText('Material Type'), 'Metal')
+    await user.selectOptions(screen.getByLabelText('Metal Type'), 'Copper')
+    await user.selectOptions(screen.getByLabelText('Shape'), 'Sheet')
     await user.type(screen.getByLabelText('Weight'), '12.5')
     await user.click(screen.getByRole('button', { name: 'Post Listing' }))
 
@@ -87,7 +88,7 @@ describe('ListingForm', () => {
     expect(payload).toMatchObject({
       machine_category_id: null,
       material_type: 'Copper',
-      shape: 'Rod',
+      shape: 'Sheet',
       weight: 12.5,
       weight_unit: 'KG'
     })
@@ -129,5 +130,99 @@ describe('ListingForm', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
     expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  describe('spec suggestions (machinery sell only)', () => {
+    it('shows spec suggestion chips for a MACHINERY sell listing', () => {
+      renderForm({ section: 'MACHINERY', intent: 'SELL' })
+      expect(screen.getByRole('button', { name: 'Make' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Year' })).toBeInTheDocument()
+    })
+
+    it('does not show spec suggestion chips for SCRAP or REQUIREMENT listings', () => {
+      renderForm({ section: 'SCRAP', intent: 'SELL' })
+      expect(screen.queryByRole('button', { name: 'Make' })).not.toBeInTheDocument()
+
+      renderForm({ section: 'MACHINERY', intent: 'REQUIREMENT' })
+      expect(screen.queryAllByRole('button', { name: 'Make' })).toHaveLength(0)
+    })
+
+    it('inserts and removes a spec placeholder line in the description on toggle', async () => {
+      const user = userEvent.setup()
+      renderForm({ section: 'MACHINERY', intent: 'SELL' })
+
+      const makeChip = screen.getByRole('button', { name: 'Make' })
+      await user.click(makeChip)
+      expect(screen.getByLabelText(/Description/)).toHaveValue('Make: ')
+      expect(makeChip).toHaveClass('entity-form__chip--active')
+
+      await user.click(makeChip)
+      expect(screen.getByLabelText(/Description/)).toHaveValue('')
+      expect(makeChip).not.toHaveClass('entity-form__chip--active')
+    })
+
+    it('does not make the spec optional fields mandatory on submit', async () => {
+      const user = userEvent.setup()
+      const { onSubmit } = renderForm({ section: 'MACHINERY', intent: 'SELL' })
+
+      await user.type(screen.getByLabelText(/Title/), 'CNC Lathe')
+      await user.click(screen.getByRole('button', { name: 'Post Listing' }))
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].description).toBeNull()
+    })
+
+    it('adds a custom spec label via the "+ Other spec" input', async () => {
+      const user = userEvent.setup()
+      renderForm({ section: 'MACHINERY', intent: 'SELL' })
+
+      await user.click(screen.getByRole('button', { name: '+ Other spec' }))
+      await user.type(screen.getByPlaceholderText('Spec name'), 'Voltage{Enter}')
+
+      expect(screen.getByLabelText(/Description/)).toHaveValue('Voltage: ')
+    })
+  })
+
+  describe('scrap-specific title and condition', () => {
+    it('hides the Condition field for a SCRAP listing but shows it otherwise', () => {
+      renderForm({ section: 'SCRAP' })
+      expect(screen.queryByText('Condition')).not.toBeInTheDocument()
+
+      renderForm({ section: 'MACHINERY' })
+      expect(screen.getByText('Condition')).toBeInTheDocument()
+    })
+
+    it('always submits a null condition for a SCRAP listing', async () => {
+      const user = userEvent.setup()
+      const { onSubmit } = renderForm({ section: 'SCRAP' })
+
+      await user.type(screen.getByLabelText(/Title/), 'Mixed scrap')
+      await user.click(screen.getByRole('button', { name: 'Post Listing' }))
+
+      expect(onSubmit.mock.calls[0][0].condition).toBeNull()
+    })
+
+    it('auto-generates the SCRAP title from material/metal type and shape', async () => {
+      const user = userEvent.setup()
+      renderForm({ section: 'SCRAP' })
+
+      await user.selectOptions(screen.getByLabelText('Material Type'), 'Metal')
+      await user.selectOptions(screen.getByLabelText('Metal Type'), 'Copper')
+      await user.selectOptions(screen.getByLabelText('Shape'), 'Sheet')
+
+      expect(screen.getByLabelText(/Title/)).toHaveValue('Copper Sheet Scrap')
+    })
+
+    it('stops auto-generating the title once the user edits it directly', async () => {
+      const user = userEvent.setup()
+      renderForm({ section: 'SCRAP' })
+
+      await user.selectOptions(screen.getByLabelText('Material Type'), 'Metal')
+      await user.selectOptions(screen.getByLabelText('Metal Type'), 'Copper')
+      await user.type(screen.getByLabelText(/Title/), ' - 50kg')
+      await user.selectOptions(screen.getByLabelText('Shape'), 'Sheet')
+
+      expect(screen.getByLabelText(/Title/)).toHaveValue('Copper Scrap - 50kg')
+    })
   })
 })

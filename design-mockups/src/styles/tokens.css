@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Theme A — "Workshop Warm"
+   A toolbox-crib palette: warm manila background, safety-amber accent,
+   a warm serif for headings (friendly, not clinical). Signature: cards
+   read like tool-bin tags with a folded colour corner.
+   ========================================================================== */
+[data-theme='a'] {
+  --bg: #fbf6ec;
+  --surface: #ffffff;
+  --surface-raised: #f3ead9;
+  --ink: #2b2420;
+  --ink-soft: rgba(43, 36, 32, 0.64);
+  --ink-faint: rgba(43, 36, 32, 0.4);
+  --line: #e7dcc8;
+
+  --accent: #e08a1e;
+  --accent-ink: #8a4e0c;
+  --on-accent: #2b2420;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-card: 0 1px 0 rgba(43, 36, 32, 0.08), 0 14px 28px -18px rgba(43, 36, 32, 0.45);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-util: 'Barlow', system-ui, sans-serif;
+
+  --heading-transform: none;
+  --heading-weight: 600;
+  --heading-tracking: -0.01em;
+
+  --d-marketplace: #c9720f;
+  --d-marketplace-tint: #f7e3c4;
+  --d-services: #2e7d6b;
+  --d-services-tint: #d9efe9;
+  --d-jobwork: #4e7a3f;
+  --d-jobwork-tint: #e2eeda;
+  --d-jobs: #bb4a28;
+  --d-jobs-tint: #f6dcd2;
+  --d-packersmovers: #2d5f8a;
+  --d-packersmovers-tint: #dce7f0;
+}
+
+/* ==========================================================================
+   Theme B — "Directory Bold"
+   A trade-estate signage board: white ground, thick black rule-lines,
+   full-colour enamel-plate blocks per domain. Signature: rivet dots at
+   card corners, like bolted signboards.
+   ========================================================================== */
+[data-theme='b'] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-raised: #f4f4f2;
+  --ink: #141414;
+  --ink-soft: rgba(20, 20, 20, 0.68);
+  --ink-faint: rgba(20, 20, 20, 0.46);
+  --line: #141414;
+
+  --accent: #f2b705;
+  --accent-ink: #141414;
+  --on-accent: #141414;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-card: none;
+
+  --font-display: 'Archivo Black', 'Barlow Semi Condensed', sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-util: 'Barlow Semi Condensed', system-ui, sans-serif;
+
+  --heading-transform: none;
+  --heading-weight: 400;
+  --heading-tracking: -0.01em;
+
+  --d-marketplace: #f2b705;
+  --d-marketplace-tint: #141414;
+  --d-services: #00897b;
+  --d-services-tint: #ffffff;
+  --d-jobwork: #2e7d32;
+  --d-jobwork-tint: #ffffff;
+  --d-jobs: #e64a19;
+  --d-jobs-tint: #ffffff;
+  --d-packersmovers: #1565c0;
+  --d-packersmovers-tint: #ffffff;
+}
+
+/* ==========================================================================
+   Theme C — "Simple Trust"
+   The register of apps this audience already trusts for payments and
+   transport: soft neutral ground, one calm teal, fully rounded surfaces.
+   Signature: colour lives only in small icon chips, never backgrounds.
+   ========================================================================== */
+[data-theme='c'] {
+  --bg: #f6f8fa;
+  --surface: #ffffff;
+  --surface-raised: #eef2f6;
+  --ink: #1a2430;
+  --ink-soft: rgba(26, 36, 48, 0.62);
+  --ink-faint: rgba(26, 36, 48, 0.42);
+  --line: #e3e8ee;
+
+  --accent: #0e7c7b;
+  --accent-ink: #0b5f5e;
+  --on-accent: #ffffff;
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 24px -12px rgba(16, 24, 40, 0.18);
+
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-util: 'Inter', system-ui, sans-serif;
+
+  --heading-transform: none;
+  --heading-weight: 700;
+  --heading-tracking: -0.02em;
+
+  --d-marketplace: #d98324;
+  --d-marketplace-tint: #fbead6;
+  --d-services: #0e7c7b;
+  --d-services-tint: #dceeec;
+  --d-jobwork: #3f8f5f;
+  --d-jobwork-tint: #e1f0e6;
+  --d-jobs: #e0674b;
+  --d-jobs-tint: #fbe4de;
+  --d-packersmovers: #3a6ea5;
+  --d-packersmovers-tint: #e2ebf4;
+}
