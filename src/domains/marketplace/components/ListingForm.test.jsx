@@ -112,6 +112,60 @@ describe('ListingForm', () => {
     })
   })
 
+  describe('property section', () => {
+    it('submits property fields, forces quantity to 1, and nulls category/condition', async () => {
+      const user = userEvent.setup()
+      const { onSubmit } = renderForm({ section: 'PROPERTY' })
+
+      await user.click(screen.getByRole('button', { name: 'Rent / Lease' }))
+      await user.selectOptions(screen.getByLabelText(/Property type/), 'Godown')
+      await user.type(screen.getByLabelText(/Area/), '4500')
+      await user.type(screen.getByLabelText(/Title/), 'Godown near Ambattur')
+      await user.type(screen.getByLabelText(/Monthly rent/), '60000')
+      await user.click(screen.getByRole('button', { name: 'Post Listing' }))
+
+      const [payload] = onSubmit.mock.calls[0]
+      expect(payload).toMatchObject({
+        section: 'PROPERTY',
+        deal_type: 'RENT',
+        property_type: 'Godown',
+        area_sqft: 4500,
+        price: 60000,
+        quantity: 1,
+        machine_category_id: null,
+        condition: null,
+        material_type: null,
+        weight: null
+      })
+    })
+
+    it('requires choosing rent or sale before submitting', async () => {
+      const user = userEvent.setup()
+      const { onSubmit } = renderForm({ section: 'PROPERTY' })
+
+      await user.selectOptions(screen.getByLabelText(/Property type/), 'Shop')
+      await user.type(screen.getByLabelText(/Title/), 'Shop')
+      await user.click(screen.getByRole('button', { name: 'Post Listing' }))
+
+      expect(onSubmit).not.toHaveBeenCalled()
+      expect(screen.getByText('Choose whether this is for rent or sale')).toBeInTheDocument()
+    })
+
+    it('hides quantity and condition', () => {
+      renderForm({ section: 'PROPERTY' })
+      expect(screen.queryByLabelText(/Quantity/)).not.toBeInTheDocument()
+      expect(screen.queryByText('Condition')).not.toBeInTheDocument()
+    })
+
+    it('leaves property fields null for other sections', async () => {
+      const user = userEvent.setup()
+      const { onSubmit } = renderForm({ section: 'MACHINERY' })
+      await user.type(screen.getByLabelText(/Title/), 'Lathe')
+      await user.click(screen.getByRole('button', { name: 'Post Listing' }))
+      expect(onSubmit.mock.calls[0][0]).toMatchObject({ deal_type: null, property_type: null, area_sqft: null })
+    })
+  })
+
   it('shows the error banner when an error is passed', () => {
     renderForm({ error: 'Something went wrong' })
     expect(screen.getByText('Something went wrong')).toBeInTheDocument()

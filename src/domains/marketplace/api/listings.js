@@ -20,6 +20,9 @@ const LISTING_SUMMARY_SELECT = `
   shape,
   weight,
   weight_unit,
+  deal_type,
+  property_type,
+  area_sqft,
   is_advertised,
   advertised_at,
   created_at,
@@ -42,13 +45,21 @@ const api = createRequirementApi({
   table: 'marketplace_listings',
   summarySelect: LISTING_SUMMARY_SELECT,
   detailSelect: LISTING_DETAIL_SELECT,
-  applyFilters(query, { intent, section, city, minPrice, maxPrice }) {
+  applyFilters(query, { intent, section, city, minPrice, maxPrice, dealType, propertyType }) {
     if (intent) {
       query = query.eq('intent', intent)
     }
 
     if (section) {
       query = query.eq('section', section)
+    }
+
+    if (dealType) {
+      query = query.eq('deal_type', dealType)
+    }
+
+    if (propertyType) {
+      query = query.eq('property_type', propertyType)
     }
 
     if (city) {

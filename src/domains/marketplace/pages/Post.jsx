@@ -55,10 +55,10 @@ function Post({ section = 'MACHINERY' }) {
     <div className="post">
       <div className="post__container">
         <span className="eyebrow">MP · Marketplace</span>
-        <h1 className="post__title">List {SECTION_LABELS[section]} for sale</h1>
+        <h1 className="post__title">{section === 'PROPERTY' ? 'List a property' : `List ${SECTION_LABELS[section]} for sale`}</h1>
 
         <button className="post__market-link" onClick={() => navigate(`/marketplace${SECTION_PATH[section]}/requirements`)}>
-          Check market demand — see buyer requirements &rsaquo;
+          Check market demand — see requirements &rsaquo;
         </button>
 
         <ListingForm

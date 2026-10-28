@@ -8,10 +8,14 @@ export function formatPrice(price) {
 }
 
 export function formatListingPrice(listing) {
+  // Rent prices are monthly; every other section is a one-off price.
+  const perMonth = listing.deal_type === 'RENT' ? '/month' : ''
   if (listing.intent === 'REQUIREMENT') {
-    return listing.price ? `Budget ${formatPrice(listing.price)}` : 'Budget: open to offers'
+    return listing.price ? `Budget ${formatPrice(listing.price)}${perMonth}` : 'Budget: open to offers'
   }
-  return formatPrice(listing.price)
+  return listing.price === null || listing.price === undefined
+    ? formatPrice(listing.price)
+    : `${formatPrice(listing.price)}${perMonth}`
 }
 
 export function formatLocation({ city, state } = {}) {

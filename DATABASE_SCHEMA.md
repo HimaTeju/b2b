@@ -24,6 +24,8 @@ Migrations, in apply order:
 | 024 | `024_job_posts_category.sql` | `job_posts.job_category` — role type (Technician/Mechanic/…), free text |
 | 025 | `025_packers_movers.sql` | `packers_movers_capabilities`, `packers_movers_capability_categories`, `packers_movers_requirements` |
 | 026 | `026_enquiries_packers_movers_references.sql` | Direct-contact + requirement-contact enquiry references for Packers & Movers |
+| 029 | `029_marketplace_property_section_enum.sql` | Adds `PROPERTY` to `marketplace_section` (separate file: a new enum value can't be used in the transaction that adds it) |
+| 030 | `030_marketplace_property_fields.sql` | `marketplace_listings.deal_type` / `.property_type` / `.area_sqft` — Property section attributes |
 
 ---
 
@@ -81,7 +83,8 @@ auth.users (Supabase Auth)
 | `condition_type` | `NEW`, `USED` | `marketplace_listings.condition` |
 | `profile_status` | `ACTIVE`, `SUSPENDED` | `profiles.status` |
 | `interest_domain` | `marketplace`, `services`, `jobs`, `jobwork` | `profiles.interests` (added in `014_profile_onboarding.sql`) |
-| `marketplace_section` | `MACHINERY`, `TOOLS_ACCESSORIES`, `SCRAP` | `marketplace_listings.section` (added in `017_marketplace_sections.sql`) |
+| `marketplace_section` | `MACHINERY`, `TOOLS_ACCESSORIES`, `SCRAP`, `PROPERTY` | `marketplace_listings.section` (added in `019_marketplace_sections.sql`; `PROPERTY` in `029`) |
+| `property_deal_type` | `RENT`, `SALE` | `marketplace_listings.deal_type` (added in `030_marketplace_property_fields.sql`) |
 | `weight_unit_type` | `GM`, `KG` | `marketplace_listings.weight_unit` (added in `017_marketplace_sections.sql`) |
 | `packers_movers_request_type` | `MACHINE_LIFTING`, `SHOP_LIFTING` | `packers_movers_requirements.request_type` (added in `025_packers_movers.sql`) |
 
@@ -129,13 +132,13 @@ Seeded with a two-level taxonomy in `009_seed_machine_categories.sql` (24 top-le
 
 ### `marketplace_listings`
 
-Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tools & Accessories, Scrap (`section`, added in `017_marketplace_sections.sql`).
+Buy / Sell / Requirement listings, split into 4 browse sections: Machinery, Tools & Accessories, Scrap, Property (`section`, added in `019_marketplace_sections.sql`; Property in `029`/`030`).
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `UUID` PK | |
 | `profile_id` | `UUID` | FK → `profiles(id)`, `ON DELETE CASCADE` |
-| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT`, nullable — required only when `section = 'MACHINERY'` (`chk_marketplace_machinery_requires_category`); optional "related category" link for Tools & Accessories; unused for Scrap |
+| `machine_category_id` | `UUID` | FK → `machine_categories(id)`, `ON DELETE RESTRICT`, nullable — required only when `section = 'MACHINERY'` (`chk_marketplace_machinery_requires_category`); optional "related category" link for Tools & Accessories; unused for Scrap and Property |
 | `intent` | `listing_intent` | `BUY` / `SELL` / `REQUIREMENT` |
 | `section` | `marketplace_section` | `MACHINERY` / `TOOLS_ACCESSORIES` / `SCRAP`, default `MACHINERY`, indexed |
 | `title` | `TEXT` | required |
@@ -149,6 +152,9 @@ Buy / Sell / Requirement listings, split into 3 browse sections: Machinery, Tool
 | `shape` | `TEXT` | nullable, free text — Scrap only |
 | `weight` | `NUMERIC(12,2)` | nullable, must be `>= 0` — Scrap only |
 | `weight_unit` | `weight_unit_type` | nullable, `GM` / `KG` — Scrap only |
+| `deal_type` | `property_deal_type` | nullable, `RENT` / `SALE` — Property only and required there (`chk_marketplace_property_fields_scoped`). Independent of `intent`: SELL + RENT = available for rent, REQUIREMENT + SALE = looking to buy. For `RENT`, `price` is the monthly rent / monthly budget |
+| `property_type` | `TEXT` | nullable, free text — Property only, validated against `PROPERTY_TYPES` in `src/lib/constants.js` (Industrial Shed, Warehouse, Godown, Factory Building, Shop, Showroom, Office Space, Cold Storage, Industrial Plot / Land, Other) |
+| `area_sqft` | `NUMERIC(12,2)` | nullable, must be `> 0` — Property only |
 | `is_advertised` | `BOOLEAN` | default `FALSE` — owner-toggled "boost this post" flag, added in `023_marketplace_advertising.sql`; shows the listing in the Home page Sponsored section |
 | `advertised_at` | `TIMESTAMPTZ` | nullable — set when boosted, orders the Sponsored section most-recent first |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | |

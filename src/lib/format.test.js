@@ -20,6 +20,18 @@ describe('formatPrice', () => {
 })
 
 describe('formatListingPrice', () => {
+  it('shows rent prices per month', () => {
+    expect(formatListingPrice({ intent: 'SELL', deal_type: 'RENT', price: 25000 })).toBe('₹25,000/month')
+  })
+
+  it('shows a monthly requirement budget for rent', () => {
+    expect(formatListingPrice({ intent: 'REQUIREMENT', deal_type: 'RENT', price: 25000 })).toBe('Budget ₹25,000/month')
+  })
+
+  it('does not add /month to a rent listing with no price', () => {
+    expect(formatListingPrice({ intent: 'SELL', deal_type: 'RENT', price: null })).toBe('Contact for price')
+  })
+
   it('prefixes a requirement price with "Budget"', () => {
     expect(formatListingPrice({ intent: 'REQUIREMENT', price: 5000 })).toBe('Budget ₹5,000')
   })

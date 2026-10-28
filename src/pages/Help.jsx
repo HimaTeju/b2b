@@ -17,9 +17,9 @@ const SECTIONS = [
     key: 'marketplace',
     accent: 'marketplace',
     icon: DOMAINS.marketplace.icon,
-    title: 'Marketplace — machines, tools & scrap',
+    title: 'Marketplace — machines, tools, scrap & property',
     body: [
-      'Looking for something? Open Marketplace and search or filter by category to find machines, tools, or scrap for sale.',
+      'Looking for something? Open Marketplace and search or filter by category to find machines, tools, scrap, or industrial property (sheds, warehouses, godowns, shops) for sale or rent.',
       'Have something to sell? Tap Post to put it up with a few photos and details — it takes about a minute.',
       'Need something you can’t find? Post a Requirement instead, and sellers can reach out to you.',
       'Found the right listing? Tap Enquire on it to message the seller directly.'
