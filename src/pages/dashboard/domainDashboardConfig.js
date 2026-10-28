@@ -3,6 +3,7 @@ import { deleteServiceRequirement } from '../../domains/services/api/serviceRequ
 import { deleteJobWorkRequirement } from '../../domains/jobwork/api/jobworkRequirements'
 import { deleteJobPost } from '../../domains/jobs/api/jobPosts'
 import { deletePackersMoversRequirement } from '../../domains/packersmovers/api/packersMoversRequirements'
+import { deleteBusinessServiceRequirement } from '../../domains/businessservices/api/businessServicesRequirements'
 import { formatListingPrice } from '../../lib/format'
 import { INTENT_LABELS, SECTION_LABELS, PACKERS_MOVERS_REQUEST_TYPE_LABELS } from '../../lib/constants'
 
@@ -63,5 +64,15 @@ export const DASHBOARD_DOMAIN_CONFIG = {
     recordMeta: record => [record.machine_categories?.name, record.pickup_city].filter(Boolean).join(' · '),
     deleteRecord: record => deletePackersMoversRequirement(record.id),
     capability: { label: 'Packers & Movers vendor profile', editPath: '/packers-movers/vendor/setup' }
+  },
+  businessservices: {
+    recordNounSingular: 'requirement',
+    newRecordPath: '/business-services/requirements/new',
+    editRecordPath: id => `/business-services/requirements/edit/${id}`,
+    viewRecordPath: id => `/business-services/requirements/${id}`,
+    recordBadge: record => record.service_type,
+    recordMeta: record => [record.city, record.state].filter(Boolean).join(' · ') || 'Location not specified',
+    deleteRecord: record => deleteBusinessServiceRequirement(record.id),
+    capability: { label: 'Business services provider profile', editPath: '/business-services/provider/setup' }
   }
 }

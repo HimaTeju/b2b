@@ -3,6 +3,9 @@ import { useAuth } from '../context/AuthContext'
 import { DOMAIN_LIST } from '../lib/domains'
 import './OnboardingModal.css'
 
+// Browse-hub-only domains aren't part of the onboarding interests (profiles.interests is a fixed enum).
+const ONBOARDING_DOMAINS = DOMAIN_LIST.filter(domain => domain.homeVisible !== false)
+
 const STEP_COUNT = 3
 
 /**
@@ -69,7 +72,7 @@ function OnboardingModal() {
             <span className="eyebrow">How it works</span>
             <h1 className="onboarding-modal__title">4 things you can do here</h1>
             <div className="onboarding-modal__info-list">
-              {DOMAIN_LIST.map(domain => (
+              {ONBOARDING_DOMAINS.map(domain => (
                 <div key={domain.key} className={`onboarding-modal__info-row onboarding-modal__info-row--${domain.accent}`}>
                   <span className="onboarding-modal__info-icon">{domain.icon}</span>
                   <div>
@@ -99,7 +102,7 @@ function OnboardingModal() {
             </p>
 
             <div className="onboarding-modal__grid">
-              {DOMAIN_LIST.map(domain => (
+              {ONBOARDING_DOMAINS.map(domain => (
                 <button
                   key={domain.key}
                   type="button"

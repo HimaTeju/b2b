@@ -45,6 +45,13 @@ import PackersMoversRequirementDetail from './domains/packersmovers/pages/Packer
 import PostMachineLifting from './domains/packersmovers/pages/PostMachineLifting'
 import PostShopLifting from './domains/packersmovers/pages/PostShopLifting'
 import EditPackersMoversRequirement from './domains/packersmovers/pages/EditPackersMoversRequirement'
+import BusinessProviders from './domains/businessservices/pages/BusinessProviders'
+import BusinessProviderDetail from './domains/businessservices/pages/BusinessProviderDetail'
+import BusinessProviderSetup from './domains/businessservices/pages/BusinessProviderSetup'
+import BusinessRequirements from './domains/businessservices/pages/BusinessRequirements'
+import BusinessRequirementDetail from './domains/businessservices/pages/BusinessRequirementDetail'
+import PostBusinessRequirement from './domains/businessservices/pages/PostBusinessRequirement'
+import EditBusinessRequirement from './domains/businessservices/pages/EditBusinessRequirement'
 import InstallButton from './components/InstallButton'
 import './App.css'
 
@@ -126,6 +133,14 @@ function App() {
             <Route path="/packers-movers/requirements/shop-lifting/new" element={<PostShopLifting />} />
             <Route path="/packers-movers/requirements/edit/:id" element={<EditPackersMoversRequirement />} />
             <Route path="/packers-movers/requirements/:id" element={<PackersMoversRequirementDetail />} />
+
+            <Route path="/business-services" element={<BusinessProviders />} />
+            <Route path="/business-services/providers/:profileId" element={<BusinessProviderDetail />} />
+            <Route path="/business-services/provider/setup" element={<BusinessProviderSetup />} />
+            <Route path="/business-services/requirements" element={<BusinessRequirements />} />
+            <Route path="/business-services/requirements/new" element={<PostBusinessRequirement />} />
+            <Route path="/business-services/requirements/edit/:id" element={<EditBusinessRequirement />} />
+            <Route path="/business-services/requirements/:id" element={<BusinessRequirementDetail />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/enquiries" element={<Enquiries />} />

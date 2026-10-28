@@ -14,6 +14,7 @@
   --color-jobs: #b6511a;
   --color-jobwork: #3c6e47;
   --color-packersmovers: #2d5f8a;
+  --color-businessservices: #6b4a8a;
 
   --color-danger: #b3261e;
   --color-positive: #3c6e47;
@@ -194,6 +195,7 @@ ul, ol {
 .stamp--jobs { --stamp-accent: var(--color-jobs); color: var(--stamp-accent); }
 .stamp--jobwork { --stamp-accent: var(--color-jobwork); color: var(--stamp-accent); }
 .stamp--packersmovers { --stamp-accent: var(--color-packersmovers); color: var(--stamp-accent); }
+.stamp--businessservices { --stamp-accent: var(--color-businessservices); color: var(--stamp-accent); }
 .stamp--danger { --stamp-accent: var(--color-danger); color: var(--stamp-accent); }
 .stamp--positive { --stamp-accent: var(--color-positive); color: var(--stamp-accent); }
 

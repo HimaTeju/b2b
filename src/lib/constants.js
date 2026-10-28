@@ -104,3 +104,17 @@ export const PACKERS_MOVERS_REQUEST_TYPE_LABELS = {
   MACHINE_LIFTING: 'Machine Lifting',
   SHOP_LIFTING: 'Shop Lifting'
 }
+
+// business_service_capabilities.service_types / business_service_requirements.service_type
+// are free text validated against this static list (see 031_business_services.sql),
+// so new professions can be added without a migration.
+export const BUSINESS_SERVICE_TYPES = [
+  'Import-Export Advice',
+  'Import-Export Services',
+  'Audit',
+  'Tax Services',
+  'Other'
+]
+
+export const BUSINESS_SERVICES_DISCLAIMER =
+  'B2B connects businesses with service providers but does not verify credentials or give professional advice. Check qualifications before you engage anyone.'
