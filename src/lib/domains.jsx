@@ -3,8 +3,8 @@
 // domain list — Home quicklinks, the Browse hub rail, Dashboard's per-domain
 // activity sections, etc. `homeVisible: false` (default true) opts a domain
 // out of Home's quicklink grid while still participating in Dashboard/rail —
-// used by packersmovers, which is a Browse-hub-only sub-section, not a
-// peer of the 4 primary marketplace verticals.
+// used by packersmovers and businessservices, which are Browse-hub-only
+// sub-sections, not peers of the 4 primary marketplace verticals.
 
 export const DOMAINS = {
   marketplace: {
@@ -79,6 +79,22 @@ export const DOMAINS = {
         <circle cx="7" cy="18" r="2" />
         <circle cx="17" cy="18" r="2" />
         <path d="M9 18h6" />
+      </svg>
+    )
+  },
+  businessservices: {
+    key: 'businessservices',
+    code: 'BZ',
+    label: 'Business Services',
+    blurb: 'Import-export help, audit and tax services — find an expert or offer your services',
+    to: '/business-services',
+    accent: 'businessservices',
+    homeVisible: false,
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+        <path d="M6 3h9l4 4v14H6z" />
+        <path d="M15 3v4h4" />
+        <path d="M9 12h7M9 16h7" />
       </svg>
     )
   }

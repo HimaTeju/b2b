@@ -14,6 +14,9 @@ function RequirementCard({ item }) {
         {item.machine_categories?.name && (
           <span className="requirement-card__category mono">{item.machine_categories.name}</span>
         )}
+        {item.service_type && (
+          <span className="requirement-card__category mono">{item.service_type}</span>
+        )}
         {item.job_category && (
           <span className="stamp stamp--muted">{item.job_category}</span>
         )}

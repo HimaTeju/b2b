@@ -1,0 +1,137 @@
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
+import { getBusinessServiceProvider } from '../api/businessServicesCapabilities'
+import { createEnquiry } from '../../../lib/api/enquiries'
+import { formatLocation } from '../../../lib/format'
+import { BUSINESS_SERVICES_DISCLAIMER } from '../../../lib/constants'
+import EnquiryComposer from '../../../components/EnquiryComposer'
+import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
+import '../../../pages/EntityDetail.css'
+
+function BusinessProviderDetail() {
+  const { profileId } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [provider, setProvider] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [sendingEnquiry, setSendingEnquiry] = useState(false)
+  const [enquirySent, setEnquirySent] = useState(false)
+  const [enquiryError, setEnquiryError] = useState('')
+
+  useEffect(() => {
+    loadProvider()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId])
+
+  const loadProvider = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await getBusinessServiceProvider(profileId)
+      setProvider(data)
+    } catch (err) {
+      console.error('Error loading provider:', err)
+      setError('Failed to load provider')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSendEnquiry = async (message) => {
+    setSendingEnquiry(true)
+    setEnquiryError('')
+
+    try {
+      await createEnquiry({
+        fromProfileId: user.id,
+        toProfileId: profileId,
+        businessServiceCapabilityProfileId: profileId,
+        message
+      })
+      setEnquirySent(true)
+    } catch (err) {
+      console.error('Error sending enquiry:', err)
+      setEnquiryError('Failed to send enquiry. Please try again.')
+    } finally {
+      setSendingEnquiry(false)
+    }
+  }
+
+  if (loading) {
+    return <EntityDetailSkeleton />
+  }
+
+  if (error || !provider) {
+    return (
+      <div className="entity-detail__state">
+        <p className="banner">{error || 'Provider not found'}</p>
+        <button className="btn btn--primary" onClick={() => navigate('/business-services')}>Back to providers</button>
+      </div>
+    )
+  }
+
+  const isOwner = user?.id === provider.profile_id
+
+  return (
+    <div className="entity-detail">
+      <div className="entity-detail__content">
+        <div className="entity-detail__header">
+          <span className="stamp stamp--solid stamp--businessservices">Business Services</span>
+          <h1 className="entity-detail__title">{provider.title}</h1>
+          <p className="entity-detail__location">{formatLocation(provider)}</p>
+        </div>
+
+        <div className="entity-detail__section">
+          <h2 className="entity-detail__section-title">Services offered</h2>
+          <div className="entity-detail__tags">
+            {provider.service_types.map(type => (
+              <span key={type} className="entity-detail__tag">{type}</span>
+            ))}
+          </div>
+        </div>
+
+        {provider.description && (
+          <div className="entity-detail__section">
+            <h2 className="entity-detail__section-title">About</h2>
+            <p className="entity-detail__description">{provider.description}</p>
+          </div>
+        )}
+
+        <div className="entity-detail__section">
+          <h2 className="entity-detail__section-title">Business</h2>
+          <div className="entity-detail__contact">
+            <p className="entity-detail__contact-name">{provider.profiles?.company_name || 'Business account'}</p>
+            {provider.profiles?.website && (
+              <a href={provider.profiles.website} target="_blank" rel="noreferrer">{provider.profiles.website}</a>
+            )}
+          </div>
+        </div>
+
+        <p className="entity-form__intro">{BUSINESS_SERVICES_DISCLAIMER}</p>
+
+        {isOwner ? (
+          <div className="entity-detail__owner-actions">
+            <button className="btn btn--ghost btn--block" onClick={() => navigate('/business-services/provider/setup')}>
+              Edit your provider profile
+            </button>
+          </div>
+        ) : (
+          <EnquiryComposer
+            placeholder="Hi, I'd like your help with…"
+            ctaLabel="Contact provider"
+            sendLabel="Send message"
+            onSubmit={handleSendEnquiry}
+            sending={sendingEnquiry}
+            sent={enquirySent}
+            sentMessage="Message sent — the provider will get in touch."
+            error={enquiryError}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default BusinessProviderDetail

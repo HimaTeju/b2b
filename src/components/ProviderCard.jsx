@@ -7,7 +7,8 @@ import './ProviderCard.css'
  * (no domain-specific wording) so Job Work's vendor browsing can reuse it as-is.
  */
 function ProviderCard({ provider }) {
-  const categories = (provider.service_capability_categories || provider.jobwork_capability_categories || [])
+  // Business Services providers carry a plain service_types list instead of machine categories.
+  const categories = provider.service_types || (provider.service_capability_categories || provider.jobwork_capability_categories || [])
     .map(c => c.machine_categories?.name)
     .filter(Boolean)
 

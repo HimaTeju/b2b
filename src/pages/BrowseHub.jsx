@@ -178,6 +178,29 @@ function RAIL(logout, navigate) {
       ]
     },
     {
+      key: 'businessservices',
+      code: DOMAINS.businessservices.code,
+      label: DOMAINS.businessservices.label,
+      accent: DOMAINS.businessservices.accent,
+      icon: DOMAINS.businessservices.icon,
+      groups: [
+        {
+          question: 'Need expert help?',
+          tiles: [
+            { label: 'Find a Provider', icon: ICONS.browse, to: '/business-services' },
+            { label: 'Post a Requirement', icon: ICONS.post, to: '/business-services/requirements/new' }
+          ]
+        },
+        {
+          question: 'Offer import-export, audit or tax services?',
+          tiles: [
+            { label: 'Offer Business Services', icon: ICONS.badge, to: '/business-services/provider/setup' },
+            { label: 'Browse Requirements', icon: ICONS.browse, to: '/business-services/requirements' }
+          ]
+        }
+      ]
+    },
+    {
       key: 'jobwork',
       code: DOMAINS.jobwork.code,
       label: DOMAINS.jobwork.label,
@@ -244,7 +267,8 @@ function RAIL(logout, navigate) {
         { label: 'Offer Repair Services', icon: ICONS.badge, to: '/services/provider/setup' },
         { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
         { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' },
-        { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' }
+        { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' },
+        { label: 'Offer Business Services', icon: ICONS.badge, to: '/business-services/provider/setup' }
       ]
     },
     {
