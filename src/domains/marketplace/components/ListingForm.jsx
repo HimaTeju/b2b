@@ -3,6 +3,7 @@ import CategoryPicker from '../../../components/CategoryPicker'
 import { CONDITIONS, CONDITION_LABELS, WEIGHT_UNITS, WEIGHT_UNIT_LABELS, SCRAP_MATERIAL_TYPES, SCRAP_METAL_TYPES, SCRAP_SHAPES } from '../../../lib/constants'
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, getListingImageUrl } from '../api/listingImages'
 import '../../../components/EntityForm.css'
+import LocationFields from '../../../components/LocationFields'
 
 const MAX_PHOTOS = 6
 
@@ -505,16 +506,11 @@ function ListingForm({ section = 'MACHINERY', intent, copy, initialValues, exist
         </div>
       )}
 
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="city">City</label>
-          <input id="city" type="text" value={form.city} onChange={handleChange('city')} placeholder="e.g. Coimbatore" />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="state">State</label>
-          <input id="state" type="text" value={form.state} onChange={handleChange('state')} placeholder="e.g. Tamil Nadu" />
-        </div>
-      </div>
+      <LocationFields
+        city={form.city}
+        state={form.state}
+        onChange={({ city, state }) => setForm(prev => ({ ...prev, city, state }))}
+      />
 
       <div className="entity-form__actions">
         <button type="button" className="btn btn--ghost btn--block" onClick={onCancel} disabled={saving}>
