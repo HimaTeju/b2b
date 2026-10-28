@@ -5,7 +5,7 @@ import { getListing, deleteListing } from '../api/listings'
 import { createEnquiry } from '../../../lib/api/enquiries'
 import { getOrderedImages } from '../api/listingImages'
 import { formatListingPrice, formatLocation } from '../../../lib/format'
-import { INTENT_LABELS, CONDITION_LABELS, SECTION_LABELS, WEIGHT_UNIT_LABELS } from '../../../lib/constants'
+import { INTENT_LABELS, CONDITION_LABELS, SECTION_LABELS, WEIGHT_UNIT_LABELS, PROPERTY_DEAL_LABELS } from '../../../lib/constants'
 import EnquiryComposer from '../../../components/EnquiryComposer'
 import ListingGallery from '../components/ListingGallery'
 import ListingDetailSkeleton from './ListingDetailSkeleton'
@@ -108,10 +108,11 @@ function ListingDetail() {
           <div className="listing-detail__header">
             <span className="stamp stamp--solid stamp--ink">{INTENT_LABELS[listing.intent]}</span>
             {listing.condition && <span className="stamp stamp--muted">{CONDITION_LABELS[listing.condition]}</span>}
+            {listing.deal_type && <span className="stamp stamp--muted">{PROPERTY_DEAL_LABELS[listing.deal_type]}</span>}
 
-            {(listing.machine_categories?.name || listing.section) && (
+            {(listing.property_type || listing.machine_categories?.name || listing.section) && (
               <span className="listing-detail__category mono">
-                {listing.machine_categories?.name || SECTION_LABELS[listing.section]}
+                {listing.property_type || listing.machine_categories?.name || SECTION_LABELS[listing.section]}
               </span>
             )}
             <h1 className="listing-detail__title">{listing.title}</h1>
@@ -147,10 +148,24 @@ function ListingDetail() {
                   <dd className="mono">{listing.weight} {WEIGHT_UNIT_LABELS[listing.weight_unit]}</dd>
                 </div>
               )}
-              <div className="listing-detail__spec">
-                <dt>{isRequirement ? 'Quantity needed' : 'Quantity'}</dt>
-                <dd className="mono">{listing.quantity}</dd>
-              </div>
+              {listing.section === 'PROPERTY' && listing.property_type && (
+                <div className="listing-detail__spec">
+                  <dt>Property type</dt>
+                  <dd className="mono">{listing.property_type}</dd>
+                </div>
+              )}
+              {listing.section === 'PROPERTY' && listing.area_sqft != null && (
+                <div className="listing-detail__spec">
+                  <dt>{isRequirement ? 'Area needed' : 'Area'}</dt>
+                  <dd className="mono">{Number(listing.area_sqft).toLocaleString('en-IN')} sq ft</dd>
+                </div>
+              )}
+              {listing.section !== 'PROPERTY' && (
+                <div className="listing-detail__spec">
+                  <dt>{isRequirement ? 'Quantity needed' : 'Quantity'}</dt>
+                  <dd className="mono">{listing.quantity}</dd>
+                </div>
+              )}
               <div className="listing-detail__spec">
                 <dt>Posted</dt>
                 <dd className="mono">{new Date(listing.created_at).toLocaleDateString()}</dd>
@@ -159,7 +174,7 @@ function ListingDetail() {
           </div>
 
           <div className="listing-detail__section">
-            <h2 className="listing-detail__section-title">{isRequirement ? 'Posted by' : 'Sold by'}</h2>
+            <h2 className="listing-detail__section-title">{isRequirement ? 'Posted by' : (listing.section === 'PROPERTY' ? 'Listed by' : 'Sold by')}</h2>
             <div className="listing-detail__seller">
               <p className="listing-detail__seller-name">{listing.profiles?.company_name || 'Business account'}</p>
               <p className="listing-detail__seller-meta">{formatLocation(listing.profiles || {})}</p>

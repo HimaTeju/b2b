@@ -52,7 +52,7 @@ function PostRequirement({ section = 'MACHINERY' }) {
     <div className="post">
       <div className="post__container">
         <span className="eyebrow">MP · Marketplace</span>
-        <h1 className="post__title">Post a {SECTION_LABELS[section]} requirement</h1>
+        <h1 className="post__title">{section === 'PROPERTY' ? 'Post a property requirement' : `Post a ${SECTION_LABELS[section]} requirement`}</h1>
 
         <ListingForm
           key={section}

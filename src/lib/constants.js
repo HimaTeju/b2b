@@ -14,19 +14,21 @@ export const CONDITION_LABELS = {
   USED: 'Used'
 }
 
-export const SECTIONS = ['MACHINERY', 'TOOLS_ACCESSORIES', 'SCRAP']
+export const SECTIONS = ['MACHINERY', 'TOOLS_ACCESSORIES', 'SCRAP', 'PROPERTY']
 
 export const SECTION_LABELS = {
   MACHINERY: 'Machinery',
   TOOLS_ACCESSORIES: 'Tools & Accessories',
-  SCRAP: 'Scrap'
+  SCRAP: 'Scrap',
+  PROPERTY: 'Property'
 }
 
 // Route segment appended after /marketplace for each section (Machinery keeps the bare path).
 export const SECTION_PATH = {
   MACHINERY: '',
   TOOLS_ACCESSORIES: '/tools-accessories',
-  SCRAP: '/scrap'
+  SCRAP: '/scrap',
+  PROPERTY: '/property'
 }
 
 export const WEIGHT_UNITS = ['GM', 'KG']
@@ -56,6 +58,31 @@ export const SCRAP_METAL_TYPES = [
   'Zinc',
   'MS',
 'MSJ'
+]
+
+// Property section (industrial sheds, warehouses, shops…). deal_type is a DB
+// enum (see 030_marketplace_property_fields.sql); `intent` still decides
+// whether the post is an offer or a requirement.
+export const PROPERTY_DEAL_TYPES = ['RENT', 'SALE']
+
+export const PROPERTY_DEAL_LABELS = {
+  RENT: 'Rent',
+  SALE: 'Sale'
+}
+
+// marketplace_listings.property_type is free text (Property only), validated
+// against this static list so it can grow without a migration.
+export const PROPERTY_TYPES = [
+  'Industrial Shed',
+  'Warehouse',
+  'Godown',
+  'Factory Building',
+  'Shop',
+  'Showroom',
+  'Office Space',
+  'Cold Storage',
+  'Industrial Plot / Land',
+  'Other'
 ]
 
 export const SCRAP_SHAPES = ['Solid', 'Sheet', 'Square', 'Round', 'Powder', 'Metal Chips']

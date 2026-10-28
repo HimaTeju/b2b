@@ -51,7 +51,7 @@ const SECTIONS = [
     id: 'listings',
     tab: 'marketplace',
     title: 'Listings',
-    description: 'Deactivate or reactivate a listing across Machinery, Tools & Accessories, and Scrap.',
+    description: 'Deactivate or reactivate a listing across Machinery, Tools & Accessories, Scrap, and Property.',
     emptyLabel: 'No listings to review yet.',
     idField: 'id',
     getAll: getAllListings,

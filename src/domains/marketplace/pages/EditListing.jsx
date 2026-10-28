@@ -112,7 +112,10 @@ function EditListing() {
     material_type: listing.material_type || '',
     shape: listing.shape || '',
     weight: listing.weight ?? '',
-    weight_unit: listing.weight_unit || 'KG'
+    weight_unit: listing.weight_unit || 'KG',
+    deal_type: listing.deal_type || '',
+    property_type: listing.property_type || '',
+    area_sqft: listing.area_sqft ?? ''
   }
 
   return (
