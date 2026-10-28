@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CategoryPicker from './CategoryPicker'
 import './EntityForm.css'
+import LocationFields from './LocationFields'
 
 const EMPTY_FORM = {
   machine_category_id: '',
@@ -66,16 +67,11 @@ function EntityRequirementForm({ categoryRequired = true, copy, initialValues, o
         />
       </div>
 
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="city">City</label>
-          <input id="city" type="text" value={form.city} onChange={handleChange('city')} placeholder="e.g. Coimbatore" />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="state">State</label>
-          <input id="state" type="text" value={form.state} onChange={handleChange('state')} placeholder="e.g. Tamil Nadu" />
-        </div>
-      </div>
+      <LocationFields
+        city={form.city}
+        state={form.state}
+        onChange={({ city, state }) => setForm(prev => ({ ...prev, city, state }))}
+      />
 
       <div className="entity-form__actions">
         <button type="button" className="btn btn--ghost btn--block" onClick={onCancel} disabled={saving}>

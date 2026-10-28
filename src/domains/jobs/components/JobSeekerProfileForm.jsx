@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CategoryTagPicker from '../../../components/CategoryTagPicker'
 import '../../../components/EntityForm.css'
+import LocationFields from '../../../components/LocationFields'
 
 const EMPTY_FORM = {
   headline: '',
@@ -103,16 +104,11 @@ function JobSeekerProfileForm({ copy, initialValues, onSubmit, onCancel, submitL
         </div>
       </div>
 
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="city">City</label>
-          <input id="city" type="text" value={form.city} onChange={handleChange('city')} placeholder="e.g. Coimbatore" />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="state">State</label>
-          <input id="state" type="text" value={form.state} onChange={handleChange('state')} placeholder="e.g. Tamil Nadu" />
-        </div>
-      </div>
+      <LocationFields
+        city={form.city}
+        state={form.state}
+        onChange={({ city, state }) => setForm(prev => ({ ...prev, city, state }))}
+      />
 
       <div className="field">
         <span className="field__label">Categories you work in *</span>

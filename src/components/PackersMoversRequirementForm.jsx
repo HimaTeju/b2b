@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CategoryPicker from './CategoryPicker'
+import LocationFields from './LocationFields'
 import './EntityForm.css'
 
 const EMPTY_FORM = {
@@ -80,27 +81,22 @@ function PackersMoversRequirementForm({ requestType, copy, initialValues, onSubm
         />
       </div>
 
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="pickupCity">Pickup city</label>
-          <input id="pickupCity" type="text" value={form.pickup_city} onChange={handleChange('pickup_city')} placeholder="e.g. Coimbatore" />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="pickupState">Pickup state</label>
-          <input id="pickupState" type="text" value={form.pickup_state} onChange={handleChange('pickup_state')} placeholder="e.g. Tamil Nadu" />
-        </div>
-      </div>
+      <LocationFields
+        idPrefix="pickup-"
+        labelPrefix="Pickup"
+        city={form.pickup_city}
+        state={form.pickup_state}
+        onChange={({ city, state }) => setForm(prev => ({ ...prev, pickup_city: city, pickup_state: state }))}
+      />
 
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="dropCity">Drop city</label>
-          <input id="dropCity" type="text" value={form.drop_city} onChange={handleChange('drop_city')} placeholder="e.g. Chennai" />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="dropState">Drop state</label>
-          <input id="dropState" type="text" value={form.drop_state} onChange={handleChange('drop_state')} placeholder="e.g. Tamil Nadu" />
-        </div>
-      </div>
+      <LocationFields
+        idPrefix="drop-"
+        labelPrefix="Drop"
+        city={form.drop_city}
+        state={form.drop_state}
+        cityPlaceholder="e.g. Chennai"
+        onChange={({ city, state }) => setForm(prev => ({ ...prev, drop_city: city, drop_state: state }))}
+      />
 
       <div className="entity-form__actions">
         <button type="button" className="btn btn--ghost btn--block" onClick={onCancel} disabled={saving}>
