@@ -12,6 +12,8 @@ import { getMyPackersMoversRequirements } from '../domains/packersmovers/api/pac
 import { getMyPackersMoversCapability } from '../domains/packersmovers/api/packersMoversCapabilities'
 import { getMyBusinessServiceRequirements } from '../domains/businessservices/api/businessServicesRequirements'
 import { getMyBusinessServiceCapability } from '../domains/businessservices/api/businessServicesCapabilities'
+import { getMyFundingRequirements } from '../domains/investors/api/fundingRequirements'
+import { getMyInvestorCapability } from '../domains/investors/api/investorCapabilities'
 import { getEnquiryCounts } from '../lib/api/enquiries'
 import { getDomainActivity } from '../lib/api/activity'
 import { DOMAINS, rankDomains } from '../lib/domains'
@@ -47,6 +49,8 @@ function Dashboard() {
         packersMoversCapability,
         businessServiceRequirements,
         businessServiceCapability,
+        fundingRequirements,
+        investorCapability,
         countsData,
         activity
       ] = await Promise.all([
@@ -61,6 +65,8 @@ function Dashboard() {
         getMyPackersMoversCapability(user.id),
         getMyBusinessServiceRequirements(user.id),
         getMyBusinessServiceCapability(user.id),
+        getMyFundingRequirements(user.id),
+        getMyInvestorCapability(user.id),
         getEnquiryCounts(user.id),
         getDomainActivity(user.id)
       ])
@@ -71,7 +77,8 @@ function Dashboard() {
         jobwork: { records: jobworkRequirements || [], capability: jobworkCapability },
         jobs: { records: jobPosts || [], capability: jobSeekerProfile },
         packersmovers: { records: packersMoversRequirements || [], capability: packersMoversCapability },
-        businessservices: { records: businessServiceRequirements || [], capability: businessServiceCapability }
+        businessservices: { records: businessServiceRequirements || [], capability: businessServiceCapability },
+        investors: { records: fundingRequirements || [], capability: investorCapability }
       }
 
       setDomainData(data)

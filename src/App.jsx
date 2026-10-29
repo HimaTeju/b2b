@@ -52,6 +52,13 @@ import BusinessRequirements from './domains/businessservices/pages/BusinessRequi
 import BusinessRequirementDetail from './domains/businessservices/pages/BusinessRequirementDetail'
 import PostBusinessRequirement from './domains/businessservices/pages/PostBusinessRequirement'
 import EditBusinessRequirement from './domains/businessservices/pages/EditBusinessRequirement'
+import Investors from './domains/investors/pages/Investors'
+import InvestorDetail from './domains/investors/pages/InvestorDetail'
+import InvestorSetup from './domains/investors/pages/InvestorSetup'
+import FundingRequirements from './domains/investors/pages/FundingRequirements'
+import FundingRequirementDetail from './domains/investors/pages/FundingRequirementDetail'
+import PostFundingRequirement from './domains/investors/pages/PostFundingRequirement'
+import EditFundingRequirement from './domains/investors/pages/EditFundingRequirement'
 import InstallButton from './components/InstallButton'
 import './App.css'
 
@@ -141,6 +148,14 @@ function App() {
             <Route path="/business-services/requirements/new" element={<PostBusinessRequirement />} />
             <Route path="/business-services/requirements/edit/:id" element={<EditBusinessRequirement />} />
             <Route path="/business-services/requirements/:id" element={<BusinessRequirementDetail />} />
+
+            <Route path="/investors" element={<Investors />} />
+            <Route path="/investors/profiles/:profileId" element={<InvestorDetail />} />
+            <Route path="/investors/profile/setup" element={<InvestorSetup />} />
+            <Route path="/investors/requirements" element={<FundingRequirements />} />
+            <Route path="/investors/requirements/new" element={<PostFundingRequirement />} />
+            <Route path="/investors/requirements/edit/:id" element={<EditFundingRequirement />} />
+            <Route path="/investors/requirements/:id" element={<FundingRequirementDetail />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/enquiries" element={<Enquiries />} />

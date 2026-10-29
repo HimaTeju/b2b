@@ -4,6 +4,7 @@ import { deleteJobWorkRequirement } from '../../domains/jobwork/api/jobworkRequi
 import { deleteJobPost } from '../../domains/jobs/api/jobPosts'
 import { deletePackersMoversRequirement } from '../../domains/packersmovers/api/packersMoversRequirements'
 import { deleteBusinessServiceRequirement } from '../../domains/businessservices/api/businessServicesRequirements'
+import { deleteFundingRequirement } from '../../domains/investors/api/fundingRequirements'
 import { formatListingPrice } from '../../lib/format'
 import { INTENT_LABELS, SECTION_LABELS, PACKERS_MOVERS_REQUEST_TYPE_LABELS } from '../../lib/constants'
 
@@ -74,5 +75,14 @@ export const DASHBOARD_DOMAIN_CONFIG = {
     recordMeta: record => [record.city, record.state].filter(Boolean).join(' · ') || 'Location not specified',
     deleteRecord: record => deleteBusinessServiceRequirement(record.id),
     capability: { label: 'Business services provider profile', editPath: '/business-services/provider/setup' }
+  },
+  investors: {
+    recordNounSingular: 'project',
+    newRecordPath: '/investors/requirements/new',
+    editRecordPath: id => `/investors/requirements/edit/${id}`,
+    viewRecordPath: id => `/investors/requirements/${id}`,
+    recordMeta: record => [record.city, record.state].filter(Boolean).join(' · ') || 'Location not specified',
+    deleteRecord: record => deleteFundingRequirement(record.id),
+    capability: { label: 'Investor profile', editPath: '/investors/profile/setup' }
   }
 }
