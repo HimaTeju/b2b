@@ -7,11 +7,12 @@
 --   (025/026): a capability profile, a requirement and direct-contact enquiry
 --   references, with their own tables.
 --
---   Sectors and project stages are free text validated against the static
---   INVESTMENT_SECTORS / PROJECT_STAGES lists in src/lib/constants.js so the
---   lists can grow without a migration (same pattern as 031's service types).
---   An investor can list several sectors (sectors TEXT[], at least one); a
---   funding requirement has one sector and one stage.
+--   An investor's sectors are free text validated against the static
+--   INVESTMENT_SECTORS list in src/lib/constants.js so the list can grow
+--   without a migration (same pattern as 031's service types); an investor
+--   can list several (sectors TEXT[], at least one). A funding requirement
+--   is deliberately unstructured: the seeker describes their project, the
+--   amount they need and so on in free text (title + description).
 --
 --   No verification fields: this only connects people, it doesn't vet
 --   projects or investors, and the UI says so.
@@ -97,13 +98,6 @@ CREATE TABLE funding_requirements (
         REFERENCES profiles(id)
         ON DELETE CASCADE,
 
-    sector TEXT NOT NULL,
-
-    stage TEXT NOT NULL,
-
-    amount_sought NUMERIC(14,2)
-        CHECK (amount_sought IS NULL OR amount_sought >= 0),
-
     title TEXT NOT NULL,
 
     description TEXT,
@@ -121,16 +115,10 @@ CREATE TABLE funding_requirements (
 );
 
 COMMENT ON TABLE funding_requirements IS
-'Projects seeking funding. sector and stage are validated against INVESTMENT_SECTORS / PROJECT_STAGES in the frontend; amount_sought is optional (NULL = open to discuss), in INR.';
+'Projects seeking funding. Free text only (title + description) — the seeker enters their own details, there are no structured sector/stage/amount fields.';
 
 CREATE INDEX idx_funding_requirements_profile
 ON funding_requirements(profile_id);
-
-CREATE INDEX idx_funding_requirements_sector
-ON funding_requirements(sector);
-
-CREATE INDEX idx_funding_requirements_stage
-ON funding_requirements(stage);
 
 CREATE INDEX idx_funding_requirements_status
 ON funding_requirements(status);

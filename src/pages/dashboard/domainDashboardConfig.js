@@ -81,8 +81,7 @@ export const DASHBOARD_DOMAIN_CONFIG = {
     newRecordPath: '/investors/requirements/new',
     editRecordPath: id => `/investors/requirements/edit/${id}`,
     viewRecordPath: id => `/investors/requirements/${id}`,
-    recordBadge: record => record.stage,
-    recordMeta: record => [record.sector, record.city].filter(Boolean).join(' · '),
+    recordMeta: record => [record.city, record.state].filter(Boolean).join(' · ') || 'Location not specified',
     deleteRecord: record => deleteFundingRequirement(record.id),
     capability: { label: 'Investor profile', editPath: '/investors/profile/setup' }
   }

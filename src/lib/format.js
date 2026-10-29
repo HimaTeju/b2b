@@ -18,12 +18,6 @@ export function formatListingPrice(listing) {
     : `${formatPrice(listing.price)}${perMonth}`
 }
 
-// funding_requirements.amount_sought is optional (NULL = open to discuss).
-export function formatFundingAmount(amount) {
-  if (amount === null || amount === undefined) return 'Amount: open to discuss'
-  return `Seeking ${formatPrice(amount)}`
-}
-
 export function formatLocation({ city, state } = {}) {
   if (city && state) return `${city}, ${state}`
   return city || state || 'Location not specified'

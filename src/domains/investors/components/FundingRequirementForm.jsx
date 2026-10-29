@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import { INVESTMENT_SECTORS, PROJECT_STAGES, INVESTORS_DISCLAIMER } from '../../../lib/constants'
+import { INVESTORS_DISCLAIMER } from '../../../lib/constants'
 import '../../../components/EntityForm.css'
 
 const EMPTY_FORM = {
-  sector: '',
-  stage: '',
-  amount_sought: '',
   title: '',
   description: '',
   city: '',
@@ -13,19 +10,20 @@ const EMPTY_FORM = {
 }
 
 export const FUNDING_COPY = {
-  intro: "Tell investors about your project — interested investors will reach out to you.",
+  intro: "Describe your project in your own words — interested investors will reach out to you.",
   titleLabel: 'Project title *',
   titlePlaceholder: 'e.g. CNC component unit expansion',
-  descriptionLabel: 'About the project',
-  descriptionPlaceholder: 'What it is, what the money is for, progress so far, timeline…',
+  descriptionLabel: 'Project details *',
+  descriptionPlaceholder: 'What the project is, how much funding you need, what it is for, progress so far, timeline, how to reach you…',
   savingLabel: 'Posting…'
 }
 
 /**
- * "My project needs funding" form: sector and stage dropdowns, an optional
- * amount (INR), plus the usual title/description/location. Dedicated to this
- * domain rather than a reuse of EntityRequirementForm, which is built around
- * a required machine category.
+ * "My project needs funding" form: deliberately free text — a title and a
+ * required details box where the seeker enters whatever they want investors
+ * to know (amount, stage, purpose…), plus location. Dedicated to this domain
+ * rather than a reuse of EntityRequirementForm, which is built around a
+ * required machine category.
  */
 function FundingRequirementForm({ copy, initialValues, onSubmit, onCancel, submitLabel, saving, error }) {
   const [form, setForm] = useState({ ...EMPTY_FORM, ...initialValues })
@@ -37,9 +35,6 @@ function FundingRequirementForm({ copy, initialValues, onSubmit, onCancel, submi
   const handleSubmit = (e) => {
     e.preventDefault()
     onSubmit({
-      sector: form.sector,
-      stage: form.stage,
-      amount_sought: form.amount_sought === '' ? null : parseFloat(form.amount_sought),
       title: form.title.trim(),
       description: form.description.trim() || null,
       city: form.city.trim() || null,
@@ -52,28 +47,6 @@ function FundingRequirementForm({ copy, initialValues, onSubmit, onCancel, submi
       {error && <div className="banner">{error}</div>}
 
       {copy.intro && <p className="entity-form__intro">{copy.intro}</p>}
-
-      <div className="field__row">
-        <div className="field">
-          <label className="field__label" htmlFor="sector">Sector *</label>
-          <select id="sector" value={form.sector} onChange={handleChange('sector')} required>
-            <option value="">Select a sector</option>
-            {INVESTMENT_SECTORS.map(sector => (
-              <option key={sector} value={sector}>{sector}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="field">
-          <label className="field__label" htmlFor="stage">Project stage *</label>
-          <select id="stage" value={form.stage} onChange={handleChange('stage')} required>
-            <option value="">Select a stage</option>
-            {PROJECT_STAGES.map(stage => (
-              <option key={stage} value={stage}>{stage}</option>
-            ))}
-          </select>
-        </div>
-      </div>
 
       <div className="field">
         <label className="field__label" htmlFor="title">{copy.titleLabel}</label>
@@ -89,27 +62,14 @@ function FundingRequirementForm({ copy, initialValues, onSubmit, onCancel, submi
       </div>
 
       <div className="field">
-        <label className="field__label" htmlFor="amount_sought">Amount sought (INR)</label>
-        <input
-          id="amount_sought"
-          type="number"
-          className="input--mono"
-          value={form.amount_sought}
-          onChange={handleChange('amount_sought')}
-          placeholder="Open to discuss"
-          min="0"
-          step="0.01"
-        />
-      </div>
-
-      <div className="field">
         <label className="field__label" htmlFor="description">{copy.descriptionLabel}</label>
         <textarea
           id="description"
           value={form.description}
           onChange={handleChange('description')}
           placeholder={copy.descriptionPlaceholder}
-          rows={5}
+          rows={8}
+          required
         />
       </div>
 

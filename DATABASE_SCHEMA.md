@@ -63,7 +63,7 @@ auth.users (Supabase Auth)
       ├── job_posts ──N:1(nullable)── machine_categories                  │
       ├── packers_movers_requirements ──N:1(nullable)── machine_categories│
       ├── business_service_requirements (service_type TEXT)               │
-      ├── funding_requirements (sector TEXT, stage TEXT)                  │
+      ├── funding_requirements (free text only)                           │
       │        (nullable: only set when request_type = MACHINE_LIFTING)   │
       │                                                                    │
       └── enquiries (from_profile_id / to_profile_id) ────────────────────┘
@@ -306,7 +306,7 @@ Profile for users who invest in new projects, added in `032_investors.sql`. Same
 
 ### `funding_requirements`
 
-Projects seeking funding, added in `032_investors.sql`. Same shape as `business_service_requirements` with `sector TEXT NOT NULL` and `stage TEXT NOT NULL` (validated against `INVESTMENT_SECTORS` / `PROJECT_STAGES`) and an optional `amount_sought NUMERIC(14,2)` (INR, `>= 0`; `NULL` = open to discuss).
+Projects seeking funding, added in `032_investors.sql`. Deliberately unstructured: `title` and `description` (free text, where the seeker enters the amount, stage, purpose and so on themselves), plus `city`/`state`, `status` and timestamps. No sector/stage/amount columns, and no `machine_category_id`.
 
 **RLS:** any *authenticated* user can `SELECT` when `ACTIVE`; owner has full access.
 

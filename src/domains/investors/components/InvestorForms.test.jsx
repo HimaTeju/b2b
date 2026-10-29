@@ -78,36 +78,27 @@ describe('FundingRequirementForm', () => {
     return { onSubmit }
   }
 
-  it('submits sector, stage and a parsed amount', async () => {
+  it('submits only free-text fields, trimmed', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderForm()
 
-    await user.selectOptions(screen.getByLabelText(/Sector/), 'Manufacturing')
-    await user.selectOptions(screen.getByLabelText(/Project stage/), 'Expansion')
     await user.type(screen.getByLabelText(/Project title/), '  Unit expansion  ')
-    await user.type(screen.getByLabelText(/Amount sought/), '2500000')
+    await user.type(screen.getByLabelText(/Project details/), '  Need about 25 lakh for new CNC line  ')
+    await user.type(screen.getByLabelText('City'), 'Coimbatore')
     await user.click(screen.getByRole('button', { name: 'Post project' }))
 
     expect(onSubmit).toHaveBeenCalledWith({
-      sector: 'Manufacturing',
-      stage: 'Expansion',
-      amount_sought: 2500000,
       title: 'Unit expansion',
-      description: null,
-      city: null,
+      description: 'Need about 25 lakh for new CNC line',
+      city: 'Coimbatore',
       state: null
     })
   })
 
-  it('sends a null amount when left blank', async () => {
-    const user = userEvent.setup()
-    const { onSubmit } = renderForm()
-
-    await user.selectOptions(screen.getByLabelText(/Sector/), 'Other')
-    await user.selectOptions(screen.getByLabelText(/Project stage/), 'Idea')
-    await user.type(screen.getByLabelText(/Project title/), 'Idea')
-    await user.click(screen.getByRole('button', { name: 'Post project' }))
-
-    expect(onSubmit.mock.calls[0][0].amount_sought).toBeNull()
+  it('has no structured sector, stage or amount fields', () => {
+    renderForm()
+    expect(screen.queryByLabelText(/Sector/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/stage/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Amount/)).not.toBeInTheDocument()
   })
 })

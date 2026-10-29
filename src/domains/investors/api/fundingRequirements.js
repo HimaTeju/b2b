@@ -3,9 +3,6 @@ import { createRequirementApi } from '../../../lib/api/createRequirementApi'
 const REQUIREMENT_SUMMARY_SELECT = `
   id,
   profile_id,
-  sector,
-  stage,
-  amount_sought,
   title,
   description,
   city,
@@ -22,23 +19,13 @@ const REQUIREMENT_DETAIL_SELECT = `
 
 /**
  * "My project is seeking funding" posts — same shape as
- * businessServicesRequirements.js, filtered by sector and stage.
+ * businessServicesRequirements.js, but free text only (title/description),
+ * so there are no extra filters beyond the factory's search.
  */
 const api = createRequirementApi({
   table: 'funding_requirements',
   summarySelect: REQUIREMENT_SUMMARY_SELECT,
-  detailSelect: REQUIREMENT_DETAIL_SELECT,
-  applyFilters(query, { sector, stage }) {
-    if (sector) {
-      query = query.eq('sector', sector)
-    }
-
-    if (stage) {
-      query = query.eq('stage', stage)
-    }
-
-    return query
-  }
+  detailSelect: REQUIREMENT_DETAIL_SELECT
 })
 
 export const getFundingRequirements = api.getMany

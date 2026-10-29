@@ -119,9 +119,9 @@ export const BUSINESS_SERVICE_TYPES = [
 export const BUSINESS_SERVICES_DISCLAIMER =
   'B2B connects businesses with service providers but does not verify credentials or give professional advice. Check qualifications before you engage anyone.'
 
-// investor_capabilities.sectors / funding_requirements.sector and .stage are free
-// text validated against these static lists (see 032_investors.sql), so they can
-// grow without a migration.
+// investor_capabilities.sectors is free text validated against this static list
+// (see 032_investors.sql), so it can grow without a migration. Funding posts have
+// no structured fields — the seeker writes their own details.
 export const INVESTMENT_SECTORS = [
   'Manufacturing',
   'Engineering & Machinery',
@@ -132,8 +132,6 @@ export const INVESTMENT_SECTORS = [
   'Services & Technology',
   'Other'
 ]
-
-export const PROJECT_STAGES = ['Idea', 'Startup', 'Running business', 'Expansion']
 
 export const INVESTORS_DISCLAIMER =
   'B2B only connects people. It does not verify projects or investors, or give investment advice. Do your own checks before committing any money.'

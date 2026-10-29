@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { getFundingRequirement, deleteFundingRequirement } from '../api/fundingRequirements'
 import { createEnquiry } from '../../../lib/api/enquiries'
-import { formatFundingAmount, formatLocation } from '../../../lib/format'
+import { formatLocation } from '../../../lib/format'
 import { INVESTORS_DISCLAIMER } from '../../../lib/constants'
 import EnquiryComposer from '../../../components/EnquiryComposer'
 import EntityDetailSkeleton from '../../../pages/EntityDetailSkeleton'
@@ -93,11 +93,9 @@ function FundingRequirementDetail() {
     <div className="entity-detail">
       <div className="entity-detail__content">
         <div className="entity-detail__header">
-          <span className="stamp stamp--solid stamp--investors">{requirement.sector}</span>
-          <span className="stamp stamp--muted">{requirement.stage}</span>
+          <span className="stamp stamp--solid stamp--investors">Seeking funding</span>
           <h1 className="entity-detail__title">{requirement.title}</h1>
           <p className="entity-detail__location">{formatLocation(requirement)}</p>
-          <p className="entity-detail__location mono">{formatFundingAmount(requirement.amount_sought)}</p>
         </div>
 
         {requirement.description && (

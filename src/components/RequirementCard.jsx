@@ -1,4 +1,4 @@
-import { formatFundingAmount, formatLocation, formatRelativeDate } from '../lib/format'
+import { formatLocation, formatRelativeDate } from '../lib/format'
 import './RequirementCard.css'
 
 /**
@@ -14,12 +14,6 @@ function RequirementCard({ item }) {
         {item.machine_categories?.name && (
           <span className="requirement-card__category mono">{item.machine_categories.name}</span>
         )}
-        {item.sector && (
-          <span className="requirement-card__category mono">{item.sector}</span>
-        )}
-        {item.stage && (
-          <span className="stamp stamp--muted">{item.stage}</span>
-        )}
         {item.service_type && (
           <span className="requirement-card__category mono">{item.service_type}</span>
         )}
@@ -30,7 +24,6 @@ function RequirementCard({ item }) {
       </div>
       <h3 className="requirement-card__title">{item.title}</h3>
       <p className="requirement-card__location">{formatLocation(item)}</p>
-      {item.sector && <p className="requirement-card__location mono">{formatFundingAmount(item.amount_sought)}</p>}
       {item.description && <p className="requirement-card__desc">{item.description}</p>}
     </div>
   )

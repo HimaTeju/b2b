@@ -76,9 +76,6 @@ function EditFundingRequirement() {
   }
 
   const initialValues = {
-    sector: requirement.sector,
-    stage: requirement.stage,
-    amount_sought: requirement.amount_sought ?? '',
     title: requirement.title,
     description: requirement.description || '',
     city: requirement.city || '',
