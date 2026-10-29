@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatPrice, formatListingPrice, formatLocation, formatRelativeDate } from './format'
+import { formatPrice, formatListingPrice, formatFundingAmount, formatLocation, formatRelativeDate } from './format'
 
 describe('formatPrice', () => {
   it('formats a number as INR currency with no decimals', () => {
@@ -42,6 +42,16 @@ describe('formatListingPrice', () => {
 
   it('formats a sell listing price directly, without the Budget prefix', () => {
     expect(formatListingPrice({ intent: 'SELL', price: 20000 })).toBe('₹20,000')
+  })
+})
+
+describe('formatFundingAmount', () => {
+  it('shows the amount sought', () => {
+    expect(formatFundingAmount(5000000)).toBe('Seeking ₹50,00,000')
+  })
+
+  it('falls back to open-to-discuss for no amount', () => {
+    expect(formatFundingAmount(null)).toBe('Amount: open to discuss')
   })
 })
 

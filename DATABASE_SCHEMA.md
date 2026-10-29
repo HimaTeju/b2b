@@ -27,6 +27,7 @@ Migrations, in apply order:
 | 029 | `029_marketplace_property_section_enum.sql` | Adds `PROPERTY` to `marketplace_section` (separate file: a new enum value can't be used in the transaction that adds it) |
 | 030 | `030_marketplace_property_fields.sql` | `marketplace_listings.deal_type` / `.property_type` / `.area_sqft` — Property section attributes |
 | 031 | `031_business_services.sql` | `business_service_capabilities`, `business_service_requirements`, and their two enquiry reference columns (import-export / audit & tax services) |
+| 032 | `032_investors.sql` | `investor_capabilities`, `funding_requirements`, and their two enquiry reference columns (investors and projects seeking funding) |
 
 ---
 
@@ -54,12 +55,15 @@ auth.users (Supabase Auth)
       │        (via packers_movers_capability_categories)                 │
       ├── business_service_capabilities (1:1, profile_id is PK)            │
       │        (service_types TEXT[] — no category join table)            │
+      ├── investor_capabilities (1:1, profile_id is PK)                    │
+      │        (sectors TEXT[] — no category join table)                  │
       │                                                                    │
       ├── service_requirements ──N:1── machine_categories                 │
       ├── jobwork_requirements ──N:1── machine_categories                 │
       ├── job_posts ──N:1(nullable)── machine_categories                  │
       ├── packers_movers_requirements ──N:1(nullable)── machine_categories│
       ├── business_service_requirements (service_type TEXT)               │
+      ├── funding_requirements (sector TEXT, stage TEXT)                  │
       │        (nullable: only set when request_type = MACHINE_LIFTING)   │
       │                                                                    │
       └── enquiries (from_profile_id / to_profile_id) ────────────────────┘
@@ -70,7 +74,8 @@ auth.users (Supabase Auth)
                    job_seeker_profile_id | packers_movers_requirement_id |
                    packers_movers_capability_profile_id |
                    business_service_requirement_id |
-                   business_service_capability_profile_id
+                   business_service_capability_profile_id |
+                   funding_requirement_id | investor_capability_profile_id
 ```
 
 ---
@@ -293,6 +298,18 @@ Business profile for users offering business services (import-export advice/serv
 
 **RLS:** any *authenticated* user can `SELECT` when `ACTIVE`; owner has full access.
 
+### `investor_capabilities`
+
+Profile for users who invest in new projects, added in `032_investors.sql`. Same shape as `business_service_capabilities` (`profile_id` PK, `title`, `description`, `city`, `state`, `is_active`) with `sectors TEXT[] NOT NULL` (at least one, GIN-indexed) in place of `service_types` — free text validated against `INVESTMENT_SECTORS` in `src/lib/constants.js`. No verification fields; the UI states that B2B doesn't verify projects or investors or give investment advice.
+
+**RLS:** read requires an authenticated session plus `is_active = TRUE`; owner has full access.
+
+### `funding_requirements`
+
+Projects seeking funding, added in `032_investors.sql`. Same shape as `business_service_requirements` with `sector TEXT NOT NULL` and `stage TEXT NOT NULL` (validated against `INVESTMENT_SECTORS` / `PROJECT_STAGES`) and an optional `amount_sought NUMERIC(14,2)` (INR, `>= 0`; `NULL` = open to discuss).
+
+**RLS:** any *authenticated* user can `SELECT` when `ACTIVE`; owner has full access.
+
 ### `job_posts`
 
 Job vacancies posted by employers.
@@ -313,7 +330,7 @@ Job vacancies posted by employers.
 
 ### `enquiries`
 
-Cross-module enquiry/contact messages. A single table backs enquiries for all marketplace-like modules **and** direct contact with a service/job-work provider or job-seeker profile; exactly one of eleven reference columns must be set.
+Cross-module enquiry/contact messages. A single table backs enquiries for all marketplace-like modules **and** direct contact with a service/job-work provider or job-seeker profile; exactly one of thirteen reference columns must be set.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -331,11 +348,13 @@ Cross-module enquiry/contact messages. A single table backs enquiries for all ma
 | `packers_movers_capability_profile_id` | `UUID` | FK → `packers_movers_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a mover's profile, added in `026_enquiries_packers_movers_references.sql` |
 | `business_service_requirement_id` | `UUID` | FK → `business_service_requirements(id)`, `ON DELETE CASCADE`, nullable — contacting a posted business-service requirement, added in `031_business_services.sql` |
 | `business_service_capability_profile_id` | `UUID` | FK → `business_service_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with a business-service provider's profile, added in `031_business_services.sql` |
+| `funding_requirement_id` | `UUID` | FK → `funding_requirements(id)`, `ON DELETE CASCADE`, nullable — contacting a project seeking funding, added in `032_investors.sql` |
+| `investor_capability_profile_id` | `UUID` | FK → `investor_capabilities(profile_id)`, `ON DELETE CASCADE`, nullable — direct contact with an investor's profile, added in `032_investors.sql` |
 | `message` | `TEXT` | required |
 | `is_read` | `BOOLEAN` | default `FALSE` |
 | `created_at` | `TIMESTAMPTZ` | indexed `DESC` |
 
-`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the eleven reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile/seeker-profile, never zero or multiple.
+`CHECK` constraint `chk_exactly_one_reference` enforces that **exactly one** of the thirteen reference columns is non-null — an enquiry always targets exactly one listing/requirement/post/capability-profile/seeker-profile, never zero or multiple.
 
 **RLS:** participants only. `SELECT` where the caller is sender or recipient. `INSERT` only as sender (`from_profile_id = auth.uid()`). `UPDATE` only by the recipient (`to_profile_id = auth.uid()`) — e.g. for marking `is_read`. No delete policy.
 
@@ -355,6 +374,8 @@ Note: there is no dedicated messages/conversation-thread table — `enquiries` i
 | `trg_packers_movers_capabilities_updated_at` | `packers_movers_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_business_service_capabilities_updated_at` | `business_service_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_business_service_requirements_updated_at` | `business_service_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_investor_capabilities_updated_at` | `investor_capabilities` | `BEFORE UPDATE` | `update_updated_at_column()` |
+| `trg_funding_requirements_updated_at` | `funding_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_marketplace_updated_at` | `marketplace_listings` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_service_requirements_updated_at` | `service_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |
 | `trg_jobwork_requirements_updated_at` | `jobwork_requirements` | `BEFORE UPDATE` | `update_updated_at_column()` |

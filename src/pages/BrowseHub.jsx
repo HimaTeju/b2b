@@ -201,6 +201,29 @@ function RAIL(logout, navigate) {
       ]
     },
     {
+      key: 'investors',
+      code: DOMAINS.investors.code,
+      label: DOMAINS.investors.label,
+      accent: DOMAINS.investors.accent,
+      icon: DOMAINS.investors.icon,
+      groups: [
+        {
+          question: 'Need funding for a project?',
+          tiles: [
+            { label: 'Find an Investor', icon: ICONS.browse, to: '/investors' },
+            { label: 'Post a Project for Funding', icon: ICONS.post, to: '/investors/requirements/new' }
+          ]
+        },
+        {
+          question: 'Looking to invest?',
+          tiles: [
+            { label: 'Become an Investor', icon: ICONS.badge, to: '/investors/profile/setup' },
+            { label: 'Browse Projects', icon: ICONS.browse, to: '/investors/requirements' }
+          ]
+        }
+      ]
+    },
+    {
       key: 'jobwork',
       code: DOMAINS.jobwork.code,
       label: DOMAINS.jobwork.label,
@@ -268,7 +291,8 @@ function RAIL(logout, navigate) {
         { label: 'Offer Job Work Capacity', icon: ICONS.badge, to: '/job-work/vendor/setup' },
         { label: 'Become a Job Seeker', icon: ICONS.badge, to: '/jobs/seeker/setup' },
         { label: 'Offer Lifting Services', icon: ICONS.badge, to: '/packers-movers/vendor/setup' },
-        { label: 'Offer Business Services', icon: ICONS.badge, to: '/business-services/provider/setup' }
+        { label: 'Offer Business Services', icon: ICONS.badge, to: '/business-services/provider/setup' },
+        { label: 'Become an Investor', icon: ICONS.badge, to: '/investors/profile/setup' }
       ]
     },
     {
