@@ -16,7 +16,7 @@ const EMPTY_FORM = {
  * Packers & Movers requirement form — a dedicated shape rather than a reuse
  * of EntityRequirementForm, since a move needs a from-location and a
  * to-location (not one city/state pair), and Machine Lifting needs an actual
- * machine_category_id while Shop Lifting has none. `requestType` is fixed by
+ * machine_category_id while Shop Shifting has none. `requestType` is fixed by
  * which page renders this form (see PostMachineLifting.jsx/PostShopLifting.jsx)
  * rather than a picker inside the form, per the app's "dedicated form per
  * intent" convention.

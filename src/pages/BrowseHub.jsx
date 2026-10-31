@@ -165,7 +165,7 @@ function RAIL(logout, navigate) {
           tiles: [
             { label: 'Find a Mover', icon: ICONS.browse, to: '/packers-movers' },
             { label: 'Request Machine Lifting', icon: ICONS.post, to: '/packers-movers/requirements/machine-lifting/new' },
-            { label: 'Request Shop Lifting', icon: ICONS.post, to: '/packers-movers/requirements/shop-lifting/new' }
+            { label: 'Request Shop Shifting', icon: ICONS.post, to: '/packers-movers/requirements/shop-lifting/new' }
           ]
         },
         {

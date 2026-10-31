@@ -212,7 +212,7 @@ One-to-one professional profile for users seeking employment.
 
 ### `packers_movers_capabilities`
 
-Business profile for users offering machine/shop lifting and moving services, added in `025_packers_movers.sql`. Same shape as `service_capabilities`/`jobwork_capabilities` (`profile_id` PK, `title`, `description`, `city`, `state`, `is_active`) — a mover's category tags (see below) describe what kinds of machinery they're equipped to lift, used for the same category-filtered browse UX as Services/Job Work.
+Business profile for users offering machine/shop shifting and shifting services, added in `025_packers_movers.sql`. Same shape as `service_capabilities`/`jobwork_capabilities` (`profile_id` PK, `title`, `description`, `city`, `state`, `is_active`) — a mover's category tags (see below) describe what kinds of machinery they're equipped to lift, used for the same category-filtered browse UX as Services/Job Work.
 
 **RLS:** same pattern as `service_capabilities` — read requires an authenticated session plus `is_active = TRUE`; owner has full access.
 

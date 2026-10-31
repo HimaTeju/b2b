@@ -40,7 +40,7 @@ function PackersMoversVendors() {
             Request machine lifting
           </button>
           <button className="btn btn--ghost" onClick={() => navigate('/packers-movers/requirements/shop-lifting/new')}>
-            Request shop lifting
+            Request shop shifting
           </button>
         </div>
       </div>
