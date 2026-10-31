@@ -56,7 +56,7 @@ export const DASHBOARD_DOMAIN_CONFIG = {
   packersmovers: {
     recordNounSingular: 'requirement',
     newRecordPath: '/packers-movers/requirements/machine-lifting/new',
-    secondaryAction: { label: 'Need a whole shop moved instead? Post shop lifting ›', path: '/packers-movers/requirements/shop-lifting/new' },
+    secondaryAction: { label: 'Need a whole shop moved instead? Post shop shifting ›', path: '/packers-movers/requirements/shop-lifting/new' },
     editRecordPath: id => `/packers-movers/requirements/edit/${id}`,
     viewRecordPath: id => `/packers-movers/requirements/${id}`,
     recordBadge: record => PACKERS_MOVERS_REQUEST_TYPE_LABELS[record.request_type],

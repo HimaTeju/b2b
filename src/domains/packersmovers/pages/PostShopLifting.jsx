@@ -39,7 +39,7 @@ function PostShopLifting() {
     <div className="post">
       <div className="post__container">
         <span className="eyebrow">PM · Packers &amp; Movers</span>
-        <h1 className="post__title">Request shop lifting</h1>
+        <h1 className="post__title">Request shop shifting</h1>
 
         <PackersMoversRequirementForm
           requestType="SHOP_LIFTING"
