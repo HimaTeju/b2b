@@ -77,7 +77,7 @@
   height: 7px;
   border-radius: 50%;
   border: none;
-  background: rgba(240, 240, 235, 0.6);
+  background: rgba(var(--color-paper-rgb), 0.6);
   padding: 0;
 }
 
