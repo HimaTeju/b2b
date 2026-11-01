@@ -26,7 +26,7 @@
   justify-content: center;
   gap: 6px;
   text-align: center;
-  background: color-mix(in srgb, var(--accent) 12%, var(--color-bg, #fff));
+  background: color-mix(in srgb, var(--accent) 12%, var(--color-paper-raised));
   color: var(--accent);
   border: 1px solid var(--color-steel-line);
   border-radius: var(--radius);
@@ -70,7 +70,7 @@
   margin-top: 14px;
   padding: 0 14px;
   min-height: var(--tap-target);
-  background: var(--color-bg, #fff);
+  background: var(--color-paper-raised);
   border: 1.5px solid var(--color-steel-line);
   border-radius: 24px;
   color: var(--color-ink-soft);

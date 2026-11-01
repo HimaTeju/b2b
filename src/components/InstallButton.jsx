@@ -77,10 +77,10 @@ export default function InstallButton() {
           animation: pwa-slide-out 0.2s ease-in forwards;
         }
         .pwa-install-btn:hover {
-          background: var(--color-marketplace-ink, #7a5316) !important;
+          opacity: 0.85;
         }
         .pwa-dismiss-btn:hover {
-          background: var(--color-steel-line, #cbccc3) !important;
+          background: var(--color-steel-line, #868781) !important;
           color: var(--color-ink, #1c1c1a) !important;
         }
         @media (max-width: 480px) {
@@ -125,10 +125,10 @@ export default function InstallButton() {
               justifyContent: 'center',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path
                 d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"
-                stroke="#ffffff"
+                stroke="var(--color-ink, #1c1c1a)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -152,7 +152,7 @@ export default function InstallButton() {
               style={{
                 margin: '4px 0 0',
                 fontSize: '13px',
-                color: 'var(--color-text, #1a202c)',
+                color: 'var(--color-ink-soft, rgba(28, 28, 26, 0.62))',
                 opacity: 0.7,
                 lineHeight: 1.4,
               }}
@@ -172,7 +172,7 @@ export default function InstallButton() {
               borderRadius: '7px',
               border: 'none',
               background: 'transparent',
-              color: 'var(--color-text, #1a202c)',
+              color: 'var(--color-ink-soft, rgba(28, 28, 26, 0.62))',
               opacity: 0.45,
               cursor: 'pointer',
               display: 'flex',
@@ -195,9 +195,9 @@ export default function InstallButton() {
               flex: '0 0 auto',
               padding: '9px 14px',
               borderRadius: '8px',
-              border: '1px solid var(--color-border, #e2e8f0)',
+              border: '1px solid var(--color-steel-line, #868781)',
               background: 'transparent',
-              color: 'var(--color-primary, #2d3748)',
+              color: 'var(--color-ink, #1c1c1a)',
               fontSize: '13.5px',
               fontWeight: 500,
               cursor: 'pointer',
@@ -214,8 +214,8 @@ export default function InstallButton() {
               padding: '9px 14px',
               borderRadius: '8px',
               border: 'none',
-              background: 'var(--color-accent, #2c7a7b)',
-              color: '#ffffff',
+              background: 'var(--color-ink, #1c1c1a)',
+              color: 'var(--color-paper, #f0f0eb)',
               fontSize: '13.5px',
               fontWeight: 600,
               cursor: 'pointer',

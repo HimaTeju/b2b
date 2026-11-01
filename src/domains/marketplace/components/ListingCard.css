@@ -24,7 +24,7 @@
   top: 8px;
   right: 8px;
   font-size: 10px;
-  background: rgba(240, 240, 235, 0.9);
+  background: rgba(var(--color-paper-rgb), 0.9);
 }
 
 .listing-card__content {

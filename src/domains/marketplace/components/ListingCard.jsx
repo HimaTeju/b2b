@@ -17,7 +17,13 @@ function ListingCard({ listing }) {
         {primaryImage ? (
           <img src={getListingImageUrl(primaryImage.storage_path)} alt="" />
         ) : (
-          <span className="listing-card__placeholder">⚙</span>
+          <span className="listing-card__placeholder">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="1.5" />
+              <circle cx="8.5" cy="9.5" r="1.5" />
+              <path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.12 0L5 19" />
+            </svg>
+          </span>
         )}
         {listing.condition && (
           <span className="stamp stamp--muted listing-card__condition">

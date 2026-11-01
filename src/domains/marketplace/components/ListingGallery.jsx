@@ -14,7 +14,13 @@ function ListingGallery({ images, alt }) {
   if (!images || images.length === 0) {
     return (
       <div className="listing-gallery">
-        <div className="listing-gallery__placeholder">⚙</div>
+        <div className="listing-gallery__placeholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="1.5" />
+            <circle cx="8.5" cy="9.5" r="1.5" />
+            <path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.12 0L5 19" />
+          </svg>
+        </div>
       </div>
     )
   }

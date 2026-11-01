@@ -36,7 +36,7 @@
 
 .stat-card {
   padding: var(--spacing-md);
-  background: #fff;
+  background: var(--color-paper-raised);
   border: 1px solid var(--color-steel-line);
   border-left: 3px solid var(--color-ink);
   border-radius: var(--radius);
@@ -93,7 +93,7 @@
   justify-content: space-between;
   width: 100%;
   padding: var(--spacing-md);
-  background: #fff;
+  background: var(--color-paper-raised);
   border: 1px solid var(--color-steel-line);
   border-radius: var(--radius);
   margin-bottom: var(--spacing-sm);
@@ -110,7 +110,7 @@
 
 .listing-row {
   padding: var(--spacing-md);
-  background: #fff;
+  background: var(--color-paper-raised);
   border: 1px solid var(--color-steel-line);
   border-radius: var(--radius);
 }
@@ -156,7 +156,7 @@
   display: flex;
   align-items: center;
   padding: var(--spacing-md);
-  background: #fff;
+  background: var(--color-paper-raised);
   border: 1px solid var(--color-steel-line);
   border-radius: var(--radius);
   font-size: 15px;

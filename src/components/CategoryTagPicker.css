@@ -19,7 +19,7 @@
   width: 100%;
   padding: 12px;
   text-align: left;
-  background: var(--color-bg, #fff);
+  background: var(--color-paper-raised);
 }
 
 .category-tag-picker__checkbox {

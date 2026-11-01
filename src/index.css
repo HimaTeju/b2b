@@ -4,19 +4,30 @@
   --color-paper-raised: #e4e5dc;
   --color-ink: #1c1c1a;
   --color-ink-soft: rgba(28, 28, 26, 0.62);
-  --color-ink-faint: rgba(28, 28, 26, 0.38);
-  --color-steel: #9a9d93;
-  --color-steel-line: #cbccc3;
+  --color-ink-faint: rgba(28, 28, 26, 0.5);
+  --color-steel: #83857d;
+  --color-steel-line: #868781;
 
   --color-marketplace: #c9861f;
   --color-marketplace-ink: #7a5316;
   --color-services: #1f6f72;
-  --color-jobs: #b6511a;
+  --color-jobs: #ab4c18;
   --color-jobwork: #3c6e47;
   --color-packersmovers: #2d5f8a;
 
   --color-danger: #b3261e;
   --color-positive: #3c6e47;
+
+  /* RGB triplets, for rgba() blends that need an alpha the solid token can't express */
+  --color-paper-rgb: 240, 240, 235;
+  --color-ink-rgb: 28, 28, 26;
+  --color-danger-rgb: 179, 38, 30;
+  --color-positive-rgb: 60, 110, 71;
+
+  /* Overlay surfaces */
+  --color-scrim: rgba(28, 28, 26, 0.5);
+  --color-scrim-subtle: rgba(28, 28, 26, 0.35);
+  --color-shimmer: rgba(255, 255, 255, 0.55);
 
   /* Typography */
   --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
@@ -45,7 +56,7 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -254,7 +265,7 @@ ul, ol {
 
 .btn--danger:hover:not(:disabled) {
   background: var(--color-danger);
-  color: white;
+  color: var(--color-paper);
 }
 
 .btn--block {
@@ -306,13 +317,13 @@ ul, ol {
   border-radius: var(--radius);
   color: var(--color-danger);
   font-size: 14px;
-  background: rgba(179, 38, 30, 0.06);
+  background: rgba(var(--color-danger-rgb), 0.06);
 }
 
 .banner--positive {
   border-color: var(--color-positive);
   color: var(--color-positive);
-  background: rgba(60, 110, 71, 0.07);
+  background: rgba(var(--color-positive-rgb), 0.07);
 }
 
 /* Utility Classes */

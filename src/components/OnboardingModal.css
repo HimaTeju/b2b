@@ -5,7 +5,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(28, 28, 26, 0.5);
+  background: var(--color-scrim);
   padding: var(--spacing-md);
 }
 
@@ -62,7 +62,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: color-mix(in srgb, var(--accent) 8%, #fff);
+  background: color-mix(in srgb, var(--accent) 8%, var(--color-paper-raised));
   border: 1.5px solid var(--color-steel-line);
   border-radius: var(--radius);
   padding: 12px;
@@ -104,7 +104,7 @@
   justify-content: center;
   gap: 8px;
   text-align: center;
-  background: color-mix(in srgb, var(--accent) 8%, #fff);
+  background: color-mix(in srgb, var(--accent) 8%, var(--color-paper-raised));
   color: var(--accent);
   border: 1.5px solid var(--color-steel-line);
   border-radius: var(--radius);
@@ -118,7 +118,7 @@
 
 .onboarding-modal__tile--selected {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 16%, #fff);
+  background: color-mix(in srgb, var(--accent) 16%, var(--color-paper-raised));
 }
 
 .onboarding-modal__tile--marketplace { --accent: var(--color-marketplace); }

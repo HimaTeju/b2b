@@ -15,7 +15,7 @@
   min-height: var(--tap-target);
   border: 1.5px solid var(--color-ink);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--color-paper-raised);
   font-size: 13px;
   font-weight: 600;
 }
@@ -57,7 +57,7 @@
 .category-filter-sheet__backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(28, 28, 26, 0.35);
+  background: var(--color-scrim-subtle);
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
@@ -76,7 +76,7 @@
   bottom: 0;
   max-width: 640px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--color-paper-raised);
   border-top: 1.5px solid var(--color-ink);
   border-radius: 10px 10px 0 0;
   max-height: 78vh;

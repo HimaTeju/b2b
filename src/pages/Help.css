@@ -28,7 +28,7 @@
 
 .help__item {
   --accent: var(--color-ink);
-  background: #fff;
+  background: var(--color-paper-raised);
   border: 1px solid var(--color-steel-line);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
